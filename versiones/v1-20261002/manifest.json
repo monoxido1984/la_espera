@@ -15,8 +15,8 @@
       "sha256": "56c96199dfdd7cc2a800b1a82bf9ee0381ba3ddf4f0d1b6cb59a30069567f8cb"
     },
     "app/allocation-explainer.tsx": {
-      "bytes": 2046,
-      "sha256": "56797ebbc8ad5f6a0116a082f2e168e9a0299a89b5e2cb8a1ef24fc6a2ca5b4a"
+      "bytes": 2045,
+      "sha256": "cd09c1fae793ed52db07040dacf1dd4d02e7fdc177d7f5552b07fb8a292e6c0f"
     },
     "app/data-method.tsx": {
       "bytes": 1018,
@@ -27,12 +27,12 @@
       "sha256": "2209932efa5181020243bd4157727c2749b55a1b3afe570d586951381b609562"
     },
     "app/globals.css": {
-      "bytes": 120533,
-      "sha256": "e192f088c3b1f4ca0f0ca93cfce03ab3b1edd8171c2eb13d7c009a4590afae12"
+      "bytes": 117204,
+      "sha256": "2e476ca32a145f85067d47e4d4368dde91430f3113f4f56ada93b0a17d5de225"
     },
     "app/historical-series.tsx": {
-      "bytes": 20659,
-      "sha256": "4db2769f7c62ee7ad1fe977ecfe12780326f832f98c78dfbffc083afbe6a5b71"
+      "bytes": 20273,
+      "sha256": "3063b1d85ece32ef0f2352b40c8d458232411b32a8862881e45639b5b865a857"
     },
     "app/history.generated.json": {
       "bytes": 14730,
@@ -59,8 +59,8 @@
       "sha256": "78446adad9c76f7e111d0731102b1a986fb7565e1f2f8b46d83e774fee7d2107"
     },
     "app/story-model.ts": {
-      "bytes": 4554,
-      "sha256": "a93bdeb520271e4d274a7e1c8627df6b5ddcf8426f90563a1db37e87d2f4c732"
+      "bytes": 4378,
+      "sha256": "7a50a3479f5f0760b36606ca60aa8dbe5c241ade42eb9f3ad332eac6bba757d6"
     },
     "app/time-summary.tsx": {
       "bytes": 3166,
@@ -71,20 +71,20 @@
       "sha256": "496c650abc8f93b399b001f2aab8aaf3d3d5dea4eae4d6ea4f9b80852f119c86"
     },
     "app/wait-statistics.ts": {
-      "bytes": 1373,
-      "sha256": "f2fb611a6ab0a9a4e8041938ef99463177e68b14064d73e639de75641b20db30"
+      "bytes": 1372,
+      "sha256": "0f223b123966ffe565cdc8de3fa296cff8becca4ecec2e63894ea9a5846e0345"
     },
     "app/wait-time-province.generated.json": {
       "bytes": 9845567,
       "sha256": "8d1344bf10941c6bcc87761783ab229468793adac4e1b273688e1d19bf262d5c"
     },
     "app/waiting-composition.tsx": {
-      "bytes": 6836,
-      "sha256": "e2874abdf996d69cfdb54c2cdb135773a04f7907ead56b83bcd8f9076ddba363"
+      "bytes": 6768,
+      "sha256": "047e1fd49d5393e0bfc4c0c709d7d015c0a4e0c69d85f4d00e7bdd4c10fb9d6b"
     },
     "app/waiting-story.tsx": {
-      "bytes": 47553,
-      "sha256": "a76ddc7d20ed9266569af0353faca48c79004d758847105ccb48b471eebd483b"
+      "bytes": 46828,
+      "sha256": "d2d1fe0538d71568dfa2c409ec4d51bc2c3a2b144286a776d29a6b792bfe4772"
     },
     "next-env.d.ts": {
       "bytes": 247,
@@ -95,12 +95,12 @@
       "sha256": "653dfb28756a01b0dc29d0c78a8383d65d870a03e6edac0119907076dc27fa1b"
     },
     "package-lock.json": {
-      "bytes": 33406,
-      "sha256": "db86bd63ec3edba3ad788ea66ca59666bb3484d3b0a63dac59f2add311a147a1"
+      "bytes": 32427,
+      "sha256": "7faa7c1dcbc2a77ba7366e3f950bc7b56899f6c40ce2285f71935dab1af496a4"
     },
     "package.json": {
-      "bytes": 653,
-      "sha256": "bc2074a9f31564d601cc34ece23d65f4c51587c3c940b4d8a43e1edf10989f1a"
+      "bytes": 627,
+      "sha256": "a240ee623120e52cd4bcfcbdf5130592dfb9f8287a805b0f72164bf5d319cad4"
     },
     "public/datos/historia-y-fuentes.json": {
       "bytes": 14730,
@@ -123,12 +123,13 @@
       "sha256": "69e0086c323fcc1eaf4bad8635e1a8f6e0b31680667e844025d59bc275f69e09"
     },
     "scripts/wait-statistics.test.mjs": {
-      "bytes": 2854,
-      "sha256": "ee72f7540adf91c117a4a5a04cc6ce8b213a123f11679cbdd6ecc3e609c65ffa"
+      "bytes": 2853,
+      "sha256": "74621af46eb229a471649b36221ab65f16770b03859c85014e72e246a5427006"
     },
     "tsconfig.json": {
-      "bytes": 711,
-      "sha256": "d323e192c574ab018d06806ba9023ed5b926a29c09c3c961a686e57469ca36bf"
+      "bytes": 710,
+      "sha256": "20381864ae3505c90fbb07b147e5fa6bf9617312284c165e64f74ff9cb198ded"
     }
-  }
+  },
+  "hashScope": "Contenido de los archivos en Git, antes de conversiones locales de finales de línea"
 }
