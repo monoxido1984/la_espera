@@ -7,7 +7,7 @@ Página: https://monoxido1984.github.io/la_espera/
 ## Versiones
 
 - Versión 2: entrada principal y rutas /espera/ y /espera-v2/.
-- Versión 1: /espera-v1/, conservada desde la primera publicación.
+- Versión 1: oculta; no tiene ruta pública ni enlaces en la página. Se conserva en el archivo y el historial de Git.
 - La copia congelada está en versiones/v1-20261002/, con manifiesto SHA256 y el commit de origen.
 
 La V2 empieza sin estadísticas y transforma un mismo universo de puntos durante nueve escenas. Cada punto representa una unidad publicada: inscripción, donante o trasplante, según la escena. Las poblaciones distintas se disuelven entre escenas; no se crean registros individuales ni conversiones entre donación y trasplantes. Antigüedad y provincia preservan las distribuciones marginales de cada lista. La explicación completa permanece al final de la página.
