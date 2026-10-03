@@ -1,8 +1,16 @@
 # La Espera
 
-Recorrido interactivo por las listas de espera y la donación de órganos en Argentina. Versión de trabajo publicada el 2 de octubre de 2026.
+Recorrido interactivo por las listas de espera y la donación de órganos en Argentina. Versión 2 actualizada el 3 de octubre de 2026.
 
 Página: https://monoxido1984.github.io/la_espera/
+
+## Versiones
+
+- Versión 2: entrada principal y rutas /espera/ y /espera-v2/.
+- Versión 1: /espera-v1/, conservada desde la primera publicación.
+- La copia congelada está en versiones/v1-20261002/, con manifiesto SHA256 y el commit de origen.
+
+La V2 empieza sin estadísticas y transforma un mismo universo de puntos durante nueve escenas. Cada punto representa una unidad publicada: inscripción, donante o trasplante, según la escena. Las poblaciones distintas se disuelven entre escenas; no se crean registros individuales ni conversiones entre donación y trasplantes. Antigüedad y provincia preservan las distribuciones marginales de cada lista. La explicación completa permanece al final de la página.
 
 ## Ejecutar
 

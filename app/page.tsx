@@ -1,7 +1,1 @@
-import rawData from './story-data.generated.json';
-import type { StoryData } from './story-model';
-import WaitingStory from './waiting-story';
-
-export default function Home() {
-  return <WaitingStory data={rawData as StoryData} />;
-}
+export { default } from './v2/entry';

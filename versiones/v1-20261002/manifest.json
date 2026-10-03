@@ -1,0 +1,134 @@
+{
+  "version": "V1 publicada el 02/10/2026",
+  "commit": "5cb4a44735d3293bbb147b407f507086aa23f001",
+  "files": {
+    ".github/workflows/pages.yml": {
+      "bytes": 851,
+      "sha256": "fec9a7fa032417754061932f82e13eef5b56766a3601dfa8a7239046ea5f9538"
+    },
+    ".gitignore": {
+      "bytes": 53,
+      "sha256": "2c902c5eb5bceb2eac4bb61a521d3afe2af276fe6f5b57becf1acda4d8508500"
+    },
+    "README.md": {
+      "bytes": 1400,
+      "sha256": "56c96199dfdd7cc2a800b1a82bf9ee0381ba3ddf4f0d1b6cb59a30069567f8cb"
+    },
+    "app/allocation-explainer.tsx": {
+      "bytes": 2046,
+      "sha256": "56797ebbc8ad5f6a0116a082f2e168e9a0299a89b5e2cb8a1ef24fc6a2ca5b4a"
+    },
+    "app/data-method.tsx": {
+      "bytes": 1018,
+      "sha256": "a22b2de833318689bc9986c8897df34399ee5ba663b6bba2c7743eb32fd805b6"
+    },
+    "app/espera/page.tsx": {
+      "bytes": 529,
+      "sha256": "2209932efa5181020243bd4157727c2749b55a1b3afe570d586951381b609562"
+    },
+    "app/globals.css": {
+      "bytes": 120533,
+      "sha256": "e192f088c3b1f4ca0f0ca93cfce03ab3b1edd8171c2eb13d7c009a4590afae12"
+    },
+    "app/historical-series.tsx": {
+      "bytes": 20659,
+      "sha256": "4db2769f7c62ee7ad1fe977ecfe12780326f832f98c78dfbffc083afbe6a5b71"
+    },
+    "app/history.generated.json": {
+      "bytes": 14730,
+      "sha256": "dec5589cc6e82ac238db00e108f97d4a96d0ff2131693df1cb6dfe9f86da8510"
+    },
+    "app/international-comparison.tsx": {
+      "bytes": 7207,
+      "sha256": "8d150cdddc6345bee1fca20007a94c62e8ed0b815f07b108b769b3042da643a4"
+    },
+    "app/layout.tsx": {
+      "bytes": 1108,
+      "sha256": "d405dbce707878cd898a16114b340913bf0b87b56bc3b624dc3110a1c4aed488"
+    },
+    "app/page.tsx": {
+      "bytes": 234,
+      "sha256": "3cf02e2330a5c7e3921c40ee3a358dbc7f6582f0b9209582638d025f664f58d3"
+    },
+    "app/public-path.ts": {
+      "bytes": 179,
+      "sha256": "2f0d08d6103a330600a33e47cba737b0dc075124fbd133bff6b299d96a41cbbd"
+    },
+    "app/story-data.generated.json": {
+      "bytes": 563503,
+      "sha256": "78446adad9c76f7e111d0731102b1a986fb7565e1f2f8b46d83e774fee7d2107"
+    },
+    "app/story-model.ts": {
+      "bytes": 4554,
+      "sha256": "a93bdeb520271e4d274a7e1c8627df6b5ddcf8426f90563a1db37e87d2f4c732"
+    },
+    "app/time-summary.tsx": {
+      "bytes": 3166,
+      "sha256": "ad3e696e88d6bddb276c6ba53b301f538d8faadd7a50aeee0244b9b5e334b190"
+    },
+    "app/transplant-snapshot.generated.json": {
+      "bytes": 39754,
+      "sha256": "496c650abc8f93b399b001f2aab8aaf3d3d5dea4eae4d6ea4f9b80852f119c86"
+    },
+    "app/wait-statistics.ts": {
+      "bytes": 1373,
+      "sha256": "f2fb611a6ab0a9a4e8041938ef99463177e68b14064d73e639de75641b20db30"
+    },
+    "app/wait-time-province.generated.json": {
+      "bytes": 9845567,
+      "sha256": "8d1344bf10941c6bcc87761783ab229468793adac4e1b273688e1d19bf262d5c"
+    },
+    "app/waiting-composition.tsx": {
+      "bytes": 6836,
+      "sha256": "e2874abdf996d69cfdb54c2cdb135773a04f7907ead56b83bcd8f9076ddba363"
+    },
+    "app/waiting-story.tsx": {
+      "bytes": 47553,
+      "sha256": "a76ddc7d20ed9266569af0353faca48c79004d758847105ccb48b471eebd483b"
+    },
+    "next-env.d.ts": {
+      "bytes": 247,
+      "sha256": "7b550dda9686c16f36a17bf9051d5dbf31e98555b30d114ac49fc49a1e712651"
+    },
+    "next.config.ts": {
+      "bytes": 267,
+      "sha256": "653dfb28756a01b0dc29d0c78a8383d65d870a03e6edac0119907076dc27fa1b"
+    },
+    "package-lock.json": {
+      "bytes": 33406,
+      "sha256": "db86bd63ec3edba3ad788ea66ca59666bb3484d3b0a63dac59f2add311a147a1"
+    },
+    "package.json": {
+      "bytes": 653,
+      "sha256": "bc2074a9f31564d601cc34ece23d65f4c51587c3c940b4d8a43e1edf10989f1a"
+    },
+    "public/datos/historia-y-fuentes.json": {
+      "bytes": 14730,
+      "sha256": "dec5589cc6e82ac238db00e108f97d4a96d0ff2131693df1cb6dfe9f86da8510"
+    },
+    "public/datos/tiempos-y-fuentes.json": {
+      "bytes": 9845567,
+      "sha256": "8d1344bf10941c6bcc87761783ab229468793adac4e1b273688e1d19bf262d5c"
+    },
+    "public/geo/provincias.geojson": {
+      "bytes": 614706,
+      "sha256": "b086852064c26813d9f607c82c91b4e74e18ea83fd21993ddedd473cf8495af5"
+    },
+    "public/hourglass-hero.png": {
+      "bytes": 1792324,
+      "sha256": "517563cb785470048e977aec79c152bacc02b214b52d02c4abb0470878d1de63"
+    },
+    "public/og.png": {
+      "bytes": 832544,
+      "sha256": "69e0086c323fcc1eaf4bad8635e1a8f6e0b31680667e844025d59bc275f69e09"
+    },
+    "scripts/wait-statistics.test.mjs": {
+      "bytes": 2854,
+      "sha256": "ee72f7540adf91c117a4a5a04cc6ce8b213a123f11679cbdd6ecc3e609c65ffa"
+    },
+    "tsconfig.json": {
+      "bytes": 711,
+      "sha256": "d323e192c574ab018d06806ba9023ed5b926a29c09c3c961a686e57469ca36bf"
+    }
+  }
+}
