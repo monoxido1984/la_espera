@@ -4,7 +4,8 @@ export type WaitCell = {
   status: string; consulted: string; source: string; sha256: string; reportUrl: string;
 };
 // Means combine with counts; quantiles do not. Missing cells never become zero.
-export function summarizeWait(cells: WaitCell[], year: number, list: string, province: string | null, age: string) {
+export type WaitSummaryCell = Pick<WaitCell, 'year'|'list'|'province'|'age'|'unit'|'n'|'average'|'median'|'p25'|'p75'|'status'>;
+export function summarizeWait<T extends WaitSummaryCell>(cells: T[], year: number, list: string, province: string | null, age: string) {
   const rows = cells.filter(row => row.year === year && row.list === list && (!province || row.province === province) && (age === 'all' || row.age === age));
   const expected = (province ? 1 : 24) * (age === 'all' ? 2 : 1);
   const n = rows.reduce((sum, row) => sum + row.n, 0);

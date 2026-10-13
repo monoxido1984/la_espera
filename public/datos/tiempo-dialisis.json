@@ -1,0 +1,170 @@
+[
+  {
+    "year": 2005,
+    "n": 603,
+    "average": 77.97,
+    "median": 73.92,
+    "source": "datos/extraidos/reportes_dinamicos/tiempo_dialisis_2005_2014/tiempo_dialisis_hasta_trasplante_renal_2005/tabla_03.csv",
+    "sha256": "37120d873a0abfb91afc5c3ffdfe1fede91da64a3ed6f55c575e88b9896340ef"
+  },
+  {
+    "year": 2006,
+    "n": 650,
+    "average": 87.88,
+    "median": 84.21,
+    "source": "datos/extraidos/reportes_dinamicos/tiempo_dialisis_2005_2014/tiempo_dialisis_hasta_trasplante_renal_2006/tabla_03.csv",
+    "sha256": "2e3c2817efba1eb9394d0f85d75f432f0a4b5e0eae38f8e9d9ef5a1d30e4e9ba"
+  },
+  {
+    "year": 2007,
+    "n": 701,
+    "average": 84.69,
+    "median": 76.76,
+    "source": "datos/extraidos/reportes_dinamicos/tiempo_dialisis_2005_2014/tiempo_dialisis_hasta_trasplante_renal_2007/tabla_03.csv",
+    "sha256": "541c5b83679d0f9b85b45ee993a820eb792053256112ad06cfc0599a2afa034b"
+  },
+  {
+    "year": 2008,
+    "n": 753,
+    "average": 78.68,
+    "median": 64.31,
+    "source": "datos/extraidos/reportes_dinamicos/tiempo_dialisis_2005_2014/tiempo_dialisis_hasta_trasplante_renal_2008/tabla_03.csv",
+    "sha256": "0347f94cb19bbb142d4bcca58dc1078a859271899176e734bc9fdeb177c7b7a5"
+  },
+  {
+    "year": 2009,
+    "n": 758,
+    "average": 79.48,
+    "median": 72.21,
+    "source": "datos/extraidos/reportes_dinamicos/tiempo_dialisis_2005_2014/tiempo_dialisis_hasta_trasplante_renal_2009/tabla_03.csv",
+    "sha256": "c43475420b6bd150672d3282fdbae77fd2b3efd7e4fde31939f487d8b91abaa0"
+  },
+  {
+    "year": 2010,
+    "n": 826,
+    "average": 80.03,
+    "median": 71.36,
+    "source": "datos/extraidos/reportes_dinamicos/tiempo_dialisis_2005_2014/tiempo_dialisis_hasta_trasplante_renal_2010/tabla_03.csv",
+    "sha256": "08f58fea7dff989644c3098b56ccc931eea20a43d9bc573f28f653a160e26061"
+  },
+  {
+    "year": 2011,
+    "n": 838,
+    "average": 82.63,
+    "median": 75.29,
+    "source": "datos/extraidos/reportes_dinamicos/tiempo_dialisis_2005_2014/tiempo_dialisis_hasta_trasplante_renal_2011/tabla_03.csv",
+    "sha256": "b0c92143062a1f1e93a1d19111da34dc43378fa8860559d9c1c77f125bef35ea"
+  },
+  {
+    "year": 2012,
+    "n": 887,
+    "average": 78.73,
+    "median": 70.41,
+    "source": "datos/extraidos/reportes_dinamicos/tiempo_dialisis_2005_2014/tiempo_dialisis_hasta_trasplante_renal_2012/tabla_03.csv",
+    "sha256": "c34232ba9c954410aef62b92c5bd39934f19972c7b4119df4f9ce98c73ddfd78"
+  },
+  {
+    "year": 2013,
+    "n": 783,
+    "average": 78.71,
+    "median": 71.07,
+    "source": "datos/extraidos/reportes_dinamicos/tiempo_dialisis_2005_2014/tiempo_dialisis_hasta_trasplante_renal_2013/tabla_03.csv",
+    "sha256": "f0ff8ee4105c2fc7689fb780c8da3d4c5aa95514d898c207263ae516b17d487d"
+  },
+  {
+    "year": 2014,
+    "n": 814,
+    "average": 76.4,
+    "median": 69.1,
+    "source": "datos/extraidos/reportes_dinamicos/tiempo_dialisis_2005_2014/tiempo_dialisis_hasta_trasplante_renal_2014/tabla_03.csv",
+    "sha256": "85fd9795cb494bd95784a442a1dff937ae745d291fc9c050af1bcb74e1ffd74b"
+  },
+  {
+    "year": 2015,
+    "n": 789,
+    "average": 80.27,
+    "median": 75.22,
+    "source": "datos/extraidos/reportes_dinamicos/trayectoria_renal/trasplante_renal_geo_demo_2015/tabla_23.csv",
+    "sha256": "6c62bdeefb4b251d74d1edd9584569a05a8fa244bd286a7b9e025eb31843d6c6"
+  },
+  {
+    "year": 2016,
+    "n": 746,
+    "average": 81.48,
+    "median": 72.5,
+    "source": "datos/extraidos/reportes_dinamicos/trayectoria_renal/trasplante_renal_geo_demo_2016/tabla_23.csv",
+    "sha256": "9180bb618492fe9162faf4fc4bc36eaeab1aa52c89d1688242d49a8d70ac8db7"
+  },
+  {
+    "year": 2017,
+    "n": 852,
+    "average": 75.79,
+    "median": 62.88,
+    "source": "datos/extraidos/reportes_dinamicos/trayectoria_renal/trasplante_renal_geo_demo_2017/tabla_23.csv",
+    "sha256": "1b16ab16b74347b36e7d72ff8fa299b767107d7d76d1ba9a6cbdbe33cc202baa"
+  },
+  {
+    "year": 2018,
+    "n": 987,
+    "average": 69.38,
+    "median": 59.99,
+    "source": "datos/extraidos/reportes_dinamicos/trayectoria_renal/trasplante_renal_geo_demo_2018/tabla_23.csv",
+    "sha256": "63319f7ae6527ed7124372c517b880933e62d7d0def707bb75d51006ee161909"
+  },
+  {
+    "year": 2019,
+    "n": 1232,
+    "average": 65.9,
+    "median": 55.97,
+    "source": "datos/extraidos/reportes_dinamicos/trayectoria_renal/trasplante_renal_geo_demo_2019/tabla_23.csv",
+    "sha256": "8066edbdafd872a492ca80b7f54a025723c178f1599ca53e359e120f70f17bc8"
+  },
+  {
+    "year": 2020,
+    "n": 663,
+    "average": 61.54,
+    "median": 54.08,
+    "source": "datos/extraidos/reportes_dinamicos/trayectoria_renal/trasplante_renal_geo_demo_2020/tabla_23.csv",
+    "sha256": "7ffb87cd04b932d0196b25da4748bc5c373acdcecb542af498a044e900970bc2"
+  },
+  {
+    "year": 2021,
+    "n": 960,
+    "average": 64.71,
+    "median": 55.66,
+    "source": "datos/extraidos/reportes_dinamicos/trayectoria_renal/trasplante_renal_geo_demo_2021/tabla_23.csv",
+    "sha256": "163250552b130517f26b3c06a4023327db7294f97c16e88e754c3f82a90492b9"
+  },
+  {
+    "year": 2022,
+    "n": 1123,
+    "average": 66.67,
+    "median": 57.22,
+    "source": "datos/extraidos/reportes_dinamicos/trayectoria_renal/trasplante_renal_geo_demo_2022/tabla_23.csv",
+    "sha256": "02bdee1842b75ec3f664fa16983b7d6fc4b5b3fa54afe12bdcc2b7180653886a"
+  },
+  {
+    "year": 2023,
+    "n": 1267,
+    "average": 62.99,
+    "median": 53.65,
+    "source": "datos/extraidos/reportes_dinamicos/trayectoria_renal/trasplante_renal_geo_demo_2023/tabla_23.csv",
+    "sha256": "783e69b9091966af99b7aef706710ce06794a58e8998bcff43e094a43ba7ee43"
+  },
+  {
+    "year": 2024,
+    "n": 1286,
+    "average": 64.96,
+    "median": 52.33,
+    "source": "datos/extraidos/reportes_dinamicos/trayectoria_renal/trasplante_renal_geo_demo_2024/tabla_23.csv",
+    "sha256": "f31a1da8991504ad294fc7f5f200f4d7040c278b47db1950030af5f7aafef6a2"
+  },
+  {
+    "year": 2025,
+    "n": 1542,
+    "average": 66.39,
+    "median": 56.29,
+    "source": "datos/extraidos/reportes_dinamicos/trayectoria_renal/trasplante_renal_geo_demo_2025/tabla_23.csv",
+    "sha256": "aaf216e801449f08014ed2d6a683e874746719fb29adacd6e1a67dbc8b56ecdb"
+  }
+]

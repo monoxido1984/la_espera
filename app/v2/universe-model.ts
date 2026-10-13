@@ -1,16 +1,18 @@
 import type { StoryData, TransplantSnapshot } from '../story-model';
 
-export type Group = { id: string; label: string; value: number; color: string };
+export type Group = { id: string; label: string; value: number; color: string; pmh?: number; sourceKey?: string; unitKeys?: string[]; kind?: 'collection' | 'unavailable'; members?: string[] };
+export type TerritoryMetric = 'count' | 'pmh';
 export type HistoryYear = { year: number; waitlist: number; donors: number; median: number; average: number; p25: number; p75: number; n: number };
-export type ListDetail = { id: string; label: string; total: number; province: { label: string; value: number }[]; seniority: { label: string; value: number }[] };
+export type ListDetail = { id: string; label: string; total: number; province: { label: string; value: number; pmh?: number }[]; seniority: { label: string; value: number }[]; seniorityByProvince?: { province: string; items: { label: string; value: number }[] }[] };
 export type UniverseData = {
+  dialysis?: { year: number; n: number; average: number; median: number }[];
   total: number; snapshot: string; organs: Group[]; lists: ListDetail[];
   history: HistoryYear[]; organDonors: number; allDonors: number; donorPeriod: string;
   organTransplants: number; allTransplants: number; transplantPeriod: string; transplantGroups: Group[];
 };
 export type Dimension = 'organ' | 'seniority' | 'territory';
-export type UniverseMode = 'intro' | 'number' | 'all' | Dimension | 'history' | 'duration' | 'donation' | 'transplants' | 'end';
-export type Dot = { x: number; y: number; color: string; group: string; radius: number };
+export type UniverseMode = 'intro' | 'number' | 'all' | 'comparison' | Dimension | 'history' | 'duration' | 'donation' | 'transplants' | 'end';
+export type Dot = { x: number; y: number; color: string; group: string; radius: number; key?: string };
 export type Cluster = Group & { x: number; y: number; radius: number };
 
 // Categories remain the published lists: combined-organ lists are not split.
@@ -24,7 +26,7 @@ export const integer = (value: number) => new Intl.NumberFormat('es-AR', { maxim
 export const decimal = (value: number) => new Intl.NumberFormat('es-AR', { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(value);
 
 export function buildUniverseData(data: StoryData, history: HistoryYear[], transplants: TransplantSnapshot): UniverseData {
-  const lists = (data.currentSnapshot.byList ?? []).map(({ id, label, total, province, seniority }) => ({ id, label, total, province: province.map(({ label, value }) => ({ label, value })), seniority }));
+  const lists = (data.currentSnapshot.byList ?? []).map(({ id, label, total, province, seniority, seniorityByProvince }) => ({ id, label, total, province: province.map(({ label, value, pmh }) => ({ label, value, pmh })), seniority, seniorityByProvince }));
   const organs = data.currentWaiting.map(item => {
     const id = lists.find(list => list.label === item.label)?.id ?? item.label;
     return { ...item, id, color: COLORS[id] ?? COLOR_OTHER };
@@ -45,7 +47,7 @@ export function buildUniverseData(data: StoryData, history: HistoryYear[], trans
   };
 }
 
-function readableLabel(label: string) {
+export function readableLabel(label: string) {
   if (label === 'SIN DISTRIBUCIÓN PUBLICADA') return 'Sin distribución publicada';
   return label.replaceAll('~', '–').replace(/(\d)(mes|año)/g, '$1 $2').replace('<1mes', '<1 mes').replace('>10años', '>10 años');
 }
@@ -56,7 +58,23 @@ export function groupsFor(data: UniverseData, dimension: Dimension, listId: stri
   if (!list) return [];
   const color = data.organs.find(item => item.id === listId)?.color ?? '#b74d38';
   const rows = dimension === 'seniority' ? list.seniority : list.province;
-  return rows.map((row, index) => ({ id: `${dimension}-${index}`, label: dimension === 'seniority' ? readableLabel(row.label) : PROVINCE_LABELS[row.label] ?? row.label.toLocaleLowerCase('es-AR').replace(/(^|\s)\S/g, letter => letter.toLocaleUpperCase('es-AR')), value: row.value, color }));
+  return rows.map((row, index) => ({ id: `${dimension}-${index}`, label: dimension === 'seniority' ? readableLabel(row.label) : PROVINCE_LABELS[row.label] ?? row.label.toLocaleLowerCase('es-AR').replace(/(^|\s)\S/g, letter => letter.toLocaleUpperCase('es-AR')), value: row.value, color, ...(dimension === 'territory' && 'pmh' in row ? { pmh: row.pmh as number | undefined } : {}) }));
+}
+
+// Rates remain the published CRESI values: no inferred population or missing-as-zero.
+export function territoryValue(group: Group, metric: TerritoryMetric) {
+  return metric === 'count' ? group.value : group.pmh;
+}
+export function territoryColors(groups: Group[], metric: TerritoryMetric): Group[] {
+  const values = groups.map(g => territoryValue(g, metric)).filter((value): value is number => value !== undefined);
+  const max = Math.max(1, ...values), min = metric === 'pmh' ? Math.min(...values, max) : 0;
+  return groups.map(group => {
+    const value = territoryValue(group, metric);
+    const t = value === undefined ? 0 : metric === 'pmh' ? (value-min)/Math.max(1,max-min) : Math.sqrt(value / max);
+    const pale = metric === 'pmh' ? [210, 172, 151] : [181, 119, 99], strong = [112, 40, 27];
+    const color = value === undefined ? '#77796f' : '#' + pale.map((c, i) => Math.round(c + (strong[i] - c) * t).toString(16).padStart(2, '0')).join('');
+    return { ...group, color };
+  });
 }
 
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
@@ -71,10 +89,10 @@ export function discPoints(count: number, cx: number, cy: number, radius: number
 }
 
 // Equal area per unit across every cluster in one view. Empty groups have no dots.
-export function packGroups(groups: Group[], width: number, height: number): Cluster[] {
+export function packGroups(groups: Group[], width: number, height: number, labelGap?: number): Cluster[] {
   const total = groups.reduce((sum, item) => sum + item.value, 0);
   if (!total) return [];
-  const padding = width < 450 ? 12 : 18;
+  const padding = labelGap ?? (width < 450 ? 12 : 18);
   for (const scale of [.38, .34, .30, .26, .22, .18, .14]) {
     const placed: Cluster[] = [];
     let complete = true;

@@ -1,13 +1,22 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { clusterPoints, discPoints, integer, packGroups, type Cluster, type Dot, type Group, type UniverseMode } from './universe-model';
+import { discPoints, integer, decimal, type Cluster, type Dot, type Group, type UniverseMode, type Dimension, type TerritoryMetric } from './universe-model';
+import { hourglassPoints, narrativeLayout, timePoints, foldedTimePoints, borderPath, type NarrativeLayout, type ProvinceBorder } from './narrative-layouts';
+import { identifyDots, alignGraphicUnits } from './linked-exploration';
 
 type Particle = Dot & { alpha: number };
+function mixColor(from: string, to: string, amount: number) {
+  return '#' + [1,3,5].map(offset => {
+    const a = parseInt(from.slice(offset,offset+2),16), b = parseInt(to.slice(offset,offset+2),16);
+    return Math.round(a+(b-a)*amount).toString(16).padStart(2,'0');
+  }).join('');
+}
 type Props = {
   mode: UniverseMode; groups: Group[]; count: number; total: number;
   focus: string | null; hover: string | null; paused: boolean; dark: boolean;
   population: string; label: string; unit: string;
+  accumulated?: boolean; timeRatio?: number; timeFolds?: number; historyRatio?: number; territoryMetric?: TerritoryMetric; territoryContext?: Group[];
   onHover: (id: string | null) => void; onSelect: (id: string) => void;
 };
 
@@ -31,11 +40,13 @@ function numberPoints(count: number, width: number, height: number, radius: numb
   });
 }
 
-export default function WaitingUniverse({ mode, groups, count, total, focus, hover, paused, dark, population, label, unit, onHover, onSelect }: Props) {
+export default function WaitingUniverse({ mode, groups, count, total, focus, hover, paused, dark, population, label, unit, accumulated = false, timeRatio = 1, timeFolds=3, historyRatio=1, territoryMetric = 'count', territoryContext, onHover, onSelect }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const particles = useRef<Particle[]>([]);
   const previousPopulation = useRef(population);
+  const boundaries = useRef<SVGSVGElement>(null);
+  const previousBorders = useRef<ProvinceBorder[]>([]);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [failed, setFailed] = useState(false);
   const interactive = ['organ', 'seniority', 'territory'].includes(mode);
@@ -50,7 +61,7 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
     return () => observer.disconnect();
   }, []);
 
-  const layout = useMemo(() => {
+  const layout = useMemo<NarrativeLayout>(() => {
     const { width, height } = size;
     if (!width || !height) return { points: [] as Dot[], clusters: [] as Cluster[] };
     const base = Math.min(width, height);
@@ -58,26 +69,21 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
     const color = dark ? '#efbb87' : '#b74d38';
     if (interactive) {
       const visible = focus ? groups.filter(group => group.id === focus) : groups;
-      const clusters = packGroups(visible, width, height);
       // Small groups are still exact and independently selectable.
-      const radius = Math.max(.45, Math.min(dotRadius, base / 420));
-      return { points: clusterPoints(clusters, radius), clusters };
+      const radius = Math.min(3,Math.max(.45,Math.min(dotRadius,base/420))*Math.max(1,Math.sqrt(900/Math.max(1,count))));
+      const result = narrativeLayout(visible, mode as Dimension, width, height, Boolean(focus), radius, territoryMetric, territoryContext ?? groups);
+      return {...result,points:identifyDots(result.points,visible)};
     }
     if (mode === 'number') return { points: numberPoints(count, width, height, dotRadius * .82), clusters: [] };
-    if (mode === 'intro' || mode === 'history' || mode === 'duration') {
-      const radius = base * (mode === 'intro' ? .37 : .36);
-      const thickness = mode === 'intro' ? .08 : mode === 'history' ? .23 : .07;
-      const ringDotRadius = Math.max(.25, Math.min(dotRadius, Math.sqrt(radius * radius * thickness / Math.max(1, count)) * .65));
-      const points = Array.from({ length: count }, (_, index) => {
-        const angle = index * Math.PI * (3 - Math.sqrt(5));
-        const distance = radius * Math.sqrt(1 - thickness + thickness * ((index + .5) / count));
-        return { x: width / 2 + Math.cos(angle) * distance, y: height / 2 + Math.sin(angle) * distance, radius: ringDotRadius, color, group: 'total' };
-      });
+    if (mode === 'intro') return { points: hourglassPoints(count, width, height, paused ? .65 : 0, dotRadius * .7), clusters: [] };
+    if (mode === 'comparison') return { points: timePoints(count, width, height, accumulated, timeRatio, dotRadius,timeFolds), clusters: [] };
+    if (mode === 'history' || mode === 'duration') {
+      const points=foldedTimePoints(count,width,height,mode==='history'?historyRatio:1,dotRadius,mode==='history'?5:3);
       return { points, clusters: [] };
     }
     const radius = base * .4 * Math.sqrt(count / Math.max(total, count));
     return { points: discPoints(count, width / 2, height / 2, radius, 'total', color, dotRadius), clusters: [] };
-  }, [size, interactive, groups, focus, count, total, mode, dark]);
+  }, [size, interactive, groups, focus, count, total, mode, dark, paused, accumulated, timeRatio, timeFolds, historyRatio, territoryMetric, territoryContext]);
 
   useEffect(() => {
     const element = canvas.current;
@@ -92,20 +98,63 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
     const crossfade = previousPopulation.current !== population;
     previousPopulation.current = population;
     const previous = particles.current;
-    const length = Math.max(previous.length, target.length);
-    const starts = Array.from({ length }, (_, index) => previous[index] ?? { ...(target[index] ?? target[0]), alpha: 0 });
-    const end = Array.from({ length }, (_, index) => {
-      const point = target[index];
-      return point ? { ...point, alpha: hover && point.group !== hover ? .08 : mode === 'intro' ? .13 : 1 } : { ...starts[index], alpha: 0 };
+    const pairs = alignGraphicUnits(previous,target);
+    const length = pairs.length;
+    const starts = pairs.map(pair => pair.from ?? { ...(pair.to ?? target[0]), alpha: 0 });
+    const borderStarts = previousBorders.current;
+    const borderElements = Array.from(boundaries.current?.querySelectorAll<SVGPathElement>('[data-border-id]') ?? []);
+    const leaderElements = Array.from(boundaries.current?.querySelectorAll<SVGPathElement>('[data-leader-id]') ?? []);
+    let end = pairs.map((pair, index) => {
+      const point = pair.to;
+      return point ? { ...point, alpha: hover && point.group !== hover ? .08 : 1 } : { ...starts[index], alpha: 0 };
     });
     let frame = 0;
     const started = performance.now();
     const duration = paused ? 0 : crossfade ? 1000 : hover ? 200 : 1350;
     const draw = (now: number) => {
+      const flowing = mode === 'intro' && !paused && now - started < 13000;
+      if (mode === 'intro' && !paused) end = hourglassPoints(count, size.width, size.height, Math.min(1.08, (now - started) / 12000), Math.max(.45, Math.min(size.width, size.height) / 550)).map(p => ({ ...p, alpha: 1 }));
       const progress = duration ? Math.min(1, (now - started) / duration) : 1;
       const eased = 1 - (1 - progress) ** 3;
+      const animatedBorders = (layout.borders ?? []).map(border => {
+        const from = borderStarts.find(b => b.id === border.id);
+        if (!from || from.rings.length !== border.rings.length) return border;
+        const rings = border.rings.map((ring, r) => ring.map((point, i) => {
+          const start = from.rings[r][i] ?? point;
+          return [start[0] + (point[0]-start[0])*eased, start[1] + (point[1]-start[1])*eased];
+        }));
+        const inset = border.inset && from.inset ? Object.fromEntries(Object.entries(border.inset).map(([key,value]) => [key, from.inset![key as keyof typeof from.inset] + (value-from.inset![key as keyof typeof from.inset])*eased])) as ProvinceBorder['inset'] : border.inset;
+        return { ...border, rings, path:borderPath(rings), inset, fill:mixColor(from.fill,border.fill,eased), fillOpacity:from.fillOpacity+(border.fillOpacity-from.fillOpacity)*eased };
+      });
+      for (const element of borderElements) {
+        const border = animatedBorders.find(b => b.id === element.dataset.borderId);
+        if (border) element.setAttribute('d',border.path);
+      }
+      for (const element of leaderElements) {
+        const inset = animatedBorders.find(b => b.id === element.dataset.leaderId)?.inset;
+        if (inset) element.setAttribute('d',`M${inset.anchorX},${inset.anchorY} L${inset.x},${inset.y}`);
+      }
+      previousBorders.current = animatedBorders;
       context.clearRect(0, 0, size.width, size.height);
+      // A province-wide rate fill avoids confusing denser point populations with PMH.
+      for (const border of animatedBorders) {
+        if (border.fillOpacity <= 0) continue;
+        context.globalAlpha = border.fillOpacity * (hover && hover !== border.id ? .18 : 1);
+        context.fillStyle = border.fill;
+        context.fill(new Path2D(border.path),'evenodd');
+      }
+      if (mode === 'intro') {
+        const cx = size.width * .72, cy = size.height * .48, s = Math.min(size.width * .3, size.height * .4);
+        context.strokeStyle = '#b74d38'; context.globalAlpha = .3; context.lineWidth = 1.5;
+        context.beginPath(); context.moveTo(cx - s * .75, cy - s); context.lineTo(cx + s * .75, cy - s);
+        context.moveTo(cx - s * .7, cy - s * .92); context.bezierCurveTo(cx - s * .6, cy - s * .35, cx - s * .04, cy - s * .12, cx - s * .04, cy);
+        context.bezierCurveTo(cx - s * .04, cy + s * .12, cx - s * .6, cy + s * .35, cx - s * .7, cy + s * .92);
+        context.moveTo(cx + s * .7, cy - s * .92); context.bezierCurveTo(cx + s * .6, cy - s * .35, cx + s * .04, cy - s * .12, cx + s * .04, cy);
+        context.bezierCurveTo(cx + s * .04, cy + s * .12, cx + s * .6, cy + s * .35, cx + s * .7, cy + s * .92);
+        context.moveTo(cx - s * .75, cy + s); context.lineTo(cx + s * .75, cy + s); context.stroke();
+      }
       const buckets = new Map<string, { color: string; alpha: number; dots: Particle[] }>();
+      const colors = new Map<string, string>();
       const current: Particle[] = [];
       for (let index = 0; index < length; index++) {
         const from = starts[index], to = end[index];
@@ -119,6 +168,11 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
           ...to, x: from.x + (to.x - from.x) * eased, y: from.y + (to.y - from.y) * eased,
           radius: from.radius + (to.radius - from.radius) * eased, alpha: from.alpha + (to.alpha - from.alpha) * eased,
         };
+        if (!jump && from.color !== to.color && progress < 1) {
+          const pair = from.color + to.color;
+          if (!colors.has(pair)) colors.set(pair, mixColor(from.color,to.color,eased));
+          point.color = colors.get(pair)!;
+        }
         current.push(point);
         const opacity = Math.round(Math.max(0, point.alpha) * 12) / 12;
         if (opacity <= 0) continue;
@@ -133,20 +187,34 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
       }
       context.globalAlpha = 1;
       particles.current = progress === 1 ? current.slice(0, target.length) : current;
-      if (progress < 1) frame = requestAnimationFrame(draw);
+      if (progress < 1 || flowing) frame = requestAnimationFrame(draw);
     };
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
   }, [layout, size, hover, paused, population, mode]);
 
   return (
-    <div ref={container} className={`v2-universe${mode === 'intro' && !paused ? ' is-breathing' : ''}`} data-mode={mode}>
+    <div ref={container} className="v2-universe" data-mode={mode}>
       <canvas ref={canvas} aria-hidden="true" />
       <p className="v2-sr-only">{label}</p>
       {failed && <p className="v2-canvas-fallback">{integer(count)}<span>{unit}</span></p>}
-      {interactive && <div className="v2-clusters" role="group" aria-label="Explorar las partes de la espera">
-        {layout.clusters.map(group => <button key={group.id} type="button" className={`v2-cluster${group.radius < 34 ? ' is-small' : ''}${hover === group.id ? ' is-highlighted' : ''}`} aria-label={`${group.label}: ${integer(group.value)} inscripciones. Acercar.`} aria-pressed={focus === group.id} style={{ left: group.x, top: group.y, width: Math.max(30, group.radius * 2), height: Math.max(30, group.radius * 2), opacity: hover && hover !== group.id ? .22 : 1 }} onPointerEnter={() => onHover(group.id)} onPointerLeave={() => onHover(null)} onFocus={() => onHover(group.id)} onBlur={() => onHover(null)} onClick={() => onSelect(group.id)}>
-          <span className="v2-cluster-label"><span>{group.label}</span><strong>{integer(group.value)}</strong></span>
+      {mode === 'territory' && <div className="v2-clusters v2-province-map" role="group" aria-label="Explorar provincias">
+        <svg ref={boundaries} viewBox={`0 0 ${size.width || 1} ${size.height || 1}`} className="v2-province-boundaries">
+          {(layout.borders ?? []).map(border => {
+            const group = layout.clusters.find(c => c.id === border.id)!;
+            return <g key={border.id}>
+              {border.inset && <path data-leader-id={border.id} className="v2-province-leader" d={`M${border.inset.anchorX},${border.inset.anchorY} L${border.inset.x},${border.inset.y}`} />}
+              <path data-border-id={border.id} d={border.path} className="v2-province-gap" />
+              <path data-border-id={border.id} d={border.path} className="v2-province-outline" fillRule="evenodd" role="button" tabIndex={0} aria-label={`${group.label}: ${integer(group.value)} inscripciones; ${group.pmh === undefined ? 'PMH no disponible para este cruce' : decimal(group.pmh) + ' por millón de habitantes'}. Ver sus listas.${border.inset ? ' Vista ampliada de la ciudad.' : ''}`} aria-pressed={focus === group.id} data-highlighted={hover === group.id || focus === group.id}
+                onPointerEnter={() => onHover(group.id)} onPointerLeave={() => onHover(null)} onFocus={() => onHover(group.id)} onBlur={() => onHover(null)} onClick={() => onSelect(group.id)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelect(group.id); } }} />
+            </g>;
+          })}
+        </svg>
+        {layout.clusters.map(group => <div key={group.id} className="v2-province-tooltip" aria-hidden="true" style={{left:group.x,top:group.y,opacity:hover === group.id || focus === group.id ? 1 : 0}}><span>{group.label}</span><strong>{territoryMetric === 'pmh' ? group.pmh === undefined ? 's/d' : decimal(group.pmh) : integer(group.value)}</strong><span>{territoryMetric === 'pmh' ? 'por millón de habitantes' : 'inscripciones'}</span>{territoryMetric === 'pmh' && <small>{integer(group.value)} inscripciones</small>}</div>)}
+      </div>}
+      {interactive && mode !== 'territory' && <div className="v2-clusters" role="group" aria-label="Explorar las partes de la espera">
+        {layout.clusters.map(group => <button key={group.id} type="button" className={`v2-cluster${group.radius < 34 && group.value < 100 && group.kind !== 'collection' ? ' is-small' : ''}${hover === group.id ? ' is-highlighted' : ''}`} aria-label={`${group.label}: ${integer(group.value)} inscripciones. ${group.kind === 'collection' ? 'Desglosar las listas menores.' : group.kind === 'unavailable' ? 'Consultar disponibilidad del cruce.' : mode === 'organ' ? 'Ver su antigüedad.' : 'Ver sus provincias.'}`} aria-pressed={focus === group.id} style={{ left: group.x, top: group.y, width: mode === 'seniority' ? size.width * .84 : Math.max(30, group.radius * 2), height: Math.max(30, group.radius * 2), opacity: hover && hover !== group.id ? .22 : 1 }} onPointerEnter={() => onHover(group.id)} onPointerLeave={() => onHover(null)} onFocus={() => onHover(group.id)} onBlur={() => onHover(null)} onClick={() => onSelect(group.id)}>
+          <span className="v2-cluster-label"><span>{group.label}</span><strong>{integer(group.value)}</strong>{group.kind === 'collection' && <small>{group.members?.length} listas · desglosar ↗</small>}</span>
         </button>)}
       </div>}
       {mode !== 'intro' && <p className="v2-unit">{unit}</p>}
