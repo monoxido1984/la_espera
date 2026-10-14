@@ -1,0 +1,13 @@
+{
+  "year": 2025,
+  "count": 31431,
+  "at": "31/12/2025",
+  "measure": "Total IRCT: pacientes en tratamiento contabilizados al final del año",
+  "annualPersonTime": null,
+  "source": "CRESI / SINTRA",
+  "sourceUrl": "https://cresi.incucai.gov.ar/reporte/resumenestadistico/EjecutarConsultaPre.do",
+  "sourceCsv": "datos/extraidos/reportes_dinamicos/historia_2015_2026/prevalencia_incidencia_dialisis_2025/tabla_03.csv",
+  "csvSha256": "adff4cebc45993b812f5f728571130a7d2ecf6813a5368d5f0e6e9d08d640af8",
+  "sourceHtml": "datos/originales/reportes_dinamicos/historia_2015_2026/prevalencia_incidencia_dialisis_2025/resultado.html",
+  "htmlSha256": "f47ac149d999276a4adce73dd900c086e8ceeddf0acaf92a622d749773e1564f"
+}

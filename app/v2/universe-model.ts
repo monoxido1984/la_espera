@@ -5,6 +5,7 @@ export type TerritoryMetric = 'count' | 'pmh';
 export type HistoryYear = { year: number; waitlist: number; donors: number; median: number; average: number; p25: number; p75: number; n: number };
 export type ListDetail = { id: string; label: string; total: number; province: { label: string; value: number; pmh?: number }[]; seniority: { label: string; value: number }[]; seniorityByProvince?: { province: string; items: { label: string; value: number }[] }[] };
 export type UniverseData = {
+  dialysisPopulation?: {year:number;count:number;at:string;annualPersonTime:null;measure:string;csvSha256:string;htmlSha256:string};
   dialysis?: { year: number; n: number; average: number; median: number }[];
   total: number; snapshot: string; organs: Group[]; lists: ListDetail[];
   history: HistoryYear[]; organDonors: number; allDonors: number; donorPeriod: string;

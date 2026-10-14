@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
+import type { PointRelay } from './temporal-journey';
 import { discPoints, integer, decimal, type Cluster, type Dot, type Group, type UniverseMode, type Dimension, type TerritoryMetric } from './universe-model';
 import { hourglassPoints, narrativeLayout, timePoints, foldedTimePoints, borderPath, type NarrativeLayout, type ProvinceBorder } from './narrative-layouts';
 import { identifyDots, alignGraphicUnits } from './linked-exploration';
@@ -16,11 +17,12 @@ type Props = {
   mode: UniverseMode; groups: Group[]; count: number; total: number;
   focus: string | null; hover: string | null; paused: boolean; dark: boolean;
   population: string; label: string; unit: string;
+  relay?: MutableRefObject<PointRelay>;
   accumulated?: boolean; timeRatio?: number; timeFolds?: number; historyRatio?: number; territoryMetric?: TerritoryMetric; territoryContext?: Group[];
   onHover: (id: string | null) => void; onSelect: (id: string) => void;
 };
 
-function numberPoints(count: number, width: number, height: number, radius: number): Dot[] {
+export function numberPoints(count: number, width: number, height: number, radius: number): Dot[] {
   const scratch = document.createElement('canvas');
   scratch.width = Math.ceil(width); scratch.height = Math.ceil(height);
   const context = scratch.getContext('2d', { willReadFrequently: true });
@@ -30,17 +32,19 @@ function numberPoints(count: number, width: number, height: number, radius: numb
   context.fillText(integer(count), width / 2, height / 2, width * .97);
   const pixels = context.getImageData(0, 0, scratch.width, scratch.height).data;
   const candidates: { x: number; y: number }[] = [];
-  for (let y = 0; y < scratch.height; y += 3) for (let x = 0; x < scratch.width; x += 3) {
-    if (pixels[(y * scratch.width + x) * 4 + 3] > 140) candidates.push({ x, y });
+  for (let y = 0; y < scratch.height; y += 2) {
+    const row: {x:number;y:number}[]=[];
+    for (let x = 0; x < scratch.width; x += 2) if (pixels[(y * scratch.width + x) * 4 + 3] > 140) row.push({x,y});
+    if(Math.floor(y/2)%2)row.reverse();candidates.push(...row);
   }
   if (!candidates.length) return [];
   return Array.from({ length: count }, (_, index) => {
-    const point = candidates[index % candidates.length];
-    return { x: point.x + Math.sin(index * 7.3) * 1.1, y: point.y + Math.cos(index * 3.7) * 1.1, radius, color: '#b74d38', group: 'total' };
+    const point = candidates[Math.min(candidates.length-1,Math.floor(index/count*candidates.length))];
+    return { x: point.x + Math.sin(index * 7.3) * .35, y: point.y + Math.cos(index * 3.7) * .35, radius, color: '#b74d38', group: 'total' };
   });
 }
 
-export default function WaitingUniverse({ mode, groups, count, total, focus, hover, paused, dark, population, label, unit, accumulated = false, timeRatio = 1, timeFolds=3, historyRatio=1, territoryMetric = 'count', territoryContext, onHover, onSelect }: Props) {
+export default function WaitingUniverse({ mode, groups, count, total, focus, hover, paused, dark, population, label, unit, accumulated = false, timeRatio = 1, timeFolds=3, historyRatio=1, territoryMetric = 'count', territoryContext, relay, onHover, onSelect }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const particles = useRef<Particle[]>([]);
@@ -100,7 +104,8 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
     const previous = particles.current;
     const pairs = alignGraphicUnits(previous,target);
     const length = pairs.length;
-    const starts = pairs.map(pair => pair.from ?? { ...(pair.to ?? target[0]), alpha: 0 });
+    const sand=mode==='number'?hourglassPoints(count,size.width,size.height,.15,Math.max(.45,Math.min(size.width,size.height)/550)):[];
+    const starts = pairs.map((pair,index) => pair.from ?? { ...(sand[index] ?? pair.to ?? target[0]), alpha: mode==='number'?1:0 });
     const borderStarts = previousBorders.current;
     const borderElements = Array.from(boundaries.current?.querySelectorAll<SVGPathElement>('[data-border-id]') ?? []);
     const leaderElements = Array.from(boundaries.current?.querySelectorAll<SVGPathElement>('[data-leader-id]') ?? []);
@@ -110,7 +115,7 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
     });
     let frame = 0;
     const started = performance.now();
-    const duration = paused ? 0 : crossfade ? 1000 : hover ? 200 : 1350;
+    const duration = paused ? 0 : mode==='number'?4200:crossfade ? 1000 : hover ? 200 : 1350;
     const draw = (now: number) => {
       const flowing = mode === 'intro' && !paused && now - started < 13000;
       if (mode === 'intro' && !paused) end = hourglassPoints(count, size.width, size.height, Math.min(1.08, (now - started) / 12000), Math.max(.45, Math.min(size.width, size.height) / 550)).map(p => ({ ...p, alpha: 1 }));
@@ -143,9 +148,9 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
         context.fillStyle = border.fill;
         context.fill(new Path2D(border.path),'evenodd');
       }
-      if (mode === 'intro') {
+      if (mode === 'intro' || mode==='number'&&progress<.5) {
         const cx = size.width * .72, cy = size.height * .48, s = Math.min(size.width * .3, size.height * .4);
-        context.strokeStyle = '#b74d38'; context.globalAlpha = .3; context.lineWidth = 1.5;
+        context.strokeStyle = '#b74d38'; context.globalAlpha = .3*(mode==='number'?1-progress*2:1); context.lineWidth = 1.5;
         context.beginPath(); context.moveTo(cx - s * .75, cy - s); context.lineTo(cx + s * .75, cy - s);
         context.moveTo(cx - s * .7, cy - s * .92); context.bezierCurveTo(cx - s * .6, cy - s * .35, cx - s * .04, cy - s * .12, cx - s * .04, cy);
         context.bezierCurveTo(cx - s * .04, cy + s * .12, cx - s * .6, cy + s * .35, cx - s * .7, cy + s * .92);
@@ -168,6 +173,17 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
           ...to, x: from.x + (to.x - from.x) * eased, y: from.y + (to.y - from.y) * eased,
           radius: from.radius + (to.radius - from.radius) * eased, alpha: from.alpha + (to.alpha - from.alpha) * eased,
         };
+        if(mode==='number'&&!paused&&progress<1) {
+          // Stagger the queue: chamber -> neck -> falling grain -> its place in the numeral.
+          // These are the same graphic slots, not patient identities.
+          const local=Math.max(0,Math.min(1,((now-started)-index/length*1200)/3000));
+          const neck={x:size.width*.72,y:size.height*.48};
+          const floor={x:neck.x+Math.sin(index*2.4)*size.width*.055,y:size.height*.8};
+          const waypoints=from.y<neck.y?[from,neck,floor,to]:[from,{x:from.x,y:Math.max(from.y,floor.y)},floor,to];
+          const leg=Math.min(2,Math.floor(local*3)),u=local*3-leg;
+          const a=waypoints[leg],b=waypoints[leg+1],smooth=u*u*(3-2*u);
+          point.x=a.x+(b.x-a.x)*smooth;point.y=a.y+(b.y-a.y)*smooth;point.alpha=1;
+        }
         if (!jump && from.color !== to.color && progress < 1) {
           const pair = from.color + to.color;
           if (!colors.has(pair)) colors.set(pair, mixColor(from.color,to.color,eased));
@@ -187,11 +203,12 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
       }
       context.globalAlpha = 1;
       particles.current = progress === 1 ? current.slice(0, target.length) : current;
+      if(mode==='number'&&relay&&current.length){const anchor=current.at(-1)!;relay.current={x:anchor.x/size.width,y:anchor.y/size.height};}
       if (progress < 1 || flowing) frame = requestAnimationFrame(draw);
     };
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
-  }, [layout, size, hover, paused, population, mode]);
+  }, [layout, size, hover, paused, population, mode, relay]);
 
   return (
     <div ref={container} className="v2-universe" data-mode={mode}>

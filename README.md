@@ -1,6 +1,6 @@
 # La Espera
 
-Recorrido interactivo por las listas de espera y la donación de órganos en Argentina. Versión 2 actualizada el 13 de octubre de 2026.
+Recorrido interactivo por las listas de espera y la donación de órganos en Argentina. Versión 2 actualizada el 14 de octubre de 2026.
 
 Página: https://monoxido1984.github.io/la_espera/
 
@@ -12,7 +12,7 @@ Página: https://monoxido1984.github.io/la_espera/
 
 La V2 empieza con un reloj de arena y transforma un mismo universo de puntos durante nueve escenas. Cada punto representa una unidad publicada: inscripción, donante o trasplante, según la escena. Las poblaciones distintas se disuelven entre escenas; no se crean registros individuales ni conversiones entre donación y trasplantes. Lista, antigüedad y provincia conservan las selecciones mediante los cruces agregados publicados. Las listas menores se pueden desglosar. El cartograma editorial permite consultar cantidad o tasas publicadas por millón de habitantes cuando están disponibles. La explicación completa permanece al final de la página.
 
-La escena de tiempo permite comparar diálisis y lista, reunir el tiempo y cambiar entre segundos, minutos, horas, días, meses y años. El escenario de 4 horas por sesión, 3 veces por semana es una estimación explícita, separada del tiempo calendario observado; no es un registro de horas individuales de tratamiento. Las cintas de puntos representan el tiempo y sus transiciones.
+El reloj libera puntos hacia destinos distintos de la cifra: el avance y el retroceso del scroll recorren las mismas trayectorias. La escena de tiempo empieza con una persona y construye sesiones o días al arrastrar, sin reiniciar los bloques completados. Diálisis usa 31.431 pacientes registrados al 31/12/2025 y un escenario hipotético de un año completo para cada uno: 52 semanas × 3 sesiones × 4 horas, equivalente a 19.612.944 horas o aproximadamente 22,4 siglos. No son horas observadas ni el total de personas atendidas durante el año. Lista usa otro universo: 1.542 receptores renales trasplantados en 2025 y su promedio publicado de tiempo previo en lista. La referencia del régimen de hemodiálisis está enlazada en «Sobre los datos».
 
 El explorador anual permite cruzar tiempo hasta trasplante por año, 13 listas, 24 provincias y dos grupos de edad entre 2005 y 2025. El archivo compacto conserva las 13.104 celdas del derivado de origen y su SHA256; se carga al abrir la exploración. Los promedios se ponderan por registros, las unidades hepáticas se mantienen en días y las ausencias no se convierten en cero. El cruce renal territorial de 2025 contiene 1.528 registros frente a los 1.542 del resumen nacional: las bases se distinguen y no se fuerzan a coincidir.
 

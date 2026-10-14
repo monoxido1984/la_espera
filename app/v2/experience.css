@@ -81,4 +81,13 @@
 @media(prefers-reduced-motion:reduce){.v2-province-boundaries{animation:none}.v2-province-outline,.v2-province-tooltip{transition:none}}
 .waiting-v2[data-paused=true] .v2-province-boundaries{animation:none}
 .waiting-v2[data-paused=true] .v2-province-tooltip{transition:none}
+.waiting-v2 .v2-stage[data-sand=true]{position:fixed;inset:0;height:100svh;margin:0;pointer-events:none}
+.v2-stage[data-sand=true] .v2-figure{top:7svh;height:86svh}
+.v2-sand-queue{position:relative;width:100%;height:100%}.v2-sand-queue canvas{display:block;width:100%;height:100%}.v2-sand-unit{position:absolute;bottom:0;left:0;width:100%;text-align:center;font-size:10px;opacity:.65}
+@media(max-width:760px){.v2-stage[data-sand=true] .v2-figure{top:48svh;height:46svh}.v2-sand-unit{font-size:8px}.waiting-v2:has(.v2-stage[data-sand=true]) .v2-copy{max-width:calc(100% - 12px)}}
+.v2-temporal-journey{position:relative;width:100%;height:100%}.v2-temporal-journey canvas{width:100%;height:100%;display:block}
+.v2-journey-counter{position:absolute;left:12%;top:1%;max-width:85%;pointer-events:none}.v2-journey-counter strong{display:block;font-size:clamp(58px,8vw,115px);letter-spacing:-.07em;line-height:1;color:var(--v2-accent);font-weight:500;font-variant-numeric:tabular-nums}.v2-journey-counter span{display:block;font-size:12px;margin-top:8px}.v2-journey-counter p{font-family:'Newsreader',Georgia,serif;font-size:17px;line-height:1.3;margin:14px 0}
+.v2-journey-caption{position:absolute;bottom:0;left:6%;width:88%;font-size:10px;opacity:.65;text-align:center;line-height:1.5}
+.v2-journey-controls{max-width:350px;margin-top:30px}.v2-journey-controls .v2-tabs{margin:0 0 18px;gap:30px}.v2-journey-instruction{font-size:12px;line-height:1.5;margin:0 0 18px}.v2-journey-controls input{width:100%;height:32px;accent-color:var(--v2-accent);cursor:ew-resize;touch-action:pan-y;background:none}.v2-journey-ends{display:flex;justify-content:space-between;font-size:9px;letter-spacing:.07em;text-transform:uppercase;margin-top:10px;opacity:.6}.v2-journey-rhythm{font-size:12px;line-height:1.6;margin:0 0 22px;color:var(--v2-accent)}
+@media(max-width:760px){.v2-journey-controls{margin-top:20px}.v2-journey-controls .v2-tabs{margin-bottom:18px}.v2-journey-counter strong{font-size:58px}.v2-journey-counter span{font-size:10px}.v2-journey-counter p{font-size:13px;max-width:250px}.v2-journey-caption{font-size:8px}.v2-time-scene{padding-bottom:65svh}}
 @media(max-width:760px){.v2-map-switch{margin:0 0 5px}.v2-map-caption{font-size:11px}.v2-map-legend{margin-top:8px}.v2-explore:has(.v2-territory-controls){padding-bottom:60svh}}
