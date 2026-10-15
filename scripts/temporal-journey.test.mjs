@@ -4,7 +4,20 @@ import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 const source=readFileSync(new URL('../app/v2/temporal-journey-model.ts',import.meta.url),'utf8').replace("'./time-scale-model'",JSON.stringify(new URL('../app/v2/time-scale-model.ts',import.meta.url).href));
 const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
-const {journeyState,journeyPosition,cumulativeCalendar}=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
+const {journeyState,journeyPosition,cumulativeCalendar,dialysisBlock}=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
+
+test('156 dialysis sessions collapse before people multiply, preserving 624 hours per block',()=>{
+  for(const p of [.62,.64,.66,.68,.70]){
+    const s=journeyState(p,'dialysis',12,31431);
+    assert.equal(s.people,1);assert.equal(s.duration.hours,624);assert.equal(s.duration.sessionCount,156);
+    assert.ok(s.collapse>=0&&s.collapse<=1);
+  }
+  const forward=[.62,.66,.70,.8,1].map(p=>journeyState(p,'dialysis',12,31431));
+  assert.deepEqual([1,.8,.70,.66,.62].map(p=>journeyState(p,'dialysis',12,31431)),forward.toReversed());
+  for(const s of forward){assert.equal(s.duration.hours,624*s.people);for(const [w,h] of [[331,360],[700,520]])for(let i=0;i<s.people;i++){
+    const b=dialysisBlock(i,s.people,w,h,s.expansion);assert.ok(b.x-b.size/2>=0&&b.x+b.size/2<=w&&b.y-b.size/2>=0&&b.y+b.size/2<=h);
+  }}
+});
 test('the individual precedes the collective, whole sessions accumulate and the 2025 cohort stays exact',()=>{
   let previous=0;
   for(let i=0;i<=1000;i++){

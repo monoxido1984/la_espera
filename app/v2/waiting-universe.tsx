@@ -5,6 +5,8 @@ import type { PointRelay } from './temporal-journey';
 import { discPoints, integer, decimal, type Cluster, type Dot, type Group, type UniverseMode, type Dimension, type TerritoryMetric } from './universe-model';
 import { hourglassPoints, narrativeLayout, timePoints, foldedTimePoints, borderPath, type NarrativeLayout, type ProvinceBorder } from './narrative-layouts';
 import { identifyDots, alignGraphicUnits } from './linked-exploration';
+import type {SandHandoff} from './sand-queue';
+import {crowdOrder} from './crowd-release-model';
 
 type Particle = Dot & { alpha: number };
 function mixColor(from: string, to: string, amount: number) {
@@ -18,6 +20,7 @@ type Props = {
   focus: string | null; hover: string | null; paused: boolean; dark: boolean;
   population: string; label: string; unit: string;
   relay?: MutableRefObject<PointRelay>;
+  entry?: MutableRefObject<SandHandoff|null>;
   accumulated?: boolean; timeRatio?: number; timeFolds?: number; historyRatio?: number; territoryMetric?: TerritoryMetric; territoryContext?: Group[];
   onHover: (id: string | null) => void; onSelect: (id: string) => void;
 };
@@ -44,7 +47,7 @@ export function numberPoints(count: number, width: number, height: number, radiu
   });
 }
 
-export default function WaitingUniverse({ mode, groups, count, total, focus, hover, paused, dark, population, label, unit, accumulated = false, timeRatio = 1, timeFolds=3, historyRatio=1, territoryMetric = 'count', territoryContext, relay, onHover, onSelect }: Props) {
+export default function WaitingUniverse({ mode, groups, count, total, focus, hover, paused, dark, population, label, unit, accumulated = false, timeRatio = 1, timeFolds=3, historyRatio=1, territoryMetric = 'count', territoryContext, relay, entry, onHover, onSelect }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const particles = useRef<Particle[]>([]);
@@ -101,8 +104,18 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
     const target = layout.points;
     const crossfade = previousPopulation.current !== population;
     previousPopulation.current = population;
-    const previous = particles.current;
-    const pairs = alignGraphicUnits(previous,target);
+    const arrival=mode==='organ'&&population==='waiting'&&!particles.current.length?entry?.current:null;
+    const rect=element.getBoundingClientRect();
+    if(arrival&&entry)entry.current=null;
+    let wide=Boolean(arrival);
+    if(wide){
+      element.width=Math.round(innerWidth*pixelRatio);element.height=Math.round(innerHeight*pixelRatio);
+      Object.assign(element.style,{position:'fixed',left:'0px',top:'0px',width:'100vw',height:'100vh'});
+      context.setTransform(pixelRatio,0,0,pixelRatio,rect.left*pixelRatio,rect.top*pixelRatio);
+    }
+    const previous:Particle[]=arrival?arrival.points.map(p=>({...p,x:p.x+arrival.left-rect.left,y:p.y+arrival.top-rect.top,alpha:1})):particles.current;
+    const arrivalOrder=arrival?crowdOrder(target.length):[];
+    const pairs = arrival?target.map((to,i)=>({from:previous[arrivalOrder[i]%previous.length],to})):alignGraphicUnits(previous,target);
     const length = pairs.length;
     const sand=mode==='number'?hourglassPoints(count,size.width,size.height,.15,Math.max(.45,Math.min(size.width,size.height)/550)):[];
     const starts = pairs.map((pair,index) => pair.from ?? { ...(sand[index] ?? pair.to ?? target[0]), alpha: mode==='number'?1:0 });
@@ -115,7 +128,7 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
     });
     let frame = 0;
     const started = performance.now();
-    const duration = paused ? 0 : mode==='number'?4200:crossfade ? 1000 : hover ? 200 : 1350;
+    const duration = paused ? 0 : arrival?950:mode==='number'?4200:crossfade ? 1000 : hover ? 200 : 1350;
     const draw = (now: number) => {
       const flowing = mode === 'intro' && !paused && now - started < 13000;
       if (mode === 'intro' && !paused) end = hourglassPoints(count, size.width, size.height, Math.min(1.08, (now - started) / 12000), Math.max(.45, Math.min(size.width, size.height) / 550)).map(p => ({ ...p, alpha: 1 }));
@@ -140,7 +153,7 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
         if (inset) element.setAttribute('d',`M${inset.anchorX},${inset.anchorY} L${inset.x},${inset.y}`);
       }
       previousBorders.current = animatedBorders;
-      context.clearRect(0, 0, size.width, size.height);
+      context.clearRect(wide?-rect.left:0,wide?-rect.top:0,wide?innerWidth:size.width,wide?innerHeight:size.height);
       // A province-wide rate fill avoids confusing denser point populations with PMH.
       for (const border of animatedBorders) {
         if (border.fillOpacity <= 0) continue;
@@ -173,6 +186,14 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
           ...to, x: from.x + (to.x - from.x) * eased, y: from.y + (to.y - from.y) * eased,
           radius: from.radius + (to.radius - from.radius) * eased, alpha: from.alpha + (to.alpha - from.alpha) * eased,
         };
+        if(arrival){
+          const delay=((Math.imul(index+1,1664525)>>>0)%997)/997*.18;
+          const t=paused?1:Math.max(0,Math.min(1,(progress-delay)/(1-delay))),u=1-t;
+          const bend=((index* .61803398875)%1-.5)*Math.min(size.width,size.height)*.16;
+          point.x=u*u*from.x+2*u*t*((from.x+to.x)/2+bend)+t*t*to.x;
+          point.y=u*u*from.y+2*u*t*((from.y+to.y)/2-bend*.6)+t*t*to.y;
+          point.alpha=1;
+        }
         if(mode==='number'&&!paused&&progress<1) {
           // Stagger the queue: chamber -> neck -> falling grain -> its place in the numeral.
           // These are the same graphic slots, not patient identities.
@@ -198,17 +219,28 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
       }
       for (const bucket of buckets.values()) {
         context.fillStyle = bucket.color; context.globalAlpha = bucket.alpha; context.beginPath();
-        for (const point of bucket.dots) { context.moveTo(point.x + point.radius, point.y); context.arc(point.x, point.y, point.radius, 0, Math.PI * 2); }
+        for (const point of bucket.dots) {
+          if(mode==='territory'){
+            // Two graphic marks per published inscription; never doubled data.
+            const offset=point.radius*1.1;
+            for(const direction of [-1,1]){const x=point.x+direction*offset;context.moveTo(x+point.radius*.68,point.y);context.arc(x,point.y,point.radius*.68,0,Math.PI*2);}
+          }else{context.moveTo(point.x + point.radius, point.y); context.arc(point.x, point.y, point.radius, 0, Math.PI * 2);}
+        }
         context.fill();
       }
       context.globalAlpha = 1;
       particles.current = progress === 1 ? current.slice(0, target.length) : current;
+      element.dataset.transition=arrival?'numeral-to-lists':'layout';element.dataset.transitionProgress=progress.toFixed(3);
+      if(wide&&progress===1){
+        wide=false;element.removeAttribute('style');element.width=Math.round(size.width*pixelRatio);element.height=Math.round(size.height*pixelRatio);
+        context.setTransform(pixelRatio,0,0,pixelRatio,0,0);draw(now);return;
+      }
       if(mode==='number'&&relay&&current.length){const anchor=current.at(-1)!;relay.current={x:anchor.x/size.width,y:anchor.y/size.height};}
       if (progress < 1 || flowing) frame = requestAnimationFrame(draw);
     };
     frame = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(frame);
-  }, [layout, size, hover, paused, population, mode, relay]);
+    return () => {cancelAnimationFrame(frame);element.removeAttribute('style');};
+  }, [layout, size, hover, paused, population, mode, relay, entry]);
 
   return (
     <div ref={container} className="v2-universe" data-mode={mode}>
@@ -217,6 +249,7 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
       {failed && <p className="v2-canvas-fallback">{integer(count)}<span>{unit}</span></p>}
       {mode === 'territory' && <div className="v2-clusters v2-province-map" role="group" aria-label="Explorar provincias">
         <svg ref={boundaries} viewBox={`0 0 ${size.width || 1} ${size.height || 1}`} className="v2-province-boundaries">
+          {layout.islands&&<g className="v2-map-islands" aria-hidden="true" style={{fill:layout.islands.fill,fillOpacity:.88,opacity:hover && hover!==layout.islands.group ? .18 : 1}}><path d={layout.islands.path}/></g>}
           {(layout.borders ?? []).map(border => {
             const group = layout.clusters.find(c => c.id === border.id)!;
             return <g key={border.id}>
@@ -234,7 +267,7 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
           <span className="v2-cluster-label"><span>{group.label}</span><strong>{integer(group.value)}</strong>{group.kind === 'collection' && <small>{group.members?.length} listas · desglosar ↗</small>}</span>
         </button>)}
       </div>}
-      {mode !== 'intro' && <p className="v2-unit">{unit}</p>}
+      {mode !== 'intro' && mode !== 'territory' && <p className="v2-unit">{unit}</p>}
     </div>
   );
 }

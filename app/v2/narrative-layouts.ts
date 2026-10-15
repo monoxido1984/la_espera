@@ -1,6 +1,6 @@
 import { provinceShapes } from './province-shapes.generated';
-import { discPoints, packGroups, type Cluster, type Dot, type Group, type Dimension, type TerritoryMetric } from './universe-model';
-import { cartogramWarp, provinceKey, inProvince } from './territory-cartogram';
+import { packGroups, type Cluster, type Dot, type Group, type Dimension, type TerritoryMetric } from './universe-model';
+import { provinceKey, inProvince, inRing } from './territory-cartogram';
 
 // Graphic silhouettes only: these positions are never patient locations or linked records.
 function insideOrgan(id: string, x: number, y: number): boolean {
@@ -37,7 +37,7 @@ function age(label: string) {
 }
 
 export type ProvinceBorder = { id: string; path: string; rings: number[][][]; fill: string; fillOpacity: number; inset?: { x: number; y: number; anchorX: number; anchorY: number } };
-export type NarrativeLayout = { clusters: Cluster[]; points: Dot[]; borders?: ProvinceBorder[] };
+export type NarrativeLayout = { clusters: Cluster[]; points: Dot[]; borders?: ProvinceBorder[]; islands?: {path:string;x:number;y:number;group:string;fill:string} };
 export function containsProvince(label: string, x: number, y: number) {
   const shape = provinceShapes.find(p => provinceKey(p.label) === provinceKey(label));
   return shape ? inProvince(x,y,shape.polygons) : false;
@@ -45,53 +45,62 @@ export function containsProvince(label: string, x: number, y: number) {
 export function borderPath(rings: number[][][]) {
   return rings.map(ring => ring.map((p,i) => `${i ? 'L' : 'M'}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join(' ') + 'Z').join(' ');
 }
-function provinceLayout(groups: Group[], width: number, height: number, focus: boolean, radius: number, metric: TerritoryMetric, contextGroups: Group[]): NarrativeLayout {
+// Hand-drawn editorial tiles: no geographic coordinates or IGN boundaries.
+const editorialTiles: Record<string, number[][]> = {
+  JUJUY:[[4,0],[5.4,.3],[5.7,1.8],[4.2,2.2],[3.8,1]],
+  SALTA:[[3.8,1],[4.2,2.2],[5.7,1.8],[5.4,.3],[6.4,.6],[7.1,2.2],[7,4],[4,4],[3.2,2.8]],
+  FORMOSA:[[7.1,2.2],[9.8,2.7],[10.3,3.6],[9,4.5],[7,4]],
+  CHACO:[[7,4],[9,4.5],[8.8,6.3],[6.4,6],[6.4,4]],
+  MISIONES:[[10.4,3.4],[11.4,2.8],[11.8,3.4],[11,5.8],[10.4,6.5],[10,5.3]],
+  CORRIENTES:[[9,4.5],[10,5.3],[10.4,6.5],[9.5,8.3],[8.7,7.9],[8.8,6.3]],
+  CATAMARCA:[[3.2,2.8],[4,4],[4.5,5.5],[5,8.2],[4.1,7.7],[3,8],[2.4,6.2]],
+  TUCUMAN:[[4,4],[5.2,4],[5.1,5.5],[4.5,5.5]],
+  'SANTIAGO DEL ESTERO':[[5.2,4],[6.4,4],[6.4,6],[6.7,8.2],[5,8.2],[4.5,5.5],[5.1,5.5]],
+  'LA RIOJA':[[3,8],[4.1,7.7],[4.5,8.9],[4.3,10.5],[2.5,10.5],[2.5,9]],
+  'SAN JUAN':[[2.5,10.5],[4.3,10.5],[4,12.1],[2.2,12.2],[2.1,11]],
+  MENDOZA:[[2.2,12.2],[4,12.1],[4.1,14.5],[3.7,16],[2.3,16],[1.9,14]],
+  'SAN LUIS':[[4.3,10.5],[5.2,10.5],[5.3,14.5],[4.1,14.5],[4,12.1]],
+  CORDOBA:[[4.1,7.7],[5,8.2],[6.7,8.2],[6.4,12.7],[5.3,14.5],[5.2,10.5],[4.3,10.5],[4.5,8.9]],
+  'SANTA FE':[[6.4,6],[8.8,6.3],[8.7,7.9],[7.5,10.4],[7.3,13],[6.4,12.7],[6.7,8.2]],
+  'ENTRE RIOS':[[8.7,7.9],[9.5,8.3],[9.1,11],[8.3,13.5],[7.3,13],[7.5,10.4]],
+  'BUENOS AIRES':[[7.3,13],[8.3,13.5],[9.3,14.2],[9.4,15.6],[8.2,17.6],[6.4,18],[6,16],[6.4,12.7]],
+  CABA:[[10.5,13.8],[11,13.5],[11.6,14],[11.1,14.6],[10.5,14.4]],
+  'LA PAMPA':[[5.3,14.5],[6.4,12.7],[6,16],[6.4,18],[4.1,18],[3.7,16],[4.1,14.5]],
+  NEUQUEN:[[2.3,16],[3.7,16],[4.1,18],[3.3,19],[1.9,18.3],[1.8,17]],
+  'RIO NEGRO':[[3.3,19],[4.1,18],[6.4,18],[6.8,19.3],[5.8,20.1],[2,20],[1.9,18.3]],
+  CHUBUT:[[2,20],[5.8,20.1],[6,21.8],[5.2,22.4],[2,22.4],[1.7,21.4]],
+  'SANTA CRUZ':[[2,22.4],[5.2,22.4],[5,23.7],[4.3,25],[2.8,25.5],[1.5,24.4]],
+  'TIERRA DEL FUEGO':[[3.6,26],[4.7,26.5],[5.8,26.5],[5,27],[4,26.9]],
+};
+function provinceLayout(groups: Group[], width: number, height: number, focus: boolean, radius: number, _metric: TerritoryMetric, _contextGroups: Group[]): NarrativeLayout {
   const clusters: Cluster[] = [], points: Dot[] = [], borders: ProvinceBorder[] = [];
-  const warp = cartogramWarp(contextGroups, metric);
-  const mainScale = Math.min(width * .84 / (21 * .78), height * .88 / 35);
-  const mainProject = (x: number, y: number) => [width / 2 + (x - 21 * .78 / 2) * mainScale, height * .06 + y * mainScale];
-  for (const group of groups) {
-    const shape = provinceShapes.find(p => provinceKey(p.label) === provinceKey(group.label));
-    if (!shape) {
-      const cluster = { ...group, x: width * .88, y: height * .1, radius: 12 };
-      clusters.push(cluster); points.push(...discPoints(group.value, cluster.x, cluster.y, 12, group.id, group.color, radius)); continue;
-    }
-    const coordinates = shape.polygons.flatMap(p => p[0]);
-    const minX = Math.min(...coordinates.map(p => p[0])), maxX = Math.max(...coordinates.map(p => p[0]));
-    const minY = Math.min(...coordinates.map(p => p[1])), maxY = Math.max(...coordinates.map(p => p[1]));
-    const transformed = coordinates.map(p => warp(p[0],p[1]));
-    const left = Math.min(...transformed.map(p => p[0])), right = Math.max(...transformed.map(p => p[0]));
-    const top = Math.min(...transformed.map(p => p[1])), bottom = Math.max(...transformed.map(p => p[1]));
-    const cx = (left + right) / 2, cy = (top + bottom) / 2;
-    const inset = !focus && shape.id === '02';
-    const scale = focus || inset ? Math.min((focus ? width * .7 : width * .09) / (right-left), (focus ? height * .78 : height * .09) / (bottom-top)) : mainScale;
-    const project = focus || inset ? (x: number, y: number) => [(inset ? width * .83 : width / 2)+(x-cx)*scale, (inset ? height * .47 : height / 2)+(y-cy)*scale] : mainProject;
-    const center = project(cx,cy);
-    const rings = shape.polygons.flatMap(p => p.map(ring => ring.flatMap((vertex, i) => {
-      const next = ring[(i+1)%ring.length];
-      const steps = Math.max(1, Math.ceil(Math.hypot(next[0]-vertex[0],next[1]-vertex[1])/.25));
-      return Array.from({length:steps},(_,j) => project(...warp(vertex[0]+(next[0]-vertex[0])*j/steps,vertex[1]+(next[1]-vertex[1])*j/steps) as [number,number]));
-    })));
-    const path = borderPath(rings);
-    const area = rings.reduce((sum,ring) => sum + Math.abs(ring.reduce((a,p,i) => {
-      const next=ring[(i+1)%ring.length]; return a+p[0]*next[1]-next[0]*p[1];
-    },0))/2,0);
-    // Keep point coverage modest in rate mode, so the PMH fill remains readable.
-    const pointRadius = metric === 'pmh' ? Math.min(radius,.6,Math.sqrt(area*.11/(Math.PI*Math.max(1,group.value)))) : Math.min(radius,.85);
-    const anchor = mainProject(cx,cy);
-    borders.push({ id: group.id, path, rings, fill:group.color, fillOpacity:metric === 'pmh' ? .88 : 0, ...(inset ? { inset: { x:center[0],y:center[1],anchorX:anchor[0],anchorY:anchor[1] } } : {}) });
-    clusters.push({ ...group, x:center[0], y:center[1], radius: Math.max(16, (right-left)*scale/2) });
-    let produced = 0;
-    for (let i = 1; produced < group.value; i++) {
-      if (i > Math.max(10000, group.value * 500)) throw new Error(`No se pudo muestrear la provincia ${group.label}`);
-      const x = minX + ((i*.754877666) % 1) * (maxX-minX);
-      const y = minY + ((i*.569840296) % 1) * (maxY-minY);
-      if (!inProvince(x,y,shape.polygons)) continue;
-      const warped = warp(x,y), position = project(warped[0],warped[1]);
-      points.push({ x:position[0],y:position[1],group:group.id,color:metric === 'pmh' ? '#f2efe7' : group.color,radius:pointRadius }); produced++;
+  const mainScale=Math.min(width*.78/12,height*.87/27);
+  for(const group of groups){
+    const ring=editorialTiles[provinceKey(group.label)]??[[11,.2],[11.7,.2],[11.7,.9],[11,.9]];
+    const minX=Math.min(...ring.map(p=>p[0])),maxX=Math.max(...ring.map(p=>p[0]));
+    const minY=Math.min(...ring.map(p=>p[1])),maxY=Math.max(...ring.map(p=>p[1]));
+    const cx=(minX+maxX)/2,cy=(minY+maxY)/2;
+    const scale=focus?Math.min(width*.65/(maxX-minX),height*.72/(maxY-minY)):mainScale;
+    const project=(x:number,y:number):number[]=>focus?[width*.5+(x-cx)*scale,height*.47+(y-cy)*scale]:[width*.5+(x-6)*scale,height*.04+y*scale];
+    const center=project(cx,cy),rings=[ring.map(p=>project(p[0],p[1]))];
+    const path=borderPath(rings);
+    borders.push({id:group.id,path,rings,fill:group.color,fillOpacity:.88});
+    clusters.push({...group,x:center[0],y:center[1],radius:Math.max(16,(maxX-minX)*scale/2)});
+    let produced=0;
+    for(let i=1;produced<group.value;i++){
+      const x=minX+((i*.754877666)%1)*(maxX-minX),y=minY+((i*.569840296)%1)*(maxY-minY);
+      if(!inRing(x,y,ring))continue;
+      const position=project(x,y);
+      points.push({x:position[0],y:position[1],group:group.id,color:'#32131a',radius:Math.min(radius,.8)});produced++;
     }
   }
-  return { clusters,points,borders };
+  // Part of Tierra del Fuego's graphic territory, without duplicating its units.
+  const fuegian=groups.find(g=>provinceKey(g.label)==='TIERRA DEL FUEGO');
+  const islands=focus||!fuegian?undefined:{group:fuegian.id,fill:fuegian.color,path:borderPath([
+    [[9,23.1],[9.5,22.7],[9.8,23.2],[9.6,23.7],[9.1,23.8],[9.3,23.4]],
+    [[10,22.8],[10.6,23],[10.8,23.4],[10.3,23.8],[9.9,23.5],[10.2,23.2]],
+  ].map(ring=>ring.map(([x,y])=>[width*.5+(x-6)*mainScale,height*.04+y*mainScale]))),x:width*.5+3.9*mainScale,y:height*.04+24.5*mainScale};
+  return {clusters,points,borders,islands};
 }
 
 export function narrativeLayout(groups: Group[], dimension: Dimension, width: number, height: number, focus: boolean, radius: number, metric: TerritoryMetric = 'count', contextGroups: Group[] = groups): NarrativeLayout {

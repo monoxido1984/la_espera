@@ -11,7 +11,7 @@ const { cartogramWarp, inRing } = await import(cartogramURL);
 const layoutURL = transpile(resolveData(source('narrative-layouts.ts')).replace("'./territory-cartogram'", JSON.stringify(cartogramURL)));
 const { narrativeLayout, hourglassPoints, timePoints, foldedTimePoints } = await import(layoutURL);
 const read = name => JSON.parse(readFileSync(new URL('../app/' + name, import.meta.url)));
-const data = buildUniverseData(read('story-data.generated.json'), read('history.generated.json'), read('transplant-snapshot.generated.json'));
+const data = buildUniverseData(read('story-data.generated.json'), read('history.generated.json'));
 test('narrative silhouettes, map and ordered time bands keep exact group counts and finite coordinates', () => {
   for (const [width, height] of [[700,520],[346,330],[276,250]]) for (const dimension of ['organ','territory','seniority']) {
     const groups = groupsFor(data, dimension, null);
@@ -39,13 +39,14 @@ test('folded time ribbons preserve units and remain inside desktop, notebook and
   }
 });
 
-test('cartogram keeps the same points, shared monotone geography and published PMH', () => {
+test('editorial map keeps exact inscriptions and fixed geometry between count and PMH', () => {
   const groups=groupsFor(data,'territory',null);
   assert.equal(groups.find(g=>g.label==='Buenos Aires').pmh,266.4);
   const count=narrativeLayout(groups,'territory',700,520,false,.8,'count');
   const pmh=narrativeLayout(groups,'territory',700,520,false,.8,'pmh');
   assert.deepEqual(count.points.map(p=>p.group),pmh.points.map(p=>p.group));
-  assert.ok(count.points.some((p,i)=>Math.hypot(p.x-pmh.points[i].x,p.y-pmh.points[i].y)>5));
+  assert.deepEqual(count.points.map(p=>[p.x,p.y]),pmh.points.map(p=>[p.x,p.y]));
+  assert.deepEqual(count.borders.map(b=>b.path),pmh.borders.map(b=>b.path));
   for (const metric of ['count','pmh']) {
     const warp=cartogramWarp(groups,metric);
     for (let lat=-55;lat<-22;lat+=2) for (let lon=-73;lon<-54;lon+=1) {
@@ -86,7 +87,7 @@ test('PMH color follows the published rate independently of the number of points
   assert.ok(lp.pmh>ba.pmh);
   assert.ok(parseInt(lp.color.slice(1,3),16)<parseInt(ba.color.slice(1,3),16),'higher rate uses a darker fill');
   const layout=narrativeLayout(groups,'territory',700,520,false,.8,'pmh');
-  assert.ok(layout.points.every(p=>p.color==='#f2efe7'));
+  assert.ok(layout.points.every(p=>p.color==='#32131a'));
   assert.equal(layout.borders.find(b=>b.id===lp.id).fill,lp.color);
   const missing=territoryColors([{id:'missing',label:'Salta',value:2,color:'#000000'}],'pmh')[0];
   assert.equal(missing.pmh,undefined);
@@ -94,5 +95,27 @@ test('PMH color follows the published rate independently of the number of points
   for (const list of data.lists) {
     const rawList=read('story-data.generated.json').currentSnapshot.byList.find(x=>x.id===list.id);
     assert.deepEqual(groupsFor(data,'territory',list.id).map(g=>g.pmh),rawList.province.map(g=>g.pmh));
+  }
+});
+
+test('the editorial map has no internal Catamarca gap and Malvinas add no statistical units',()=>{
+  for(const [width,height] of [[700,520],[276,250]]){
+    const groups=groupsFor(data,'territory',null),map=narrativeLayout(groups,'territory',width,height,false,.8);
+    const scale=Math.min(width*.78/12,height*.87/27),project=([x,y])=>[width*.5+(x-6)*scale,height*.04+y*scale];
+    const formerHole=project([4.53,7.13]);
+    assert.ok(map.borders.some(b=>b.rings.some(r=>inRing(...formerHole,r))));
+    assert.ok(map.islands.path.includes('Z M'));
+    const fuegian=groups.find(g=>g.label==='Tierra Del Fuego');
+    assert.equal(map.islands.group,fuegian.id);
+    assert.equal(map.islands.fill,fuegian.color);
+    assert.ok(map.islands.x>0&&map.islands.x<width&&map.islands.y<height);
+    assert.equal(map.points.length,9721);
+    assert.equal(map.clusters.length,24);
+    assert.equal(narrativeLayout([groups[0]],'territory',width,height,true,.8).islands,undefined);
+  }
+  for(const metric of ['count','pmh']){
+    const groups=territoryColors(groupsFor(data,'territory',null),metric);
+    const red=groups.map(g=>parseInt(g.color.slice(1,3),16));
+    assert.ok(Math.max(...red)-Math.min(...red)>100,'wide color range in both published metrics');
   }
 });

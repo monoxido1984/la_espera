@@ -1,16 +1,16 @@
 'use client';
 import {useEffect,useRef,useState,type MutableRefObject} from 'react';
 import {decimal,integer} from './universe-model';
-import {journeyPosition,journeyState,cumulativeCalendar,type JourneyMetric} from './temporal-journey-model';
+import {journeyPosition,journeyState,cumulativeCalendar,dialysisBlock,type JourneyMetric} from './temporal-journey-model';
 
 export type PointRelay={x:number;y:number};
 export function JourneyControls({metric,onMetric,progress,onProgress}:{metric:JourneyMetric;onMetric:(m:JourneyMetric)=>void;progress:number;onProgress:(p:number)=>void}) {
   return <div className="v2-journey-controls">
     <div className="v2-tabs" role="group" aria-label="El recorrido del tiempo"><button aria-pressed={metric==='dialysis'} onClick={()=>onMetric('dialysis')}>Diálisis</button><button aria-pressed={metric==='list'} onClick={()=>onMetric('list')}>Lista de espera</button></div>
     {metric==='dialysis'&&<p className="v2-journey-rhythm">En hemodiálisis, en general se realizan 3 sesiones por semana, de unas 4 horas cada una.</p>}
-    <p className="v2-journey-instruction">{progress<.62?'Arrastrá para hacer pasar el tiempo.':'Seguí arrastrando. Alejá la mirada.'}</p>
+    <p className="v2-journey-instruction">{progress<.62?'Arrastrá para hacer pasar el tiempo.':metric==='dialysis'&&progress<.70?'156 sesiones se reúnen en una persona.':'Seguí arrastrando. Sumá personas y tiempo.'}</p>
     <label className="v2-sr-only" htmlFor="v2-time-drag">Arrastrar para acumular tiempo</label>
-    <input id="v2-time-drag" type="range" min="0" max="1000" step="1" value={Math.round(progress*1000)} onChange={e=>onProgress(Number(e.target.value)/1000)} aria-valuetext={progress<.62?`${Math.round(progress/.62*100)}% del recorrido individual`:`${Math.round((progress-.62)/.38*100)}% de la perspectiva colectiva`} />
+    <input id="v2-time-drag" type="range" min="0" max="1000" step="1" value={Math.round(progress*1000)} onChange={e=>onProgress(Number(e.target.value)/1000)} aria-valuetext={progress<.62?`${Math.round(progress/.62*100)}% del recorrido individual`:metric==='dialysis'&&progress<.70?'Las 156 sesiones se reúnen en 624 horas para una persona':`${Math.round((progress-(metric==='dialysis'?.70:.62))/(metric==='dialysis'?.30:.38)*100)}% de la perspectiva colectiva`} />
     <div className="v2-journey-ends"><span>Una persona</span><span>El conjunto</span></div>
   </div>;
 }
@@ -33,25 +33,46 @@ export default function TemporalJourney({progress,metric,months,records,paused,r
       const arrival=paused?1:Math.min(1,(now-entered.current!)/1100);
       const easing=1-(1-arrival)**3;
       context.clearRect(0,0,w,h);
+      if(metric==='dialysis'){
+        const calendar=cumulativeCalendar(drawn.current,metric,months),columns=24,rows=Math.ceil(calendar.total/columns);
+        const cellW=w*.82/columns,cellH=h*.30/rows,collapse=s.collapse*s.collapse*(3-2*s.collapse);
+        context.globalAlpha=easing;context.fillStyle='#b74d38';
+        if(!s.collective&&s.collapse<1){
+          for(let i=0;i<calendar.steps;i++){
+            const x=w*.09+(i%columns+.5)*cellW,y=h*.56+(Math.floor(i/columns)+.5)*cellH;
+            const side=Math.min(cellW*.67,cellH*.67),size=side+(18-side)*collapse;
+            const px=x+(w*.5-x)*collapse,py=y+(h*.73-y)*collapse;
+            context.fillRect(px-size/2,py-size/2,size,size);
+          }
+        }else{
+          for(let i=0;i<s.people;i++){const b=dialysisBlock(i,s.people,w,h,s.expansion);context.fillRect(b.x-b.size/2,b.y-b.size/2,b.size,b.size);}
+        }
+        context.fillStyle='#182321';context.font=`${w<400?10:12}px Arial`;
+        context.fillText(s.collapse===0?'Un cuadrado = 4 horas · una sesión':s.collapse<1?'156 sesiones → 624 horas → una persona':`Un cuadrado = 624 horas · un año por persona`,w*.09,h*.52);
+        canvas.current!.dataset.sessions=String(calendar.steps);canvas.current!.dataset.people=String(s.people);canvas.current!.dataset.collapse=s.collapse.toFixed(3);canvas.current!.dataset.hours=String(s.duration.hours);
+        context.globalAlpha=1;
+        if(arrival<1||drawn.current!==progress)frame=requestAnimationFrame(draw);
+        return;
+      }
       // Each completed session/day retains its own slot; weeks never reset the ledger.
       const calendar=cumulativeCalendar(drawn.current,metric,months);
-      const columns=metric==='dialysis'?24:28,rows=Math.ceil(calendar.total/columns);
-      const cellW=w*.76/columns,cellH=h*.18/rows;
+      const columns=28,rows=Math.ceil(calendar.total/columns);
+      const cellW=w*.76/columns,cellH=h*.12/rows;
       context.globalAlpha=easing*.8;context.fillStyle='#b74d38';
       for(let i=0;i<calendar.steps;i++){
-        const x=w*.12+(i%columns)*cellW,y=h*.46+Math.floor(i/columns)*cellH;
+        const x=w*.12+(i%columns)*cellW,y=h*.56+Math.floor(i/columns)*cellH;
         context.fillRect(x,y,cellW*.6,cellH*.65);
       }
       context.globalAlpha=easing;context.font=`${w<400?9:11}px Arial`;context.fillStyle='#182321';
-      context.fillText(`${integer(calendar.steps)} ${metric==='dialysis'?'sesiones de 4 horas':'días acumulados'} · de ${integer(calendar.total)}`,w*.12,h*.41);
+      context.fillText(`${integer(calendar.steps)} días acumulados · de ${integer(calendar.total)}`,w*.12,h*.52);
       const position=journeyPosition(0,1,w,h,s.individual,0);
       const origin={x:relay.current.x*w,y:relay.current.y*h};
       if(!s.collective){
         context.strokeStyle='#b74d38';context.globalAlpha=.32*easing;context.lineWidth=1;
-        context.beginPath();context.moveTo(w*.16,h*.8);context.lineTo(position.x,h*.8);context.stroke();
+        context.beginPath();context.moveTo(w*.16,h*.84);context.lineTo(position.x,h*.84);context.stroke();
         // Successive calendar marks fold into one continuous path.
         const ticks=Math.round(s.individual*56);
-        for(let i=0;i<ticks;i++){const x=w*.16+(i/56)*w*.68;context.beginPath();context.moveTo(x,h*.8-3);context.lineTo(x,h*.8+3);context.stroke();}
+        for(let i=0;i<ticks;i++){const x=w*.16+(i/56)*w*.68;context.beginPath();context.moveTo(x,h*.84-3);context.lineTo(x,h*.84+3);context.stroke();}
       }
       const radius=s.collective?Math.min(2,Math.sqrt(w*h*.1/(Math.PI*s.people))*.65):5;
       context.fillStyle='#b74d38';context.globalAlpha=easing;context.beginPath();
@@ -76,8 +97,8 @@ export default function TemporalJourney({progress,metric,months,records,paused,r
   const value=state.collective?state.duration.fullYears/(state.duration.fullYears>=100?100:1):state.duration.value;
   return <div ref={box} className="v2-temporal-journey">
     <canvas ref={canvas} aria-hidden="true"/>
-    <div className="v2-journey-counter" aria-live="off"><strong>{progress?'≈ ':''}{state.collective?decimal(value):integer(value)}</strong><span>{scale}{state.collective?metric==='dialysis'?' acumulados dializándose en un año':' acumulados':''}{metric==='dialysis'?' · escenario anual':''}</span><p>{state.collective?`${integer(state.people)} ${metric==='dialysis'?'pacientes · 2025':'receptores'} · ${integer(state.duration.value)} ${metric==='dialysis'?'horas':'días en lista'}`:state.individual===1?`${decimal(months)} meses ${metric==='dialysis'?'del escenario · un año completo':'de calendario · un recorrido medio'}`:'Un recorrido. Una persona.'}</p></div>
-    <p className="v2-journey-caption">{metric==='dialysis'?'Un punto · un paciente registrado en 2025 (corte al 31/12)':state.collective?'Un punto · un receptor renal trasplantado en 2025':'Recorrido ilustrativo del promedio · receptores renales 2025'}</p>
+    <div className="v2-journey-counter" data-collective={state.collective} aria-live="off"><strong>{progress?'≈ ':''}{state.collective?decimal(value):integer(value)}</strong><span>{state.collective?<><b className="v2-accumulated-title">{scale} acumulados de espera</b>{metric==='dialysis'&&<small className="v2-accumulated-detail">dializándose en un año · escenario hipotético</small>}</>:<>{scale}{metric==='dialysis'?' · escenario anual':''}</>}</span><p>{state.collective?`${integer(state.people)} ${metric==='dialysis'?'pacientes · 2025':'receptores'} · ${integer(state.duration.value)} ${metric==='dialysis'?'horas':'días en lista'}`:state.individual===1?`${decimal(months)} meses ${metric==='dialysis'?'del escenario · un año completo':'de calendario · media publicada'}`:'Un recorrido. Una persona.'}</p></div>
+    <p className="v2-journey-caption">{metric==='dialysis'?(state.collapse===0?'Un cuadrado · una sesión de 4 horas':state.collapse<1?'Las sesiones se reúnen, su tiempo se conserva.':'Un cuadrado · 156 sesiones · 624 horas por persona')+' · estimación hipotética, stock al 31/12/2025':state.collective?'Un punto · un receptor renal trasplantado en 2025':'Recorrido ilustrativo de la media · receptores renales 2025'}</p>
     <span className="v2-sr-only" role="status">{integer(state.people)} {state.collective?metric==='dialysis'?'pacientes al cierre de 2025 en un escenario hipotético':'receptores trasplantados':'recorrido ilustrativo'}, {decimal(value)} {scale}.</span>
   </div>;
 }

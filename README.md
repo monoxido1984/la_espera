@@ -1,22 +1,18 @@
 # La Espera
 
-Recorrido interactivo por las listas de espera y la donación de órganos en Argentina. Versión 2 actualizada el 14 de octubre de 2026.
+Exploración visual de las listas de espera de órganos y tejidos en Argentina, con estadísticas públicas agregadas de CRESI / SINTRA · INCUCAI. Actualización: 15/10/2026.
 
-Página: https://monoxido1984.github.io/la_espera/
+Sitio: https://monoxido1984.github.io/la_espera/
 
-## Versiones
+## Recorrido actual
 
-- Versión 2: entrada principal y rutas /espera/ y /espera-v2/.
-- Versión 1: oculta; no tiene ruta pública ni enlaces en la página. Se conserva en el archivo y el historial de Git.
-- La copia congelada está en versiones/v1-20261002/, con manifiesto SHA256 y el commit de origen.
+Cinco escenas: reloj de arena, cifra de inscripciones, listas/provincias/antigüedad, foco renal en diálisis y lista de espera, y comparación anual. «Sobre los datos» explica reportes, filtros, salidas, cruces, cálculos y límites e incluye descargas para auditar los valores.
 
-La V2 empieza con un reloj de arena y transforma un mismo universo de puntos durante nueve escenas. Cada punto representa una unidad publicada: inscripción, donante o trasplante, según la escena. Las poblaciones distintas se disuelven entre escenas; no se crean registros individuales ni conversiones entre donación y trasplantes. Lista, antigüedad y provincia conservan las selecciones mediante los cruces agregados publicados. Las listas menores se pueden desglosar. El cartograma editorial permite consultar cantidad o tasas publicadas por millón de habitantes cuando están disponibles. La explicación completa permanece al final de la página.
+La comparación anual permite elegir lista, provincia y edad. La fila de inscripciones usa los conteos publicados cuando el cruce existe; la línea superior muestra la media de espera de receptores del conjunto seleccionado, Renal por defecto. La fila de donantes mantiene el total nacional de órganos y tejidos. El deslizador integra 2005–2025 y el corte parcial al 31/07/2026, con advertencia y datos ausentes como s/d.
 
-El reloj libera puntos hacia destinos distintos de la cifra: el avance y el retroceso del scroll recorren las mismas trayectorias. La escena de tiempo empieza con una persona y construye sesiones o días al arrastrar, sin reiniciar los bloques completados. Diálisis usa 31.431 pacientes registrados al 31/12/2025 y un escenario hipotético de un año completo para cada uno: 52 semanas × 3 sesiones × 4 horas, equivalente a 19.612.944 horas o aproximadamente 22,4 siglos. No son horas observadas ni el total de personas atendidas durante el año. Lista usa otro universo: 1.542 receptores renales trasplantados en 2025 y su promedio publicado de tiempo previo en lista. La referencia del régimen de hemodiálisis está enlazada en «Sobre los datos».
+Diálisis presenta un escenario hipotético de 52 semanas × 3 sesiones × 4 horas para los 31.431 pacientes al cierre de 2025: no son horas observadas. El tiempo previo al trasplante renal usa un universo distinto de 1.542 receptores. Los puntos son unidades gráficas de agregados, no pacientes identificados ni trayectorias clínicas.
 
-El explorador anual permite cruzar tiempo hasta trasplante por año, 13 listas, 24 provincias y dos grupos de edad entre 2005 y 2025. El archivo compacto conserva las 13.104 celdas del derivado de origen y su SHA256; se carga al abrir la exploración. Los promedios se ponderan por registros, las unidades hepáticas se mantienen en días y las ausencias no se convierten en cero. El cruce renal territorial de 2025 contiene 1.528 registros frente a los 1.542 del resumen nacional: las bases se distinguen y no se fuerzan a coincidir.
-
-## Ejecutar
+## Ejecutar y validar
 
 Requiere Node.js 22.13 o superior.
 
@@ -25,11 +21,7 @@ npm ci
 npm run dev
 ```
 
-Abrir http://localhost:3000/la_espera/espera/.
-
-## Publicación
-
-GitHub Pages usa GitHub Actions como origen. Cada actualización de `main` verifica los tipos, ejecuta las pruebas, compila una exportación estática de Next.js y publica `out/`.
+Abrir http://localhost:3000/la_espera/.
 
 ```sh
 npm run lint
@@ -37,10 +29,19 @@ npm test
 npm run build
 ```
 
-## Datos y límites
+Las pruebas verifican conteos, celdas, filtros, unidades, escenarios y recorridos reversibles. Las comprobaciones de bytes de originales sólo se ejecutan cuando está presente el proyecto de adquisición; en esta copia independiente se omiten explícitamente. Los controles de sumas, cobertura y coincidencia entre datos internos y descargas sí se ejecutan aquí y en GitHub Actions.
 
-Los JSON de `app/*.generated.json` y `public/datos/` conservan el corte y las referencias de los agregados públicos usados en la página. El mapa está en `public/geo/`. La compilación usa estas instantáneas y no consulta CRESI ni requiere el repositorio de adquisición.
+## Datos y reproducción
 
-El detalle de fuentes, fechas, universos y limitaciones aparece en los paneles «Datos y método» y las descargas de la página. Las tablas marginales no representan microdatos ni permiten reconstruir trayectorias individuales. Los tiempos hasta trasplante corresponden a receptores efectivamente trasplantados. Las ausencias se muestran como datos no disponibles.
+- [Guía de búsquedas CRESI, filtros y preparación](public/datos/guia-consultas-cresi.md).
+- `public/datos/`: agregados descargables, períodos y referencias de origen.
+- `app/v2/annual-time.generated.json`: 13.104 celdas conjuntas de 2005–2025, con huella del derivado padre.
+- `app/wait-time-province.generated.json` y `app/dialysis-history.generated.json`: referencias usadas para validar las celdas y cohortes, además de las descargas correspondientes.
 
-La narrativa, los datos y el diseño de la versión local se conservan. La copia publicada adapta únicamente la compilación y las rutas a `/la_espera/`.
+Los reportes dinámicos pueden cambiar: la fotografía de situación actual del 28/08/2026 sólo puede reproducirse exactamente con las respuestas conservadas en el proyecto de adquisición. Los JSON conservan rutas y hashes, no todos los HTML originales. Esta web compila con archivos locales; no consulta CRESI ni necesita credenciales.
+
+## Publicación y mantenimiento
+
+GitHub Actions ejecuta instalación, lint, pruebas y exportación estática al actualizar `main`, y publica `out/` en GitHub Pages. Las rutas `/`, `/espera/` y `/espera-v2/` muestran el recorrido actual bajo `/la_espera/`.
+
+Este árbol conserva los archivos de la versión actual y sus pruebas. La versión anterior y sus recursos retirados se recuperan del historial de Git. `public/og.png` se mantiene porque lo usan Open Graph y Twitter al compartir el enlace. Dependencias y resultados de compilación están excluidos de Git.

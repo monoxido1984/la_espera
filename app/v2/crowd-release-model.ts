@@ -12,12 +12,12 @@ export function crowdProgress(index:number,elapsed:number) {
   const delay=.8+variation(index,13)*3.6,duration=2.6+variation(index,74)*6.2;
   return Math.max(0,Math.min(1,(elapsed-delay)/duration));
 }
-export function crowdPosition(index:number,progress:number,from:{x:number;y:number},to:{x:number;y:number},width:number,height:number) {
+export function crowdPosition(index:number,progress:number,from:{x:number;y:number},to:{x:number;y:number},width:number,height:number,outlet?:{x:number;y:number}) {
   if(progress<=0)return from;if(progress>=1)return to;
-  const gate={x:width*.65,y:height*.385};
+  const gate=outlet??{x:width*.65,y:height*.385};
   if(progress<.18){const u=progress/.18;return {x:from.x+(gate.x-from.x)*u,y:from.y+(gate.y-from.y)*u};}
   const p=(progress-.18)/.82,t=1-(1-p)**2;
-  const a={x:Math.max(width*.04,Math.min(width*.96,gate.x+(variation(index,9)-.5)*width*.35)),y:height*.49};
-  const b={x:Math.max(width*.04,Math.min(width*.96,to.x+(variation(index,8)-.5)*width*.14)),y:height*.61};
+  const a={x:Math.max(width*.04,Math.min(width*.96,gate.x+(variation(index,9)-.5)*width*.35)),y:outlet?gate.y+(to.y-gate.y)*.3:height*.49};
+  const b={x:Math.max(width*.04,Math.min(width*.96,to.x+(variation(index,8)-.5)*width*.14)),y:outlet?gate.y+(to.y-gate.y)*.7:height*.61};
   return {x:(1-t)**3*gate.x+3*(1-t)**2*t*a.x+3*(1-t)*t*t*b.x+t**3*to.x,y:(1-t)**3*gate.y+3*(1-t)**2*t*a.y+3*(1-t)*t*t*b.y+t**3*to.y};
 }
