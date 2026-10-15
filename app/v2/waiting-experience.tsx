@@ -30,6 +30,7 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
   const [notice, setNotice] = useState<string | null>(null);
   const [hover, setHover] = useState<string | null>(null);
   const [paused, setPaused] = useState(false);
+  const [methodOpen,setMethodOpen]=useState(false);
   const [reduced, setReduced] = useState(false);
   const [year, setYear] = useState(data.history.at(-1)!.year);
   const [timeMetric, setTimeMetric] = useState<'list' | 'dialysis'>('dialysis');
@@ -39,6 +40,7 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
   const [annualRefine,setAnnualRefine]=useState(false);
   const [annualSelection,setAnnualSelection]=useState<AnnualTimeSelection>({list:'RENAL',province:null,age:'all'});
   const [annualTimes,setAnnualTimes]=useState<AnnualTimeDetail[]>([]);
+  useEffect(()=>{if(location.hash==='#sobre-los-datos')setMethodOpen(true);},[]);
   useEffect(() => {
     const media = matchMedia('(prefers-reduced-motion: reduce)');
     const update = () => setReduced(media.matches);
@@ -116,7 +118,7 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
   function regroup() { setSelection({...selection,smallLists:false,listId:null}); setDimension('organ'); setHover(null); setNotice(null); }
   return <main className="waiting-v2" data-dark={dark} data-paused={paused || reduced}>
     <a href="#escena-1" className="v2-skip">Saltar la apertura</a>
-    <header className="v2-header"><a href="#escena-0" className="v2-brand">LA ESPERA <span>Argentina</span></a><div><a href="#sobre-los-datos">Sobre los datos</a><button type="button" onClick={() => setPaused(!paused)} aria-pressed={paused || reduced} disabled={reduced}>{reduced ? 'Movimiento reducido' : paused ? 'Activar movimiento' : 'Pausar movimiento'}</button></div></header>
+    <header className="v2-header"><a href="#escena-0" className="v2-brand">LA ESPERA <span>Argentina</span></a><div><button type="button" aria-haspopup="dialog" aria-controls="sobre-los-datos" aria-expanded={methodOpen} onClick={()=>setMethodOpen(true)}>Sobre los datos</button><button type="button" onClick={() => setPaused(!paused)} aria-pressed={paused || reduced} disabled={reduced}>{reduced ? 'Movimiento reducido' : paused ? 'Activar movimiento' : 'Pausar movimiento'}</button></div></header>
     <nav className="v2-progress" aria-label="Capítulos">{chapters.map((chapter, index) => <a href={`#escena-${index}`} key={chapter} aria-label={`${index + 1}. ${chapter}`} aria-current={scene === index ? 'step' : undefined}><span>{chapter}</span></a>)}</nav>
     <div className="v2-story">
       <div ref={stage} className="v2-stage" data-sand={scene<2} aria-hidden={scene === 0 ? true : undefined}>
@@ -164,6 +166,6 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
 
       </div></section>
     </div>
-    <DataMethod data={data}/>
+    <DataMethod data={data} open={methodOpen} onClose={()=>setMethodOpen(false)}/>
   </main>;
 }

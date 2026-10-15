@@ -6,7 +6,7 @@ Sitio: https://monoxido1984.github.io/la_espera/
 
 ## Recorrido actual
 
-Cinco escenas: reloj de arena, cifra de inscripciones, listas/provincias/antigüedad, foco renal en diálisis y lista de espera, y comparación anual. «Sobre los datos» explica reportes, filtros, salidas, cruces, cálculos y límites e incluye descargas para auditar los valores.
+Cinco escenas: reloj de arena, cifra de inscripciones, listas/provincias/antigüedad, foco renal en diálisis y lista de espera, y comparación anual. «Sobre los datos» abre un panel desplegable que explica reportes, filtros, salidas, cruces, cálculos y límites e incluye descargas para auditar los valores.
 
 La comparación anual permite elegir lista, provincia y edad. La fila de inscripciones usa los conteos publicados cuando el cruce existe; la línea superior muestra la media de espera de receptores del conjunto seleccionado, Renal por defecto. La fila de donantes mantiene el total nacional de órganos y tejidos. El deslizador integra 2005–2025 y el corte parcial al 31/07/2026, con advertencia y datos ausentes como s/d.
 

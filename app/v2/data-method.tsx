@@ -1,3 +1,5 @@
+'use client';
+import {useEffect,useRef} from 'react';
 import {MILESTONES} from '../historical-milestones';
 import partial2026 from './partial-2026.generated.json';
 import {decimal,integer,type UniverseData} from './universe-model';
@@ -11,10 +13,20 @@ const timeReports=[
   {module:'Córneas',lists:'Córneas y escleras',url:report('corneas'),output:'28',unit:'meses'},
 ];
 
-export default function DataMethod({data}:{data:UniverseData}){
+export default function DataMethod({data,open,onClose}:{data:UniverseData;open:boolean;onClose:()=>void}){
+  const panel=useRef<HTMLDialogElement>(null);
+  useEffect(()=>{
+    const dialog=panel.current;if(!dialog)return;
+    if(!open){if(dialog.open)dialog.close();return;}
+    const previousOverflow=document.body.style.overflow;
+    dialog.showModal();document.body.style.overflow='hidden';
+    return()=>{document.body.style.overflow=previousOverflow;if(dialog.open)dialog.close();};
+  },[open]);
   const latest=data.history.at(-1)!;
-  return <footer className="v2-method" id="sobre-los-datos">
-    <p className="v2-kicker">La historia detrás de la historia</p><h2>Sobre los datos.</h2>
+  return <dialog ref={panel} id="sobre-los-datos" className="v2-method-dialog" aria-labelledby="v2-method-title" onCancel={onClose} onClose={onClose} onClick={event=>{if(event.target===event.currentTarget)onClose();}}>
+    <div className="v2-method-bar"><span>Fuentes y metodología</span><button type="button" onClick={onClose} aria-label="Cerrar Sobre los datos">Cerrar <span aria-hidden="true">×</span></button></div>
+    <section className="v2-method">
+    <p className="v2-kicker">La historia detrás de la historia</p><h2 id="v2-method-title">Sobre los datos.</h2>
     <p>Esta exploración usa estadísticas públicas agregadas de <a href="https://cresi.incucai.gov.ar/">CRESI, Central de Reportes y Estadísticas del SINTRA · INCUCAI</a>. Se consultaron reportes numéricos sin autenticación. No se obtuvieron fichas, nombres ni recorridos individuales.</p>
     <p>Las fechas no son intercambiables: la cifra de apertura es una fotografía; las series históricas usan años completos; 2026 llega sólo hasta julio. La fecha de ejecución del reporte se conserva aparte del período que describe.</p>
     <div className="v2-method-table" role="region" aria-label="Fuentes y períodos de cada escena" tabIndex={0}><table><caption>Qué dato sostiene cada escena</caption><thead><tr><th scope="col">En pantalla</th><th scope="col">Población y corte</th><th scope="col">Reporte de origen</th></tr></thead><tbody>
@@ -91,6 +103,7 @@ export default function DataMethod({data}:{data:UniverseData}){
       <p><strong>Mayo de 2026: récord histórico mensual de 109 procesos de donación de órganos.</strong> Es una unidad y un período distintos de los {integer(partial2026.donors)} donantes de órganos y/o tejidos de enero–julio. <a href={partial2026.record.url}>INCUCAI, noticia publicada el 08/06/2026 ↗</a>.</p>
     </details>
     <details><summary>Las listas de la fotografía, sin simplificar categorías</summary><dl>{data.organs.map(group=><div key={group.id}><dt>{group.label}</dt><dd>{integer(group.value)}</dd></div>)}</dl></details>
-    <div className="v2-footer-links"><a href={`${base}/datos/guia-consultas-cresi.md`} download>Guía de consultas CRESI ↗</a><a href="#escena-0">Volver al principio ↑</a><span>LA ESPERA / V.02</span></div>
-  </footer>;
+    <div className="v2-footer-links"><a href={`${base}/datos/guia-consultas-cresi.md`} download>Guía de consultas CRESI ↗</a><a href="#escena-0" onClick={onClose}>Volver al principio ↑</a><span>LA ESPERA / V.02</span></div>
+    </section>
+  </dialog>;
 }
