@@ -4,6 +4,7 @@ import {numberPoints} from './waiting-universe';
 import {hourglassPoints} from './narrative-layouts';
 import {integer,type Dot} from './universe-model';
 import {crowdOrder,crowdProgress,crowdPosition,sandScrollState} from './crowd-release-model';
+import {introScrollLayout} from './intro-scroll-model';
 import type {PointRelay} from './temporal-journey';
 
 export type SandHandoff={points:Dot[];left:number;top:number};
@@ -31,6 +32,14 @@ export default function SandQueue({count,forming,paused,relay,handoff}:{count:nu
       drawn.current=paused||drawn.current===null?target:drawn.current+(target-drawn.current)*(1-Math.exp(-dt/90));
       if(Math.abs(target-drawn.current)<.0002)drawn.current=target;
       const timeline=sandScrollState(drawn.current,1),progress=timeline.progress;
+      const nextSection=document.getElementById('escena-2'),story=box.current?.closest<HTMLElement>('.waiting-v2');
+      if(nextSection&&story){
+        const layout=introScrollLayout(progress,nextSection.getBoundingClientRect().top,window.innerHeight);
+        story.style.setProperty('--v2-intro-exit',`${layout.exit}px`);
+        story.style.setProperty('--v2-opening-opacity',String(layout.openingOpacity));
+        story.style.setProperty('--v2-number-opacity',String(layout.numberOpacity));
+        story.dataset.introCopy=layout.openingOpacity>0?'opening':layout.numberOpacity>0?'number':'transition';
+      }
       const cx=w*(mobile?.5:.80),cy=h*(mobile?.66:.45),s=Math.min(w*(mobile?.30:.14),h*(mobile?.17:.28)),oldS=Math.min(w*.3,h*.4);
       const sand=hourglassPoints(count,w,h,timeline.fall,radius);
       ctx.clearRect(0,0,w,h);ctx.strokeStyle='#b74d38';ctx.lineWidth=mobile?1.5:2;ctx.lineCap='round';

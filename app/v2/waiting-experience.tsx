@@ -116,7 +116,7 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
   }
   function reset() { setSelection(allWaiting); setDimension('organ'); setHover(null); setNotice(null); setTerritoryMetric('count'); }
   function regroup() { setSelection({...selection,smallLists:false,listId:null}); setDimension('organ'); setHover(null); setNotice(null); }
-  return <main className="waiting-v2" data-dark={dark} data-paused={reduced}>
+  return <main className="waiting-v2" data-dark={dark} data-paused={reduced} data-intro={scene<2}>
     <a href="#escena-1" className="v2-skip">Saltar la apertura</a>
     <header className="v2-header"><a href="#escena-0" className="v2-brand">LA ESPERA <span>Argentina</span></a><div><button type="button" aria-haspopup="dialog" aria-controls="sobre-los-datos" aria-expanded={methodOpen} onClick={()=>setMethodOpen(true)}>Sobre los datos</button></div></header>
     <nav className="v2-progress" aria-label="Capítulos">{chapters.map((chapter, index) => <a href={`#escena-${index}`} key={chapter} aria-label={`${index + 1}. ${chapter}`} aria-current={scene === index ? 'step' : undefined}><span>{chapter}</span></a>)}</nav>

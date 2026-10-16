@@ -176,3 +176,13 @@
 @media(max-width:760px){.v2-parallel-caption{bottom:-24px}}
 
 @media(max-width:760px){.v2-stage:has(.v2-universe[data-mode=organ]) .v2-figure{height:450px}.v2-universe[data-mode=organ] .v2-cluster-label{white-space:normal;min-width:100px;max-width:130px}.v2-universe[data-mode=organ] .v2-cluster-label small{display:none}}
+
+/* One bounded viewport for the hourglass, numeral and their reading areas. */
+.waiting-v2[data-intro=true] .v2-stage[data-sand=true]{transform:translateY(var(--v2-intro-exit,0px));clip-path:inset(0)}
+.v2-opening .v2-opening-content{position:fixed;left:5.5vw;top:24svh;width:89vw;transform:translateY(var(--v2-intro-exit,0px));opacity:var(--v2-opening-opacity,1)}
+.v2-number-scene{min-height:160svh}
+.v2-number-scene .v2-copy{position:fixed;inset:0;width:100%;height:100svh;transform:translateY(var(--v2-intro-exit,0px));opacity:var(--v2-number-opacity,0);pointer-events:none}
+.waiting-v2[data-intro=false] :is(.v2-opening-content,.v2-number-scene .v2-copy),.waiting-v2[data-intro-copy=transition] :is(.v2-opening-content,.v2-number-scene .v2-copy),.waiting-v2[data-intro-copy=number] .v2-opening-content,.waiting-v2[data-intro-copy=opening] .v2-number-scene .v2-copy{visibility:hidden}
+@media(max-width:760px){.v2-opening .v2-opening-content{left:25px;top:15svh;width:calc(100% - 50px)}.v2-opening .v2-scroll{top:57svh;max-width:100%}.v2-number-scene .v2-copy{max-width:none}}
+
+@media(max-width:760px){.v2-opening .v2-scroll{top:70svh}.v2-opening h1{font-size:min(23vw,14svh)}}
