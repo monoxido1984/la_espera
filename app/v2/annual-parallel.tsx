@@ -15,8 +15,8 @@ export default function AnnualParallel({record,history,countMaximum,scope}:{reco
     const {width:w,height:h}=size,dpr=Math.min(devicePixelRatio||1,2);
     canvas.current.width=Math.round(w*dpr);canvas.current.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);
     const rows=w<400?16:24,columns=Math.ceil(countMaximum/rows);
-    const dx=w*.82/columns,dy=h*.07/rows,radius=Math.max(.36,Math.min(dx*.62,dy*.42));
-    for(const [value,y,color] of [[record.waitlist,h*.50,ANNUAL_COLORS.waitlist],[record.donors,h*.76,ANNUAL_COLORS.donors]] as const){
+    const dx=w*.82/columns,dy=h*.055/rows,radius=Math.max(.36,Math.min(dx*.62,dy*.42));
+    for(const [value,y,color] of [[record.waitlist,h*.51,ANNUAL_COLORS.waitlist],[record.donors,h*.82,ANNUAL_COLORS.donors]] as const){
       if(value===null)continue;
       ctx.fillStyle=color;ctx.beginPath();
       for(let i=0;i<value;i++){const x=w*.09+(Math.floor(i/rows)+.5)*dx,py=y+(i%rows+.5)*dy;ctx.moveTo(x+radius,py);ctx.arc(x,py,radius,0,Math.PI*2);}
@@ -27,14 +27,14 @@ export default function AnnualParallel({record,history,countMaximum,scope}:{reco
   return <div ref={box} className="v2-annual-parallel" data-partial={record.partial}>
     <canvas ref={canvas} aria-hidden="true"/>
     <div className="v2-parallel-median"><span>Media de espera · {record.label}{record.partial?' · enero–julio':''}</span><strong data-available={record.average!==null}>{record.average===null?'s/d':decimal(record.average)}{record.average!==null&&<small> {record.unit}</small>}</strong><p>{record.average===null?'Sin tiempo disponible para esta selección.':`${integer(record.n)} ${record.n===1?'receptor trasplantado':'receptores trasplantados'} en ${record.year}${record.partial?' hasta el 31/07':''}.`}<br/>{scope}</p></div>
-    <div className="v2-parallel-row" data-series="waitlist" style={{top:'30%'}}><span>En lista · {record.label}<small className="v2-trend-unit">Línea: media de espera · {record.unit}</small></span><strong>{record.waitlist===null?'s/d':integer(record.waitlist)}</strong></div>
+    <div className="v2-parallel-row" data-series="waitlist" style={{top:'31%'}}><span>En lista · {record.label}<small className="v2-trend-unit">Línea: media de espera · {record.unit}</small></span><strong>{record.waitlist===null?'s/d':integer(record.waitlist)}</strong></div>
     {record.waitlist===null&&<p className="v2-parallel-unavailable">{record.countReason}</p>}
-    <div className="v2-parallel-row" data-series="donors" style={{top:'58%'}}><span>Donantes de órganos y tejidos · total nacional{record.partial?' · enero–julio':''}</span><strong>{integer(record.donors)}</strong></div>
+    <div className="v2-parallel-row" data-series="donors" style={{top:'64%'}}><span>Donantes de órganos y tejidos · total nacional{record.partial?' · enero–julio':''}</span><strong>{integer(record.donors)}</strong></div>
     <svg className="v2-parallel-trends" viewBox={`0 0 ${size.width||1} ${size.height||1}`} role="img" aria-label={`Evolución de la media de espera de ${record.label}, en ${record.unit}, y del total nacional de donantes entre 2005 y ${record.year}. Escalas independientes desde cero. Los donantes parciales de 2026 no se conectan a los años completos.`}>
       {(['average','donors'] as const).map((metric,index)=>{
-        const points=annualTrend(history,record.year,metric,size.width,size.height,index?.74:.48),full=points.filter(p=>!p.partial),last=points.at(-1),previous=full.at(-1);
+        const points=annualTrend(history,record.year,metric,size.width,size.height,index?.80:.49),full=points.filter(p=>!p.partial),last=points.at(-1),previous=full.at(-1);
         return <g key={metric} style={{color:ANNUAL_COLORS[metric==='average'?'waitlist':metric]}}>
-          <path className="v2-trend-baseline" d={`M${size.width*.09},${size.height*(index?.74:.48)}H${size.width*.91}`}/>
+          <path className="v2-trend-baseline" d={`M${size.width*.09},${size.height*(index?.80:.49)}H${size.width*.91}`}/>
           <path className="v2-trend-line" data-series={metric} d={full.map((p,i)=>`${i&&full[i-1].year===p.year-1?'L':'M'}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ')}/>
           {metric==='average'&&last?.partial&&previous?.year===last.year-1&&<path className="v2-trend-line v2-trend-partial" data-series="average-partial" d={`M${previous.x},${previous.y}L${last.x},${last.y}`}/>}
           {full.filter(p=>MILESTONES.some(e=>e.year===p.year)).map(p=><circle key={p.year} cx={p.x} cy={p.y} r={p.year===record.year?4:2.4} className="v2-trend-event"/>)}

@@ -105,7 +105,7 @@ function provinceLayout(groups: Group[], width: number, height: number, focus: b
 
 export function narrativeLayout(groups: Group[], dimension: Dimension, width: number, height: number, focus: boolean, radius: number, metric: TerritoryMetric = 'count', contextGroups: Group[] = groups): NarrativeLayout {
   if (dimension === 'organ') {
-    const clusters = packGroups(groups, width, height - 55, width < 450 ? 32 : 42).map(c => ({ ...c, y: c.y + 5 }));
+    const clusters = packGroups(groups, width, height - 55, width < 450 ? (height >= 400 ? 50 : 32) : 42).map(c => ({ ...c, y: c.y + 5 }));
     return { clusters, points: clusters.flatMap(c => organPoints(c, radius)) };
   }
   if (dimension === 'territory') return provinceLayout(groups, width, height, focus, radius, metric, contextGroups);

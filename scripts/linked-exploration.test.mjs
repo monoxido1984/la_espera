@@ -28,10 +28,10 @@ test('small lists collapse to one exact group and expand without losing categori
   assert.deepEqual(keys(details),other.unitKeys.toSorted());
 });
 
-test('list -> time -> province -> list retains the actual joint selection in both directions',()=>{
+test('organ opens province and joint filters retain exact units in both directions',()=>{
   const renal=group(allWaiting,'organ','RENAL');
   const first=selectExploration(allWaiting,'organ',renal);
-  assert.equal(first.dimension,'seniority');
+  assert.equal(first.dimension,'territory');
   assert.equal(sum(explorationGroups(data,first.dimension,first.selection).groups),5638);
   const second=selectExploration(first.selection,'seniority',group(first.selection,'seniority',band));
   assert.equal(second.dimension,'territory');

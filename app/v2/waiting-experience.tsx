@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import WaitingUniverse from './waiting-universe';
+import {organLabel} from './organ-labels';
 import AnnualParallel from './annual-parallel';
 import partial2026 from './partial-2026.generated.json';
 import annualCounts from './annual-list-counts.generated.json';
@@ -29,7 +30,6 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
   const [selection, setSelection] = useState<ExplorationSelection>(allWaiting);
   const [notice, setNotice] = useState<string | null>(null);
   const [hover, setHover] = useState<string | null>(null);
-  const [paused, setPaused] = useState(false);
   const [methodOpen,setMethodOpen]=useState(false);
   const [reduced, setReduced] = useState(false);
   const [year, setYear] = useState(data.history.at(-1)!.year);
@@ -77,7 +77,7 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
   }, [scene]);
   const exploration = useMemo(() => explorationGroups(data,dimension,selection), [data,dimension,selection]);
   const territoryReference = useMemo(() => territoryColors(explorationGroups(data,'territory',{...selection,province:null}).groups,territoryMetric),[data,selection,territoryMetric]);
-  const groups = useMemo(() => dimension === 'territory' ? exploration.groups.map(g => ({...g,color:territoryReference.find(row => row.id === g.id)?.color ?? g.color})) : exploration.groups, [exploration,dimension,territoryReference]);
+  const groups = useMemo(() => dimension === 'territory' ? exploration.groups.map(g => ({...g,color:territoryReference.find(row => row.id === g.id)?.color ?? g.color})) : dimension === 'organ' ? exploration.groups.map(g=>({...g,label:organLabel(g.sourceKey??g.id,g.label)})) : exploration.groups, [exploration,dimension,territoryReference]);
   const selectedKey = dimension === 'organ' ? selection.listId : dimension === 'seniority' ? selection.seniority : selection.province;
   const focus = groups.find(g => g.sourceKey === selectedKey)?.id ?? null;
   const provinceNames = useMemo(() => {
@@ -98,7 +98,7 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
   const visibleGroups = focus ? groups.filter(group => group.id === focus) : groups;
   const count = scene === 3 ? timeN : scene === 2 ? visibleGroups.reduce((sum, group) => sum + group.value, 0) : data.total;
   const population = scene === 3 ? timeMetric==='dialysis'?'dialysis-year-end-2025':'renal-recipients' : 'waiting';
-  const unit = scene===2&&dimension==='territory'?'Dos marcas · una inscripción. Mapa aproximado.':scene === 3 ? timeMetric==='dialysis'?'Un punto · un paciente en diálisis al cierre de 2025':'Un punto · un registro de receptor renal trasplantado en 2025' : 'Un punto · una inscripción en lista de espera';
+  const unit = scene===2&&dimension==='territory'?'Inscripciones por provincia':scene === 3 ? timeMetric==='dialysis'?'Un punto · un paciente en diálisis al cierre de 2025':'Un punto · un registro de receptor renal trasplantado en 2025' : 'Un punto · una inscripción en lista de espera';
   function chooseTimeMetric(next:'list'|'dialysis'){setTimeMetric(next);setJourneyProgress(0);}
   function toggleAnnualRefinement(){setAnnualRefine(!annualRefine);}
   function changeDimension(next: Dimension) { setDimension(next); setHover(null); setNotice(null); }
@@ -116,29 +116,29 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
   }
   function reset() { setSelection(allWaiting); setDimension('organ'); setHover(null); setNotice(null); setTerritoryMetric('count'); }
   function regroup() { setSelection({...selection,smallLists:false,listId:null}); setDimension('organ'); setHover(null); setNotice(null); }
-  return <main className="waiting-v2" data-dark={dark} data-paused={paused || reduced}>
+  return <main className="waiting-v2" data-dark={dark} data-paused={reduced}>
     <a href="#escena-1" className="v2-skip">Saltar la apertura</a>
-    <header className="v2-header"><a href="#escena-0" className="v2-brand">LA ESPERA <span>Argentina</span></a><div><button type="button" aria-haspopup="dialog" aria-controls="sobre-los-datos" aria-expanded={methodOpen} onClick={()=>setMethodOpen(true)}>Sobre los datos</button><button type="button" onClick={() => setPaused(!paused)} aria-pressed={paused || reduced} disabled={reduced}>{reduced ? 'Movimiento reducido' : paused ? 'Activar movimiento' : 'Pausar movimiento'}</button></div></header>
+    <header className="v2-header"><a href="#escena-0" className="v2-brand">LA ESPERA <span>Argentina</span></a><div><button type="button" aria-haspopup="dialog" aria-controls="sobre-los-datos" aria-expanded={methodOpen} onClick={()=>setMethodOpen(true)}>Sobre los datos</button></div></header>
     <nav className="v2-progress" aria-label="Capítulos">{chapters.map((chapter, index) => <a href={`#escena-${index}`} key={chapter} aria-label={`${index + 1}. ${chapter}`} aria-current={scene === index ? 'step' : undefined}><span>{chapter}</span></a>)}</nav>
     <div className="v2-story">
       <div ref={stage} className="v2-stage" data-sand={scene<2} aria-hidden={scene === 0 ? true : undefined}>
-        <div className="v2-figure">{scene<2?<SandQueue count={data.total} forming={scene===1} paused={paused||reduced} relay={pointRelay} handoff={sandHandoff}/>:scene===3?<TemporalJourney progress={journeyProgress} metric={timeMetric} months={meanMonths} records={timeN} paused={paused||reduced} relay={pointRelay}/>:scene===4?<AnnualParallel record={record} history={annualComparison} countMaximum={Math.max(...data.history.map(row=>Math.max(row.waitlist,row.donors)))} scope={`${annualSelection.province?provinceNames.get(annualSelection.province):'Argentina'} · ${annualSelection.age==='all'?'todas las edades':annualSelection.age==='menor_18'?'menores de 18':'18 años y más'}`}/>:<WaitingUniverse entry={sandHandoff} mode={mode} groups={groups} count={count} total={data.total} focus={scene === 2 ? focus : null} hover={scene === 2 ? hover : null} paused={paused || reduced} dark={dark} population={population} label={`${integer(count)} unidades. ${unit}.`} unit={unit} territoryMetric={territoryMetric} territoryContext={territoryReference} relay={pointRelay} onHover={setHover} onSelect={selectGroup} />}
+        <div className="v2-figure">{scene<2?<SandQueue count={data.total} forming={scene===1} paused={reduced} relay={pointRelay} handoff={sandHandoff}/>:scene===3?<TemporalJourney progress={journeyProgress} metric={timeMetric} months={meanMonths} records={timeN} paused={reduced} relay={pointRelay}/>:scene===4?<AnnualParallel record={record} history={annualComparison} countMaximum={Math.max(...data.history.map(row=>Math.max(row.waitlist,row.donors)))} scope={`${annualSelection.province?provinceNames.get(annualSelection.province):'Argentina'} · ${annualSelection.age==='all'?'todas las edades':annualSelection.age==='menor_18'?'menores de 18':'18 años y más'}`}/>:<WaitingUniverse entry={sandHandoff} mode={mode} groups={groups} count={count} total={data.total} focus={scene === 2 ? focus : null} hover={scene === 2 ? hover : null} paused={reduced} dark={dark} population={population} label={`${integer(count)} unidades. ${unit}.`} unit={unit} territoryMetric={territoryMetric} territoryContext={territoryReference} relay={pointRelay} onHover={setHover} onSelect={selectGroup} />}
         </div>
       </div>
       <section id="escena-0" data-scene="0" className="v2-scene v2-opening"><div className="v2-opening-content"><p className="v2-kicker">¿Cuánto tarda una segunda posibilidad?</p><h1>LA<br /><span>ESPERA</span></h1><a className="v2-scroll" href="#escena-1">Una exploración visual sobre la lista de espera de órganos y tejidos en Argentina <span>↓</span></a></div></section>
       <section id="escena-1" data-scene="1" className="v2-scene v2-number-scene"><div className="v2-copy"><p className="v2-kicker">01 / Una cifra</p><h2>La espera se cuenta.</h2><p><strong>personas esperando un órgano o tejido en Argentina.</strong></p><p className="v2-note">Datos al {data.snapshot}.</p></div></section>
       <section id="escena-2" data-scene="2" className="v2-scene v2-explore"><div className="v2-copy">
         <p className="v2-kicker">02 / Desarmar la cifra</p>
-        <h2>{dimension==='organ'?<>¿Qué<br />esperan?</>:<>¿Esperar<br />{dimension==='territory'?'dónde?':'desde cuándo?'}</>}</h2>
+        <h2>Esperar…<br />{dimension==='organ'?'¿qué?':dimension==='territory'?'¿dónde?':'¿hace cuánto?'}</h2>
         <p>{dimension === 'organ' ? selection.smallLists ? 'Las otras esperas, una por una.' : 'Distintas esperas.' : dimension === 'seniority' ? 'El tiempo que ya llevan esperando. Todavía no tuvieron su oportunidad.' : ''}</p>
         <div className="v2-tabs" role="group" aria-label="Mirar la espera por">{([['organ','Lista'],['territory','Provincia'],['seniority','Antigüedad']] as const).map(([id,label]) => <button type="button" aria-pressed={dimension === id} key={id} onClick={() => changeDimension(id)}>{label}</button>)}</div>
         <div className="v2-selection" aria-label="Selecciones conectadas">
           {selection.smallLists && <button type="button" onClick={regroup} aria-label="Salir del desglose de otras listas">Otras listas <span>×</span></button>}
-          {selected && <button type="button" onClick={() => clearSelection('listId')} aria-label={`Quitar lista ${selected.label}`}>{selected.label} <span>×</span></button>}
+          {selected && <button type="button" onClick={() => clearSelection('listId')} aria-label={`Quitar lista ${selected.label}`}>{organLabel(selected.id,selected.label)} <span>×</span></button>}
           {selection.seniority && <button type="button" onClick={() => clearSelection('seniority')} aria-label={`Quitar antigüedad ${readableLabel(selection.seniority)}`}>{readableLabel(selection.seniority)} <span>×</span></button>}
           {selection.province && <button type="button" onClick={() => clearSelection('province')} aria-label={`Quitar provincia ${provinceNames.get(selection.province)}`}>{provinceNames.get(selection.province)} <span>×</span></button>}
         </div>
-        <p className="v2-exploration-total" aria-live="polite">{exploration.unavailable ? 'Cruce no publicado' : <><strong>{integer(visibleGroups.reduce((sum,g) => sum+g.value,0))}</strong> inscripciones{selection.listId || selection.province || selection.seniority || selection.smallLists ? ' en esta selección' : ' · todas las listas'}</>}</p>
+        {(exploration.unavailable || selection.listId || selection.province || selection.seniority || selection.smallLists) && <p className="v2-exploration-total" aria-live="polite">{exploration.unavailable ? 'Cruce no publicado' : <><strong>{integer(visibleGroups.reduce((sum,g) => sum+g.value,0))}</strong> inscripciones{selection.listId || selection.province || selection.seniority || selection.smallLists ? ' en esta selección' : ' · todas las listas'}</>}</p>}
         {dimension === 'territory' && <div className="v2-territory-controls">
           <div className="v2-tabs v2-map-switch" role="group" aria-label="Color del mapa">{([['count','Cantidad'],['pmh','Por millón']] as const).map(([id,label]) => <button type="button" key={id} aria-pressed={territoryMetric === id} disabled={id === 'pmh' && !canUsePmh} onClick={() => { setTerritoryMetric(id); setHover(null); }}>{label}</button>)}</div>
           <p className="v2-map-caption">{territoryMetric === 'count' ? 'Inscripciones por provincia.' : 'Inscripciones por millón de habitantes.'}{!canUsePmh && <><br /><span>PMH no disponible para este cruce.</span></>}</p>
@@ -155,7 +155,7 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
       </div></section>
       <section id="escena-3" data-scene="3" className="v2-scene v2-time-scene"><div className="v2-copy"><p className="v2-kicker">03 / Foco renal</p><h2>¿Cuánto<br />tiempo?</h2><p>En la espera renal, el tiempo puede empezar en diálisis, antes de entrar en lista.</p>
         <JourneyControls metric={timeMetric} onMetric={chooseTimeMetric} progress={journeyProgress} onProgress={setJourneyProgress}/>
-        <p className="v2-note">{timeMetric==='list'&&<>La media de espera de los receptores de un trasplante renal en 2025 fue de {decimal(latest.average)} meses.<br /></>}Datos del año 2025.{timeMetric==='dialysis'&&<><br/>Escenario hipotético: un año completo para cada paciente registrado al 31/12. No son horas observadas.</>}</p>
+        {timeMetric==='list'&&<p className="v2-note">La media de espera de los receptores de un trasplante renal en 2025 fue de {decimal(latest.average)} meses.</p>}
       </div></section>
       <section id="escena-4" data-scene="4" className="v2-scene v2-annual-scene"><div className="v2-copy"><p className="v2-kicker">04 / Año tras año</p><h2>La espera fue<br />cambiando.</h2><p>Dos filas, un mismo año. La espera y la donación, en paralelo.</p>
         <label className="v2-year" htmlFor="v2-year">{year}{record.partial&&<small> parcial</small>}</label><input id="v2-year" aria-label="Año del registro" className="v2-range" type="range" min={data.history[0].year} max={2026} value={year} onChange={event=>setYear(Number(event.target.value))} aria-valuetext={`${year}${record.partial?' parcial al 31 de julio':''}: ${record.waitlist===null?'conteo de lista no disponible':integer(record.waitlist)+' en lista'} y ${integer(record.donors)} donantes`}/>

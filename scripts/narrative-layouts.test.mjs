@@ -13,7 +13,7 @@ const { narrativeLayout, hourglassPoints, timePoints, foldedTimePoints } = await
 const read = name => JSON.parse(readFileSync(new URL('../app/' + name, import.meta.url)));
 const data = buildUniverseData(read('story-data.generated.json'), read('history.generated.json'));
 test('narrative silhouettes, map and ordered time bands keep exact group counts and finite coordinates', () => {
-  for (const [width, height] of [[700,520],[346,330],[276,250]]) for (const dimension of ['organ','territory','seniority']) {
+  for (const [width, height] of [[700,520],[346,450],[346,330],[276,250]]) for (const dimension of ['organ','territory','seniority']) {
     const groups = groupsFor(data, dimension, null);
     const { points } = narrativeLayout(groups, dimension, width, height, false, .8);
     assert.equal(points.length, data.total);
