@@ -4,13 +4,13 @@ import {decimal,integer} from './universe-model';
 import {journeyPosition,journeyState,cumulativeCalendar,dialysisBlock,type JourneyMetric} from './temporal-journey-model';
 
 export type PointRelay={x:number;y:number};
-export function JourneyControls({metric,onMetric,progress,onProgress}:{metric:JourneyMetric;onMetric:(m:JourneyMetric)=>void;progress:number;onProgress:(p:number)=>void}) {
+export function JourneyControls({progress,onProgress}:{progress:number;onProgress:(p:number)=>void}) {
   return <div className="v2-journey-controls">
-    <div className="v2-tabs" role="group" aria-label="El recorrido del tiempo"><button aria-pressed={metric==='dialysis'} onClick={()=>onMetric('dialysis')}>Diálisis</button><button aria-pressed={metric==='list'} onClick={()=>onMetric('list')}>Lista de espera</button></div>
-    {metric==='dialysis'&&<p className="v2-journey-rhythm">Una persona se dializa en promedio 3 veces por semana, 4 horas cada vez.</p>}
-    <p className="v2-journey-instruction">{progress<.62?'Arrastrá para hacer pasar el tiempo.':metric==='dialysis'&&progress<.70?'156 sesiones se reúnen en una persona.':'Seguí arrastrando. Sumá personas y tiempo.'}</p>
+    <p className="v2-journey-label">Diálisis</p>
+    <p className="v2-journey-rhythm">Una persona se dializa en promedio 3 veces por semana, 4 horas cada vez.</p>
+    <p className="v2-journey-instruction">{progress<.62?'Arrastrá para hacer pasar el tiempo.':progress<.70?'156 sesiones se reúnen en una persona.':'Seguí arrastrando. Sumá personas y tiempo.'}</p>
     <label className="v2-sr-only" htmlFor="v2-time-drag">Arrastrar para acumular tiempo</label>
-    <input id="v2-time-drag" type="range" min="0" max="1000" step="1" value={Math.round(progress*1000)} onChange={e=>onProgress(Number(e.target.value)/1000)} aria-valuetext={progress<.62?`${Math.round(progress/.62*100)}% del recorrido individual`:metric==='dialysis'&&progress<.70?'Las 156 sesiones se reúnen en 624 horas para una persona':`${Math.round((progress-(metric==='dialysis'?.70:.62))/(metric==='dialysis'?.30:.38)*100)}% de la perspectiva colectiva`} />
+    <input id="v2-time-drag" type="range" min="0" max="1000" step="1" value={Math.round(progress*1000)} onChange={e=>onProgress(Number(e.target.value)/1000)} aria-valuetext={progress<.62?`${Math.round(progress/.62*100)}% del recorrido individual`:progress<.70?'Las 156 sesiones se reúnen en 624 horas para una persona':`${Math.round((progress-.70)/.30*100)}% de la perspectiva colectiva`} />
     <div className="v2-journey-ends"><span>Una persona</span><span>El conjunto</span></div>
   </div>;
 }
@@ -27,6 +27,7 @@ export default function TemporalJourney({progress,metric,months,records,paused,r
     canvas.current.width=Math.round(w*dpr);canvas.current.height=Math.round(h*dpr);context.setTransform(dpr,0,0,dpr,0,0);
     let frame=0;if(entered.current===null)entered.current=performance.now();
     const draw=(now:number)=>{
+      if(!canvas.current)return;
       drawn.current=paused?progress:drawn.current+(progress-drawn.current)*.22;
       if(Math.abs(progress-drawn.current)<.0001)drawn.current=progress;
       const s=journeyState(drawn.current,metric,months,records);

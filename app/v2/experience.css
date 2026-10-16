@@ -186,3 +186,11 @@
 @media(max-width:760px){.v2-opening .v2-opening-content{left:25px;top:15svh;width:calc(100% - 50px)}.v2-opening .v2-scroll{top:57svh;max-width:100%}.v2-number-scene .v2-copy{max-width:none}}
 
 @media(max-width:760px){.v2-opening .v2-scroll{top:70svh}.v2-opening h1{font-size:min(23vw,14svh)}}
+
+/* Keep time values in a reading strip below the curve, away from the marks. */
+.v2-trend-values{position:absolute;top:50%;left:9%;width:82%;display:flex;justify-content:space-between;gap:12px;color:var(--v2-accent);font-size:12px;line-height:1.4;font-variant-numeric:tabular-nums}
+.v2-trend-values span{white-space:nowrap}
+.v2-journey-label{width:fit-content;font-size:17px;border-bottom:1px solid var(--v2-accent);padding:8px 0;margin:0 0 18px}
+@media(max-width:760px){.v2-trend-values{font-size:10px}.v2-journey-label{font-size:15px}}
+
+.v2-parallel-caption{bottom:-24px}
