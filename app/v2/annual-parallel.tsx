@@ -24,8 +24,6 @@ export default function AnnualParallel({record,history,countMaximum,scope}:{reco
     }
     canvas.current.dataset.waitlist=record.waitlist===null?'unavailable':String(record.waitlist);canvas.current.dataset.donors=String(record.donors);canvas.current.dataset.year=String(record.year);canvas.current.dataset.list=record.label;
   },[record,countMaximum,size]);
-  const meanPoints=annualTrend(history,record.year,'average',size.width,size.height,.49);
-  const meanEnds=meanPoints.filter((_,i)=>i===0||i===meanPoints.length-1);
   return <div ref={box} className="v2-annual-parallel" data-partial={record.partial}>
     <canvas ref={canvas} aria-hidden="true"/>
     <div className="v2-parallel-median"><span>Media de espera · {record.label}{record.partial?' · enero–julio':''}</span><strong data-available={record.average!==null}>{record.average===null?'s/d':decimal(record.average)}{record.average!==null&&<small> {record.unit}</small>}</strong><p>{record.average===null?'Sin tiempo disponible para esta selección.':`${integer(record.n)} ${record.n===1?'receptor trasplantado':'receptores trasplantados'} en ${record.year}${record.partial?' hasta el 31/07':''}.`}<br/>{scope}</p></div>
@@ -45,7 +43,7 @@ export default function AnnualParallel({record,history,countMaximum,scope}:{reco
         </g>;
       })}
     </svg>
-    <div className="v2-trend-values" aria-label="Valores inicial y final de la media de espera">{meanEnds.map(p=><span key={p.year}>{p.year}{p.partial?'*':''} · {decimal(p.value)} {record.unit}</span>)}</div>
+    <div className="v2-trend-values" aria-live="polite" aria-atomic="true" data-year={record.year}><span>Año seleccionado: <strong>{record.year}{record.partial?'*':''}</strong> · {record.average===null?'sin dato de tiempo':`${decimal(record.average)} ${record.unit}`}</span></div>
     <p className="v2-parallel-caption">Filas: misma escala de cantidad. Una marca · una inscripción o un donante.<br/>Arriba: media de espera de {record.label} ({record.unit}). Abajo: donantes, todas las listas.<br/>{record.partial?`2026*: corte al 31/07. ${record.average===null?'Sin media disponible para julio en esta selección.':'Media con tramo discontinuo.'} Donantes parciales sin unión con años completos.`:'Cada curva utiliza su propia escala desde cero. Los tiempos describen receptores trasplantados.'}</p>
   </div>;
 }
