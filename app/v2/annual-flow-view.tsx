@@ -1,4 +1,5 @@
 'use client';
+import {useId,useRef,useState} from 'react';
 import AnnualPointPile from './annual-point-pile';
 import {decimal,integer} from './universe-model';
 import type {ComparisonYear} from './annual-comparison-model';
@@ -8,14 +9,17 @@ import type {AnnualTimeSelection} from './annual-time-model';
 
 function ExitBreakdown({groups,showCodes=false}:{groups:ReturnType<typeof flowGroups>;showCodes?:boolean}){
   const [deceased,living,death,other]=groups;
+  const [kind,setKind]=useState<'transplant'|'other'|null>(null);
+  const dialog=useRef<HTMLDialogElement>(null),id=useId();
+  function open(next:'transplant'|'other'){setKind(next);dialog.current?.showModal();}
   return <div className="v2-exit-breakdown">
-    <details className="v2-exit-fold"><summary><i className="v2-exit-transplant-color"/><span>Trasplante</span><strong>{integer(deceased.value+living.value)}</strong></summary>
-      <div className="v2-exit-children">{[deceased,living].map(g=><div className="v2-exit-row" key={g.id}><i style={{background:g.color}}/><span>{g.id==='trasplante_dc'?'Donante fallecido':'Donante vivo'}</span><strong>{integer(g.value)}</strong></div>)}</div>
-    </details>
+    <button type="button" className="v2-exit-row v2-exit-trigger" aria-haspopup="dialog" aria-controls={id} onClick={()=>open('transplant')}><i className="v2-exit-transplant-color"/><span>Trasplante</span><strong>{integer(deceased.value+living.value)}</strong><span aria-hidden="true" className="v2-exit-chevron">↗</span></button>
     <div className="v2-exit-row"><i style={{background:death.color}}/><span>Fallecimiento</span><strong>{integer(death.value)}</strong></div>
-    <details className="v2-exit-fold"><summary><i style={{background:other.color}}/><span>Otros motivos de egreso</span><strong>{integer(other.value)}</strong></summary>
-      <div className="v2-exit-children">{other.items.map(c=><div className="v2-exit-row" key={c.canonicalId}><span>{c.label}{showCodes&&c.sourceCodes.length>0&&<small>Códigos CRESI: {c.sourceCodes.join(', ')}</small>}</span><strong>{integer(c.value)}</strong></div>)}</div>
-    </details>
+    <button type="button" className="v2-exit-row v2-exit-trigger" aria-haspopup="dialog" aria-controls={id} onClick={()=>open('other')}><i style={{background:other.color}}/><span>Otros motivos de egreso</span><strong>{integer(other.value)}</strong><span aria-hidden="true" className="v2-exit-chevron">↗</span></button>
+    <dialog ref={dialog} id={id} className="v2-exit-dialog" aria-labelledby={`${id}-title`} onClose={()=>setKind(null)}>
+      <header><h4 id={`${id}-title`}>{kind==='transplant'?'Trasplante':'Otros motivos de egreso'} <strong>{integer(kind==='transplant'?deceased.value+living.value:other.value)}</strong></h4><button type="button" onClick={()=>dialog.current?.close()} aria-label="Cerrar desglose">Cerrar ×</button></header>
+      <div className="v2-exit-dialog-body">{kind==='transplant'?[deceased,living].map(g=><div className="v2-exit-row" key={g.id}><i style={{background:g.color}}/><span>{g.id==='trasplante_dc'?'Donante fallecido':'Donante vivo'}</span><strong>{integer(g.value)}</strong></div>):other.items.map(c=><div className="v2-exit-row" key={c.canonicalId}><span>{c.label}{showCodes&&c.sourceCodes.length>0&&<small>Códigos CRESI: {c.sourceCodes.join(', ')}</small>}</span><strong>{integer(c.value)}</strong></div>)}</div>
+    </dialog>
   </div>;
 }
 
@@ -38,12 +42,6 @@ export default function AnnualFlowView({record,history,scope,selection,replay}:{
     <AnnualPointPile scaleMaximum={maximum} key={`${record.year}-${selection.list}-${selection.province}-${selection.age}`} previous={previous} current={record.waitlist} entries={flow?.entries??null} exits={flow?.exits??null} groups={groups} paused={false} replay={replay}/>
     </div><div className="v2-flow-causes" aria-live="polite">{flow?.exits!=null?<ExitBreakdown key={`legend-${record.year}-${selection.list}-${selection.province}-${selection.age}`} groups={groups}/>:<p>{record.partial?'Sin flujos comparables al 31/07/2026.':selection.age!=='all'?'Sin conteos históricos de ingresos y egresos por edad.':flow?.exitsState==='sin_resultado_publicado'?'CRESI respondió «no existe resultado» para estos egresos.':'Sin desglose de egresos verificado para esta selección.'}</p>}</div>
     </div>
-    <div className="v2-flow-history"><span>Cómo cambió el tamaño de la lista · {record.waitlist===null?"sin dato":integer(record.waitlist)+" en "+record.year}</span><svg viewBox="0 0 600 118" role="img" aria-label={`Evolución de inscripciones en lista de ${record.label}. Año seleccionado ${record.year}.`}>
-      <path d={path} fill="none" stroke="#617f87" strokeWidth="3.5"/>
-      {!record.partial&&<line x1={x(record.year)} x2={x(record.year)} y1="15" y2="98" stroke="var(--v2-accent)" strokeDasharray="3 4"/>}
-      {record.waitlist!==null&&!record.partial&&<circle cx={x(record.year)} cy={y(record.waitlist)} r="4" fill="var(--v2-accent)"/>}
-      <text x="40" y="115">2005</text><text x="560" y="115" textAnchor="end">2025</text>
-    </svg></div>
     <div className="v2-flow-history v2-flow-time"><span>Tiempo medio de espera de receptores trasplantados · {record.average===null?'sin dato para '+record.year:decimal(record.average)+' '+record.unit+' en '+record.year}</span>
       {timePoints.length?<svg viewBox="0 0 600 175" role="img" aria-label={`Tiempo medio de espera de receptores trasplantados de ${record.label}, en ${record.unit}. Año seleccionado ${record.year}.`}>
         {[0,timeMaximum/2,timeMaximum].map(value=><g key={value}><line x1="40" x2="560" y1={timeY(value)} y2={timeY(value)} stroke="currentColor" opacity=".12"/><text x="34" y={timeY(value)+5} textAnchor="end">{decimal(value)}</text></g>)}
@@ -53,6 +51,12 @@ export default function AnnualFlowView({record,history,scope,selection,replay}:{
         <text x="40" y="172">2005</text><text x="560" y="172" textAnchor="end">2025</text>
       </svg>:<p>Sin datos de tiempo medio para esta selección.</p>}
     </div>
+    <div className="v2-flow-history"><span>Cómo cambió el tamaño de la lista · {record.waitlist===null?"sin dato":integer(record.waitlist)+" en "+record.year}</span><svg viewBox="0 0 600 118" role="img" aria-label={`Evolución de inscripciones en lista de ${record.label}. Año seleccionado ${record.year}.`}>
+      <path d={path} fill="none" stroke="#617f87" strokeWidth="3.5"/>
+      {!record.partial&&<line x1={x(record.year)} x2={x(record.year)} y1="15" y2="98" stroke="var(--v2-accent)" strokeDasharray="3 4"/>}
+      {record.waitlist!==null&&!record.partial&&<circle cx={x(record.year)} cy={y(record.waitlist)} r="4" fill="var(--v2-accent)"/>}
+      <text x="40" y="115">2005</text><text x="560" y="115" textAnchor="end">2025</text>
+    </svg></div>
     <details className="v2-flow-detail"><summary>Causas y alcance de los datos</summary>
       <p>*Egresos: exclusiones permanentes publicadas, que ya incluyen trasplantes y fallecimientos. No se agregan exclusiones transitorias. Los ingresos cuentan inscripciones; no necesariamente personas nuevas.</p>
       {flow?.exits!=null&&<p>Trasplante reúne los grupos de donante vivo y fallecido; al desplegarlo se muestra cada subtotal con su color. Los subtotales coinciden con los colores del gráfico. «Otros motivos de egreso · agrupados» reúne todos los motivos restantes de la columna Otras de CRESI; no equivale a «Otros motivos no especificados», que corresponde a la etiqueta original OTRA CAUSA. El grupo completo puede incluir trasplantes con córnea del exterior.</p>}

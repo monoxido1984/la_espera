@@ -49,6 +49,6 @@ Este árbol conserva los archivos de la versión actual y sus pruebas. La versi�
 
 ## Egresos: detalle desplegable y nomenclatura auditada
 
-La leyenda muestra Trasplante, Fallecimiento y Otros motivos de egreso. Trasplante despliega donante fallecido y vivo; Otros motivos despliega sus categorías únicamente al abrirlo. Ambos se reinician cerrados al cambiar año o filtros. Se conserva la clasificación oficial: el subtotal Otras puede incluir córnea del exterior; no equivale a la categoría individual Otros motivos no especificados.
+La leyenda muestra Trasplante, Fallecimiento y Otros motivos de egreso. Trasplante y Otros motivos abren ventanas superpuestas con desplazamiento propio, cierre por botón o Escape y retorno del foco, sin aumentar la altura de los gráficos. La curva de tiempo medio aparece antes que la evolución del tamaño de la lista. Los desgloses se cierran al cambiar año o filtros. Se conserva la clasificación oficial: el subtotal Otras puede incluir córnea del exterior; no equivale a la categoría individual Otros motivos no especificados.
 
 La nomenclatura v1.0.0 conserva códigos y rótulos originales, presenta nombres uniformes y une solo categorías idénticas aprobadas. Auditoría nacional 2005–2025: 273 casos, 234 con cifras y 39 ausencias explícitas; ocho reportes con etiquetas repetidas; totales preservados. Evidencia y correspondencias: docs/auditoria_egresos_20261023/. Diccionario público: datos/nomenclatura_egresos.v1.json. Los cruces provinciales todavía en adquisición no se incluyen.
