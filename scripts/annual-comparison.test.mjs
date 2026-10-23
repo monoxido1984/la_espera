@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
+import {readFileSync,existsSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import ts from 'typescript';
 const url=name=>new URL('../app/v2/'+name,import.meta.url);
@@ -47,16 +47,21 @@ test('a freshly changed selection never reuses the previous list mean while its 
   assert.ok(rows.every(r=>r.average===null));assert.ok(rows.every(r=>r.unit==='días'));
 });
 
-test('published waiting counts preserve provincial totals and their source hashes',t=>{
+test('published waiting counts preserve provincial totals',()=>{
   assert.equal(Object.keys(counts.lists).length,13);
-  for(const series of Object.values(counts.lists))assert.deepEqual(series.map(row=>row.year),Array.from({length:21},(_,i)=>2005+i));
-  if(process.cwd().endsWith('github-la-espera')){t.skip('Acquisition originals are kept in the source checkout');return;}
-  for(const series of Object.values(counts.lists))for(const row of series){
-    assert.equal(Object.keys(row.provinces).length,24);
-    assert.equal(Object.values(row.provinces).reduce((sum,n)=>sum+n,0),row.total);
-    for(const source of row.sources){
-      const bytes=readFileSync(new URL('../../'+source.path,import.meta.url));
-      assert.equal(createHash('sha256').update(bytes).digest('hex'),source.sha256);
+  for(const series of Object.values(counts.lists)){
+    assert.deepEqual(series.map(row=>row.year),Array.from({length:21},(_,i)=>2005+i));
+    for(const row of series){
+      assert.equal(Object.keys(row.provinces).length,24);
+      assert.equal(Object.values(row.provinces).reduce((sum,n)=>sum+n,0),row.total);
     }
+  }
+});
+test('source hashes match acquisition originals when available',t=>{
+  const sources=Object.values(counts.lists).flatMap(series=>series.flatMap(row=>row.sources));
+  if(!sources.some(source=>existsSync(new URL('../../'+source.path,import.meta.url)))){t.skip('Acquisition originals are kept in the source checkout');return;}
+  for(const source of sources){
+    const bytes=readFileSync(new URL('../../'+source.path,import.meta.url));
+    assert.equal(createHash('sha256').update(bytes).digest('hex'),source.sha256);
   }
 });
