@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { buildUniverseData, groupsFor, packGroups, clusterPoints } from '../app/v2/universe-model.ts';
 const read = name => JSON.parse(readFileSync(new URL(`../app/${name}`, import.meta.url)));
 const raw = read('story-data.generated.json');
-const data = buildUniverseData(raw, read('history.generated.json'));
+const data = buildUniverseData(raw, read('history.generated.json'), read('transplant-snapshot.generated.json'));
 test('all point populations preserve their published totals', () => {
   assert.equal(data.total, raw.facts.current.total);
   assert.equal(data.organs.reduce((sum, group) => sum + group.value, 0), data.total);

@@ -1,4 +1,4 @@
-import type { StoryData } from '../story-model';
+import type { StoryData, TransplantSnapshot } from '../story-model';
 
 export type Group = { id: string; label: string; value: number; color: string; pmh?: number; sourceKey?: string; unitKeys?: string[]; kind?: 'collection' | 'unavailable'; members?: string[] };
 export type TerritoryMetric = 'count' | 'pmh';
@@ -6,8 +6,10 @@ export type HistoryYear = { year: number; waitlist: number; donors: number; medi
 export type ListDetail = { id: string; label: string; total: number; province: { label: string; value: number; pmh?: number }[]; seniority: { label: string; value: number }[]; seniorityByProvince?: { province: string; items: { label: string; value: number }[] }[] };
 export type UniverseData = {
   dialysisPopulation?: {year:number;count:number;at:string;annualPersonTime:null;measure:string;csvSha256:string;htmlSha256:string};
+  dialysis?: { year: number; n: number; average: number; median: number }[];
   total: number; snapshot: string; organs: Group[]; lists: ListDetail[];
-  history: HistoryYear[];
+  history: HistoryYear[]; organDonors: number; allDonors: number; donorPeriod: string;
+  organTransplants: number; allTransplants: number; transplantPeriod: string; transplantGroups: Group[];
 };
 export type Dimension = 'organ' | 'seniority' | 'territory';
 export type UniverseMode = 'intro' | 'number' | 'all' | 'comparison' | Dimension | 'history' | 'duration' | 'donation' | 'transplants' | 'end';
@@ -24,7 +26,7 @@ const PROVINCE_LABELS: Record<string, string> = { 'CAPITAL FEDERAL': 'Ciudad de 
 export const integer = (value: number) => new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(value);
 export const decimal = (value: number) => new Intl.NumberFormat('es-AR', { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(value);
 
-export function buildUniverseData(data: StoryData, history: HistoryYear[]): UniverseData {
+export function buildUniverseData(data: StoryData, history: HistoryYear[], transplants: TransplantSnapshot): UniverseData {
   const lists = (data.currentSnapshot.byList ?? []).map(({ id, label, total, province, seniority, seniorityByProvince }) => ({ id, label, total, province: province.map(({ label, value, pmh }) => ({ label, value, pmh })), seniority, seniorityByProvince }));
   const organs = data.currentWaiting.map(item => {
     const id = lists.find(list => list.label === item.label)?.id ?? item.label;
@@ -32,9 +34,17 @@ export function buildUniverseData(data: StoryData, history: HistoryYear[]): Univ
   }).sort((a, b) => b.value - a.value);
   const total = organs.reduce((sum, item) => sum + item.value, 0);
   if (total !== data.facts.current.total) throw new Error('La composición no coincide con el total publicado.');
+  const donor = data.donorSnapshot;
+  if (!donor) throw new Error('Falta la fotografía de donación.');
+  const organIds = ['RN', 'H', 'C', 'RP', 'PUL', 'HR', 'PAN', 'CRR'];
+  const colorIds: Record<string, string> = { RN: 'RENAL', H: 'HEPATICA', C: 'CARDIACA', RP: 'RENOPANCREATICA', PUL: 'PULMONAR' };
+  const transplantGroups = transplants.byType.filter(item => organIds.includes(item.id)).map(item => ({ id: item.id, label: item.label, value: item.total, color: COLORS[colorIds[item.id]] ?? COLOR_OTHER }));
+  if (transplantGroups.reduce((sum, item) => sum + item.value, 0) !== transplants.organTotal) throw new Error('Los tipos de trasplante no cubren el total de órganos.');
   return {
     total, snapshot: data.currentSnapshot.snapshotDate ?? data.facts.current.fechaConsulta,
     organs, lists, history: history.map(({ year, waitlist, donors, median, average, p25, p75, n }) => ({ year, waitlist, donors, median, average, p25, p75, n })),
+    organDonors: donor.province.reduce((sum, item) => sum + item.organDonors, 0), allDonors: donor.total, donorPeriod: donor.periodLabel,
+    organTransplants: transplants.organTotal, allTransplants: transplants.total, transplantPeriod: transplants.periodLabel, transplantGroups,
   };
 }
 

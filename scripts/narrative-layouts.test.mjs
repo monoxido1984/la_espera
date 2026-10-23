@@ -11,7 +11,7 @@ const { cartogramWarp, inRing } = await import(cartogramURL);
 const layoutURL = transpile(resolveData(source('narrative-layouts.ts')).replace("'./territory-cartogram'", JSON.stringify(cartogramURL)));
 const { narrativeLayout, hourglassPoints, timePoints, foldedTimePoints } = await import(layoutURL);
 const read = name => JSON.parse(readFileSync(new URL('../app/' + name, import.meta.url)));
-const data = buildUniverseData(read('story-data.generated.json'), read('history.generated.json'));
+const data = buildUniverseData(read('story-data.generated.json'), read('history.generated.json'), read('transplant-snapshot.generated.json'));
 test('narrative silhouettes, map and ordered time bands keep exact group counts and finite coordinates', () => {
   for (const [width, height] of [[700,520],[346,450],[346,330],[276,250]]) for (const dimension of ['organ','territory','seniority']) {
     const groups = groupsFor(data, dimension, null);

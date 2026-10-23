@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import './waiting-editorial.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://monoxido1984.github.io/la_espera/'),

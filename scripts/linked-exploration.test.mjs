@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 import {buildUniverseData} from '../app/v2/universe-model.ts';
 const raw=name=>JSON.parse(readFileSync(new URL('../app/'+name,import.meta.url),'utf8'));
-const data=buildUniverseData(raw('story-data.generated.json'),raw('history.generated.json'));
+const data=buildUniverseData(raw('story-data.generated.json'),raw('history.generated.json'),raw('transplant-snapshot.generated.json'));
 const source=readFileSync(new URL('../app/v2/linked-exploration.ts',import.meta.url),'utf8').replace("'./universe-model'",JSON.stringify(new URL('../app/v2/universe-model.ts',import.meta.url).href));
 const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const {allWaiting,explorationGroups,selectExploration,identifyDots,alignGraphicUnits,OTHER_LISTS,UNAVAILABLE}=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));

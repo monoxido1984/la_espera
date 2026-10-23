@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import WaitingUniverse from './waiting-universe';
 import {organLabel} from './organ-labels';
-import AnnualParallel from './annual-parallel';
+import AnnualParallel from './annual-flow-view';
 import partial2026 from './partial-2026.generated.json';
 import annualCounts from './annual-list-counts.generated.json';
 import {comparisonHistory} from './annual-comparison-model';
@@ -32,6 +32,7 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
   const [hover, setHover] = useState<string | null>(null);
   const [methodOpen,setMethodOpen]=useState(false);
   const [reduced, setReduced] = useState(false);
+  const [annualReplay,setAnnualReplay]=useState(0);
   const [year, setYear] = useState(data.history.at(-1)!.year);
   const [journeyProgress,setJourneyProgress]=useState(0);
   const pointRelay=useRef<PointRelay>({x:.84,y:.58});
@@ -114,11 +115,11 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
   function regroup() { setSelection({...selection,smallLists:false,listId:null}); setDimension('organ'); setHover(null); setNotice(null); }
   return <main className="waiting-v2" data-dark={dark} data-paused={reduced} data-intro={scene<2}>
     <a href="#escena-1" className="v2-skip">Saltar la apertura</a>
-    <header className="v2-header"><a href="#escena-0" className="v2-brand">LA ESPERA <span>Argentina</span></a><div><button type="button" aria-haspopup="dialog" aria-controls="sobre-los-datos" aria-expanded={methodOpen} onClick={()=>setMethodOpen(true)}>Sobre los datos</button></div></header>
+    <header className="v2-header"><a href="#escena-0" className="v2-brand">LA ESPERA <span>Argentina</span></a><div><button type="button" aria-haspopup="dialog" aria-controls="sobre-los-datos" aria-expanded={methodOpen} onClick={()=>setMethodOpen(true)}>Sobre los datos</button>{scene===4&&<button type="button" className="v2-header-replay" onClick={()=>setAnnualReplay(value=>value+1)}>Repetir ↻</button>}</div></header>
     <nav className="v2-progress" aria-label="Capítulos">{chapters.map((chapter, index) => <a href={`#escena-${index}`} key={chapter} aria-label={`${index + 1}. ${chapter}`} aria-current={scene === index ? 'step' : undefined}><span>{chapter}</span></a>)}</nav>
     <div className="v2-story">
       <div ref={stage} className="v2-stage" data-sand={scene<2} aria-hidden={scene === 0 ? true : undefined}>
-        <div className="v2-figure">{scene<2?<SandQueue count={data.total} forming={scene===1} paused={reduced} relay={pointRelay} handoff={sandHandoff}/>:scene===3?<TemporalJourney progress={journeyProgress} metric="dialysis" months={12} records={timeN} paused={reduced} relay={pointRelay}/>:scene===4?<AnnualParallel record={record} history={annualComparison} countMaximum={Math.max(...data.history.map(row=>Math.max(row.waitlist,row.donors)))} scope={`${annualSelection.province?provinceNames.get(annualSelection.province):'Argentina'} · ${annualSelection.age==='all'?'todas las edades':annualSelection.age==='menor_18'?'menores de 18':'18 años y más'}`}/>:<WaitingUniverse entry={sandHandoff} mode={mode} groups={groups} count={count} total={data.total} focus={scene === 2 ? focus : null} hover={scene === 2 ? hover : null} paused={reduced} dark={dark} population={population} label={`${integer(count)} unidades. ${unit}.`} unit={unit} territoryMetric={territoryMetric} territoryContext={territoryReference} relay={pointRelay} onHover={setHover} onSelect={selectGroup} />}
+        <div className="v2-figure">{scene<2?<SandQueue count={data.total} forming={scene===1} paused={reduced} relay={pointRelay} handoff={sandHandoff}/>:scene===3?<TemporalJourney progress={journeyProgress} metric="dialysis" months={12} records={timeN} paused={reduced} relay={pointRelay}/>:scene===4?<AnnualParallel replay={annualReplay} record={record} history={annualComparison} selection={annualSelection} scope={`${annualSelection.province?provinceNames.get(annualSelection.province):'Argentina'} · ${annualSelection.age==='all'?'todas las edades':annualSelection.age==='menor_18'?'menores de 18':'18 años y más'}`}/>:<WaitingUniverse entry={sandHandoff} mode={mode} groups={groups} count={count} total={data.total} focus={scene === 2 ? focus : null} hover={scene === 2 ? hover : null} paused={reduced} dark={dark} population={population} label={`${integer(count)} unidades. ${unit}.`} unit={unit} territoryMetric={territoryMetric} territoryContext={territoryReference} relay={pointRelay} onHover={setHover} onSelect={selectGroup} />}
         </div>
       </div>
       <section id="escena-0" data-scene="0" className="v2-scene v2-opening"><div className="v2-opening-content"><p className="v2-kicker">¿Cuánto tarda una segunda posibilidad?</p><h1>LA<br /><span>ESPERA</span></h1><a className="v2-scroll" href="#escena-1">Una exploración visual sobre la lista de espera de órganos y tejidos en Argentina <span>↓</span></a></div></section>
@@ -152,9 +153,9 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
       <section id="escena-3" data-scene="3" className="v2-scene v2-time-scene"><div className="v2-copy"><p className="v2-kicker">03 / Foco renal</p><h2>Esperar…<br />antes de esperar</h2><p>En la espera renal, el tiempo puede empezar en diálisis, antes de entrar en lista.</p>
         <JourneyControls progress={journeyProgress} onProgress={setJourneyProgress}/>
       </div></section>
-      <section id="escena-4" data-scene="4" className="v2-scene v2-annual-scene"><div className="v2-copy"><p className="v2-kicker">04 / Año tras año</p><h2>La espera fue<br />cambiando.</h2><p>Dos filas, un mismo año. La espera y la donación, en paralelo.</p>
-        <label className="v2-year" htmlFor="v2-year">{year}{record.partial&&<small> parcial</small>}</label><input id="v2-year" aria-label="Año del registro" className="v2-range" type="range" min={data.history[0].year} max={2026} value={year} onChange={event=>setYear(Number(event.target.value))} aria-valuetext={`${year}${record.partial?' parcial al 31 de julio':''}: ${record.waitlist===null?'conteo de lista no disponible':integer(record.waitlist)+' en lista'} y ${integer(record.donors)} donantes`}/>
-        <div className="v2-range-ends"><span>{data.history[0].year}</span><span>2026 · parcial</span></div>
+      <section id="escena-4" data-scene="4" className="v2-scene v2-annual-scene"><div className="v2-copy"><p className="v2-kicker">04 / Año tras año</p><h2>La espera fue<br />cambiando.</h2><p>La lista recibe inscripciones y registra egresos. Elegí un año para ver sus movimientos y los motivos publicados.</p>
+        <label className="v2-year" htmlFor="v2-year">{year}{record.partial&&<small> parcial</small>}</label><input id="v2-year" aria-label="Año del registro" className="v2-range" type="range" min={data.history[0].year} max={2025} value={year} onChange={event=>setYear(Number(event.target.value))} aria-valuetext={`${year}${record.partial?' parcial al 31 de julio':''}: ${record.waitlist===null?'conteo de lista no disponible':integer(record.waitlist)+' en lista'}`}/>
+        <div className="v2-range-ends"><span>{data.history[0].year}</span><span>2025</span></div>
         {record.partial?<><p className="v2-partial-warning">Corte al 31/07/2026 · enero–julio. Las cantidades son parciales y no equivalen a un año completo.</p><div className="v2-year-milestone"><div><span>Mayo de 2026 · récord mensual</span><strong>109 procesos de donación de órganos</strong><p>El mayor registro mensual informado para el país.</p><a href={partial2026.record.url}>INCUCAI · fuente del récord ↗</a></div></div></>:<YearMilestone year={year}/>}
         {scene===4&&<AnnualTimeExplorer year={year} provinceNames={provinceNames} selection={annualSelection} onSelection={setAnnualSelection} onSeries={setAnnualTimes} showFilters={annualRefine} renalNational={data.history}/>}
         <button className="v2-small-switch" aria-expanded={annualRefine} onClick={toggleAnnualRefinement}>{annualRefine?'← Ocultar filtros de provincia y edad':'Agregar provincia y edad ↗'}</button>

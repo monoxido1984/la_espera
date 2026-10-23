@@ -1,6 +1,6 @@
 # La Espera
 
-Exploración visual de las listas de espera de órganos y tejidos en Argentina, con estadísticas públicas agregadas de CRESI / SINTRA · INCUCAI. Actualización: 15/10/2026.
+Exploración visual de las listas de espera de órganos y tejidos en Argentina, con estadísticas públicas agregadas de CRESI / SINTRA · INCUCAI. Actualización: 23/10/2026.
 
 Sitio: https://monoxido1984.github.io/la_espera/
 
@@ -8,7 +8,7 @@ Sitio: https://monoxido1984.github.io/la_espera/
 
 Cinco escenas: reloj de arena, cifra de inscripciones, listas/provincias/antigüedad, foco renal en diálisis y lista de espera, y comparación anual. «Sobre los datos» abre un panel desplegable que explica reportes, filtros, salidas, cruces, cálculos y límites e incluye descargas para auditar los valores.
 
-La comparación anual permite elegir lista, provincia y edad. La fila de inscripciones usa los conteos publicados cuando el cruce existe; la línea superior muestra la media de espera de receptores del conjunto seleccionado, Renal por defecto. La fila de donantes mantiene el total nacional de órganos y tejidos. El deslizador integra 2005–2025 y el corte parcial al 31/07/2026, con advertencia y datos ausentes como s/d.
+La sección anual permite elegir lista, provincia y edad en el período 2005–2025. Representa ingresos, lista y egresos mediante puntos apilados, con una escala común de cantidades. Las causas de exclusión permanente verificadas son nacionales y para todas las edades; no se trasladan a otros filtros. Incluye dos curvas: tamaño de la lista y media de espera de receptores trasplantados, con unidades y faltantes explícitos. Los egresos ya incluyen trasplantes y fallecimientos: no se suman de nuevo. La diferencia entre el balance de movimientos y el cierre publicado se conserva explícita, porque los reportes no constituyen un balance conciliado. Los nuevos cruces provinciales en adquisición aún no forman parte de esta publicación.
 
 Diálisis presenta un escenario hipotético de 52 semanas × 3 sesiones × 4 horas para los 31.431 pacientes al cierre de 2025: no son horas observadas. El tiempo previo al trasplante renal usa un universo distinto de 1.542 receptores. Los puntos son unidades gráficas de agregados, no pacientes identificados ni trayectorias clínicas.
 
