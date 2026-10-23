@@ -6,6 +6,19 @@ import {flowGroups,selectFlow} from './annual-flow-model';
 import flows from './annual-flows.generated.json';
 import type {AnnualTimeSelection} from './annual-time-model';
 
+function ExitBreakdown({groups,showCodes=false}:{groups:ReturnType<typeof flowGroups>;showCodes?:boolean}){
+  const [deceased,living,death,other]=groups;
+  return <div className="v2-exit-breakdown">
+    <details className="v2-exit-fold"><summary><i className="v2-exit-transplant-color"/><span>Trasplante</span><strong>{integer(deceased.value+living.value)}</strong></summary>
+      <div className="v2-exit-children">{[deceased,living].map(g=><div className="v2-exit-row" key={g.id}><i style={{background:g.color}}/><span>{g.id==='trasplante_dc'?'Donante fallecido':'Donante vivo'}</span><strong>{integer(g.value)}</strong></div>)}</div>
+    </details>
+    <div className="v2-exit-row"><i style={{background:death.color}}/><span>Fallecimiento</span><strong>{integer(death.value)}</strong></div>
+    <details className="v2-exit-fold"><summary><i style={{background:other.color}}/><span>Otros motivos de egreso</span><strong>{integer(other.value)}</strong></summary>
+      <div className="v2-exit-children">{other.items.map(c=><div className="v2-exit-row" key={c.canonicalId}><span>{c.label}{showCodes&&c.sourceCodes.length>0&&<small>Códigos CRESI: {c.sourceCodes.join(', ')}</small>}</span><strong>{integer(c.value)}</strong></div>)}</div>
+    </details>
+  </div>;
+}
+
 export default function AnnualFlowView({record,history,scope,selection,replay}:{record:ComparisonYear;history:ComparisonYear[];scope:string;selection:AnnualTimeSelection;replay:number}){
   const flow=selectFlow(flows,selection.list,record.year,selection.province,selection.age);
   const groups=flowGroups(flow?.causes??[]);
@@ -23,7 +36,7 @@ export default function AnnualFlowView({record,history,scope,selection,replay}:{
     <header className="v2-flow-heading"><span>{record.label} · {scope}</span><h3>Un año en la lista</h3><p>{record.year}{record.partial?' · enero–julio':''}</p></header>
     <div className="v2-flow-bars-and-causes"><div className="v2-flow-bars">
     <AnnualPointPile scaleMaximum={maximum} key={`${record.year}-${selection.list}-${selection.province}-${selection.age}`} previous={previous} current={record.waitlist} entries={flow?.entries??null} exits={flow?.exits??null} groups={groups} paused={false} replay={replay}/>
-    </div><div className="v2-flow-causes" aria-live="polite">{flow?.exits!=null?groups.map(g=><div key={g.label}><i style={{background:g.color}}/><span>{g.label}</span><strong>{integer(g.value)}</strong></div>):<p>{record.partial?'Sin flujos comparables al 31/07/2026.':selection.age!=='all'?'Sin conteos históricos de ingresos y egresos por edad.':flow?.exitsState==='sin_resultado_publicado'?'CRESI respondió «no existe resultado» para estos egresos.':'Sin desglose de egresos verificado para esta selección.'}</p>}</div>
+    </div><div className="v2-flow-causes" aria-live="polite">{flow?.exits!=null?<ExitBreakdown key={`legend-${record.year}-${selection.list}-${selection.province}-${selection.age}`} groups={groups}/>:<p>{record.partial?'Sin flujos comparables al 31/07/2026.':selection.age!=='all'?'Sin conteos históricos de ingresos y egresos por edad.':flow?.exitsState==='sin_resultado_publicado'?'CRESI respondió «no existe resultado» para estos egresos.':'Sin desglose de egresos verificado para esta selección.'}</p>}</div>
     </div>
     <div className="v2-flow-history"><span>Cómo cambió el tamaño de la lista · {record.waitlist===null?"sin dato":integer(record.waitlist)+" en "+record.year}</span><svg viewBox="0 0 600 118" role="img" aria-label={`Evolución de inscripciones en lista de ${record.label}. Año seleccionado ${record.year}.`}>
       <path d={path} fill="none" stroke="#617f87" strokeWidth="3.5"/>
@@ -42,7 +55,8 @@ export default function AnnualFlowView({record,history,scope,selection,replay}:{
     </div>
     <details className="v2-flow-detail"><summary>Causas y alcance de los datos</summary>
       <p>*Egresos: exclusiones permanentes publicadas, que ya incluyen trasplantes y fallecimientos. No se agregan exclusiones transitorias. Los ingresos cuentan inscripciones; no necesariamente personas nuevas.</p>
-      {flow?.causes.map(c=><div className="v2-flow-cause" key={c.label}><span>{c.label.toLocaleLowerCase('es-AR')}</span><strong>{integer(c.value)}</strong></div>)}
+      {flow?.exits!=null&&<p>Trasplante reúne los grupos de donante vivo y fallecido; al desplegarlo se muestra cada subtotal con su color. Los subtotales coinciden con los colores del gráfico. «Otros motivos de egreso · agrupados» reúne todos los motivos restantes de la columna Otras de CRESI; no equivale a «Otros motivos no especificados», que corresponde a la etiqueta original OTRA CAUSA. El grupo completo puede incluir trasplantes con córnea del exterior.</p>}
+      {flow?.exits!=null&&<ExitBreakdown key={`detail-${record.year}-${selection.list}-${selection.province}-${selection.age}`} groups={groups} showCodes/>}
       {flow?.exits!=null&&<p>El formulario indica fecha de exclusión y el resultado imprime fecha de inscripción. Por esa discrepancia, no presentamos un balance conciliado.{flow.residual!==null&&` Diferencia sin conciliar en ${record.year}: ${flow.residual>0?'+':''}${integer(flow.residual)} registros entre stock observado y stock anterior + ingresos − exclusiones.`}</p>}
       <a href={`${process.env.NEXT_PUBLIC_BASE_PATH??''}/datos/flujos-anuales-lista.json`} download>Descargar cifras y fuentes con SHA256 ↗</a>
     </details>

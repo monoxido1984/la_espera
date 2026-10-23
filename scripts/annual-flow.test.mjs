@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 const file=n=>new URL('../app/v2/'+n,import.meta.url);
 const data=JSON.parse(readFileSync(file('annual-flows.generated.json'),'utf8'));
-const module=ts.transpileModule(readFileSync(file('annual-flow-model.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext}}).outputText;
+const module=ts.transpileModule(readFileSync(file('annual-flow-model.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const {selectFlow,flowGroups}=await import('data:text/javascript;base64,'+Buffer.from(module).toString('base64'));
 test('renal exits are counted once, categories preserve all source causes',()=>{
   for(const row of data.lists.RENAL.filter(r=>r.exits!==null)){
@@ -46,4 +46,33 @@ test('all thirteen annual lists have an acquired report or explicit published ab
       else assert.equal(r.causes.reduce((sum,c)=>sum+c.value,0),r.exits);
     }
   }
+});
+
+test('Corneas 2017 distinguishes the grouped subtotal from individual repeated cause labels',()=>{
+  const r=selectFlow(data,'CORNEAS',2017,null,'all');
+  const groups=flowGroups(r.causes),other=groups[3];
+  assert.equal(other.value,1143);
+  assert.equal(other.rawItems.find(c=>c.label==='ABANDONO DE LOS CONTROLES POR VOLUNTAD DEL PACIENTE').value,165);
+  assert.equal(other.rawItems.filter(c=>c.label==='OTRA CAUSA').reduce((s,c)=>s+c.value,0),124);
+  assert.equal(other.rawItems.find(c=>c.label==='TRASPLANTE CON CORNEA DEL EXTERIOR').value,620);
+  for(const g of groups)assert.equal(g.items.reduce((s,c)=>s+c.value,0),g.value);
+  assert.equal(groups.flatMap(g=>g.rawItems).length,r.causes.length);
+  assert.equal(groups.reduce((s,g)=>s+g.value,0),2263);
+});
+
+test('every source group matches the published subtotal and standard names never repeat within it',()=>{
+  for(const rows of Object.values(data.lists))for(const row of rows){
+    if(row.exits===null)continue;
+    const groups=flowGroups(row.causes);
+    for(const g of groups){
+      assert.equal(g.value,row.publishedGroups[g.id]);
+      assert.equal(g.items.reduce((s,c)=>s+c.value,0),g.value);
+      assert.equal(new Set(g.items.map(c=>c.canonicalId)).size,g.items.length);
+      assert.equal(g.label,data.groups.find(r=>r.id===g.id).label);
+    }
+    assert.equal(groups.reduce((s,c)=>s+c.value,0),row.exits);
+  }
+  const other=flowGroups(selectFlow(data,'CORNEAS',2017,null,'all').causes)[3];
+  const unspecified=other.items.find(c=>c.label==='Otros motivos no especificados');
+  assert.equal(unspecified.value,124);assert.deepEqual(unspecified.sourceCodes,['21','79']);
 });

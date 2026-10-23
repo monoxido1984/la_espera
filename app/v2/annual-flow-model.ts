@@ -1,4 +1,5 @@
-export type FlowYear={year:number;entries:number;provinces:Record<string,number>;exits:number|null;causes:{label:string;value:number}[];residual:number|null;exitsState?:string};
+export type FlowCause={label:string;value:number;code?:string;canonicalId?:string;displayLabel?:string;group?:string};
+export type FlowYear={year:number;entries:number;provinces:Record<string,number>;exits:number|null;causes:FlowCause[];residual:number|null;exitsState?:string};
 export type FlowData={lists:Record<string,FlowYear[]>};
 export function selectFlow(data:FlowData,list:string,year:number,province:string|null,age:string){
   const row=data.lists[list]?.find(r=>r.year===year);
@@ -6,9 +7,23 @@ export function selectFlow(data:FlowData,list:string,year:number,province:string
   return {...row,entries:province?row.provinces[province]??null:row.entries,exits:province?null:row.exits,causes:province?[]:row.causes,residual:province?null:row.residual,exitsState:province?'no_adquirido':row.exitsState};
 }
 export function flowGroups(causes:FlowYear['causes']){
-  const value=(pattern:RegExp)=>causes.filter(c=>pattern.test(c.label)).reduce((s,c)=>s+c.value,0);
-  return [{label:'Trasplante · donante fallecido',value:value(/^TRASPLANTE CON DONANTE FALLECIDO$/),color:'#0052cc'},
-    {label:'Trasplante · donante vivo',value:value(/^TRASPLANTE CON DONANTE VIVO$/),color:'#008a3b'},
-    {label:'Fallecimiento',value:value(/^FALLECIMIENTO$/),color:'#d60036'},
-    {label:'Otras causas',value:causes.filter(c=>!/^TRASPLANTE CON DONANTE (FALLECIDO|VIVO)$|^FALLECIMIENTO$/.test(c.label)).reduce((s,c)=>s+c.value,0),color:'#7400bd'}];
+  const direct=/^TRASPLANTE CON DONANTE (FALLECIDO|VIVO)$|^FALLECIMIENTO$/;
+  const definitions=[
+    {id:'trasplante_dc',label:'Trasplante · donante fallecido',color:'#0052cc',matches:(label:string)=>label==='TRASPLANTE CON DONANTE FALLECIDO'},
+    {id:'trasplante_dv',label:'Trasplante · donante vivo',color:'#008a3b',matches:(label:string)=>label==='TRASPLANTE CON DONANTE VIVO'},
+    {id:'fallecimiento',label:'Fallecimiento',color:'#d60036',matches:(label:string)=>label==='FALLECIMIENTO'},
+    {id:'otros_egresos',label:'Otros motivos de egreso · agrupados',color:'#7400bd',matches:(label:string)=>!direct.test(label)}
+  ];
+  return definitions.map(({matches,...group})=>{
+    const rawItems=causes.filter(c=>c.group?c.group===group.id:matches(c.label));
+    const merged=new Map<string,{label:string;value:number;canonicalId:string;sourceCodes:string[]}>();
+    for(const c of rawItems){
+      const key=c.canonicalId??c.label;
+      const item=merged.get(key)??{label:c.displayLabel??c.label,value:0,canonicalId:key,sourceCodes:[]};
+      item.value+=c.value;
+      if(c.code&&!item.sourceCodes.includes(c.code))item.sourceCodes.push(c.code);
+      merged.set(key,item);
+    }
+    return {...group,value:rawItems.reduce((sum,c)=>sum+c.value,0),items:[...merged.values()],rawItems};
+  });
 }
