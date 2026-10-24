@@ -22,8 +22,8 @@ import './experience.css';
 const AnnualTimeExplorer=dynamic(()=>import('./annual-time-explorer'),{ssr:false,loading:()=> <p className="v2-note">Cargando los cruces…</p>});
 
 const annualMoments: {id:AnnualMoment;label:string;title:string;hint:string}[]=[
-  {id:'movements',label:'Movimientos',title:'Un año de entradas y salidas.',hint:'Mirá cómo entran y salen los puntos. Tocá Egresos para conocer los motivos.'},
-  {id:'causes',label:'Motivos de salida',title:'Salir de la lista tiene distintos motivos.',hint:'Explorá los motivos y abrí sus detalles.'},
+  {id:'movements',label:'Movimientos',title:'Un año de entradas y salidas.',hint:'Mirá cómo entran y salen los puntos. Tocá Ingresos o Egresos para conocer los motivos.'},
+  {id:'causes',label:'Motivos',title:'Los motivos de ingreso y egreso.',hint:'Explorá los motivos y abrí sus detalles.'},
   {id:'history',label:'Historia',title:'¿Cómo cambió la espera?',hint:'Explorá cómo cambió el tiempo de espera. Tocá un año o mové el control.'},
 ];
 const chapters = ['El silencio', 'La cifra', 'Qué se espera', 'Esperar antes de esperar · foco renal', 'Los años'];
@@ -178,8 +178,8 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
         <p className="v2-interaction-hint" id="v2-year-help">{annualChapter.hint}</p>
         <label className="v2-year" htmlFor="v2-year">{year}{record.partial&&<small> parcial</small>}</label><input id="v2-year" aria-describedby="v2-year-help" aria-label="Año del registro" className="v2-range" type="range" min={data.history[0].year} max={2025} value={year} onChange={event=>setYear(Number(event.target.value))} aria-valuetext={`${year}: ${record.waitlist===null?'conteo de lista no disponible':integer(record.waitlist)+' en lista'}`}/>
         <div className="v2-range-ends"><span>{data.history[0].year}</span><span>2025</span></div>
-        {scene===4&&<AnnualTimeExplorer year={year} provinceNames={provinceNames} selection={annualSelection} onSelection={setAnnualSelection} onSeries={setAnnualTimes} showFilters={annualRefine} renalNational={data.history} showSummary={false}/>}
-        <button type="button" className="v2-small-switch" aria-expanded={annualRefine} onClick={toggleAnnualRefinement}>{annualRefine?'← Ocultar filtros de provincia y edad':'Explorar por provincia y edad ↗'}</button>
+        {scene===4&&<AnnualTimeExplorer year={year} provinceNames={provinceNames} selection={annualSelection} onSelection={value=>setAnnualSelection({...value,age:'all'})} onSeries={setAnnualTimes} showFilters={annualRefine} renalNational={data.history} showSummary={false}/>}
+        <button type="button" className="v2-small-switch" aria-expanded={annualRefine} onClick={toggleAnnualRefinement}>{annualRefine?'← Ocultar filtro de provincia':'Explorar por provincia ↗'}</button>
         {annualMoment==='history'&&<details className="v2-year-context"><summary>Contexto de {year}</summary>{record.partial?<p>Mayo de 2026 · récord mensual de 109 procesos de donación de órganos.</p>:<YearMilestone year={year}/>}</details>}
         <div className="v2-annual-turns"><button type="button" disabled={annualStep===0} onClick={()=>setAnnualMoment(annualMoments[annualStep-1].id)}>← Anterior</button>{annualStep<2?<button type="button" onClick={()=>setAnnualMoment(annualMoments[annualStep+1].id)}>Seguir: {annualMoments[annualStep+1].label.toLowerCase()} →</button>:<a href="#escena-2">Volver a explorar ↑</a>}</div>
         <div className="v2-journey-end"><button type="button" onClick={()=>setMethodOpen(true)}>Sobre los datos ↗</button></div>
