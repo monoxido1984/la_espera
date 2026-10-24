@@ -8,5 +8,5 @@ const short:Record<number,string>={
 };
 export default function YearMilestone({year}:{year:number}){
   const event=MILESTONES.find(e=>e.year===year);
-  return <div className="v2-year-milestone" aria-live="polite">{event&&<div key={event.id}><span>{year} / {event.type}</span><strong>{event.title}</strong><p>{short[year]}</p><a href={event.sources[0].href}>Fuente · {event.sources[0].label} ↗</a></div>}</div>;
+  return <div className="v2-year-milestone" aria-live="polite">{event&&<div key={event.id}><span>{year} / {event.type}</span><strong>{event.title}</strong><p>{short[year]}</p></div>}</div>;
 }

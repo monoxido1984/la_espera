@@ -4,8 +4,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import WaitingUniverse from './waiting-universe';
 import {organLabel} from './organ-labels';
 import AnnualParallel from './annual-flow-view';
+import type {AnnualMoment} from './annual-story-model';
 import partial2026 from './partial-2026.generated.json';
 import annualCounts from './annual-list-counts.generated.json';
+import nationalQuantiles from './annual-national-quantiles.generated.json';
 import {comparisonHistory} from './annual-comparison-model';
 import YearMilestone from './year-milestone';
 import DataMethod from './data-method';
@@ -19,7 +21,16 @@ import './experience.css';
 
 const AnnualTimeExplorer=dynamic(()=>import('./annual-time-explorer'),{ssr:false,loading:()=> <p className="v2-note">Cargando los cruces…</p>});
 
+const annualMoments: {id:AnnualMoment;label:string;title:string;hint:string}[]=[
+  {id:'movements',label:'Movimientos',title:'Un año de entradas y salidas.',hint:'Mirá cómo entran y salen los puntos. Tocá Egresos para conocer los motivos.'},
+  {id:'causes',label:'Motivos de salida',title:'Salir de la lista tiene distintos motivos.',hint:'Explorá los motivos y abrí sus detalles.'},
+  {id:'history',label:'Historia',title:'¿Cómo cambió la espera?',hint:'Explorá cómo cambió el tiempo de espera. Tocá un año o mové el control.'},
+];
 const chapters = ['El silencio', 'La cifra', 'Qué se espera', 'Esperar antes de esperar · foco renal', 'Los años'];
+function NextScene({to,children}:{to:number;children:React.ReactNode}) {
+  return <a className="v2-next-scene" href={`#escena-${to}`}><span>{children}</span><span aria-hidden="true">↓</span></a>;
+}
+
 const modes: UniverseMode[] = ['intro', 'number', 'organ', 'comparison', 'history'];
 
 export default function WaitingExperience({ data }: { data: UniverseData }) {
@@ -33,6 +44,9 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
   const [methodOpen,setMethodOpen]=useState(false);
   const [reduced, setReduced] = useState(false);
   const [annualReplay,setAnnualReplay]=useState(0);
+  const [annualMoment,setAnnualMoment]=useState<AnnualMoment>('movements');
+  const annualStep=annualMoments.findIndex(item=>item.id===annualMoment);
+  const annualChapter=annualMoments[annualStep];
   const [year, setYear] = useState(data.history.at(-1)!.year);
   const [journeyProgress,setJourneyProgress]=useState(0);
   const pointRelay=useRef<PointRelay>({x:.84,y:.58});
@@ -87,7 +101,7 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
   const canUsePmh = groups.some(g => g.pmh !== undefined);
   const territorialScale = [...territoryReference].filter(g => territoryValue(g, territoryMetric) !== undefined).sort((a,b) => territoryValue(a, territoryMetric)!-territoryValue(b, territoryMetric)!);
   const metricText = (group: typeof groups[number]) => territoryMetric === 'count' ? integer(group.value) : group.pmh === undefined ? 's/d' : decimal(group.pmh);
-  const annualComparison=useMemo(()=>comparisonHistory(data.history,annualSelection,annualTimes,annualCounts,partial2026),[data.history,annualSelection,annualTimes]);
+  const annualComparison=useMemo(()=>comparisonHistory(data.history,annualSelection,annualTimes,annualCounts,partial2026,nationalQuantiles.rows),[data.history,annualSelection,annualTimes]);
   const record=annualComparison.find(item=>item.year===year)!;
   const timeN = data.dialysisPopulation?.count ?? 0;
   const selected = data.organs.find(item => item.id === selection.listId);
@@ -119,15 +133,16 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
     <nav className="v2-progress" aria-label="Capítulos">{chapters.map((chapter, index) => <a href={`#escena-${index}`} key={chapter} aria-label={`${index + 1}. ${chapter}`} aria-current={scene === index ? 'step' : undefined}><span>{chapter}</span></a>)}</nav>
     <div className="v2-story">
       <div ref={stage} className="v2-stage" data-sand={scene<2} aria-hidden={scene === 0 ? true : undefined}>
-        <div className="v2-figure">{scene<2?<SandQueue count={data.total} forming={scene===1} paused={reduced} relay={pointRelay} handoff={sandHandoff}/>:scene===3?<TemporalJourney progress={journeyProgress} metric="dialysis" months={12} records={timeN} paused={reduced} relay={pointRelay}/>:scene===4?<AnnualParallel replay={annualReplay} record={record} history={annualComparison} selection={annualSelection} scope={`${annualSelection.province?provinceNames.get(annualSelection.province):'Argentina'} · ${annualSelection.age==='all'?'todas las edades':annualSelection.age==='menor_18'?'menores de 18':'18 años y más'}`}/>:<WaitingUniverse entry={sandHandoff} mode={mode} groups={groups} count={count} total={data.total} focus={scene === 2 ? focus : null} hover={scene === 2 ? hover : null} paused={reduced} dark={dark} population={population} label={`${integer(count)} unidades. ${unit}.`} unit={unit} territoryMetric={territoryMetric} territoryContext={territoryReference} relay={pointRelay} onHover={setHover} onSelect={selectGroup} />}
+        <div className="v2-figure">{scene<2?<SandQueue count={data.total} forming={scene===1} paused={reduced} relay={pointRelay} handoff={sandHandoff}/>:scene===3?<TemporalJourney progress={journeyProgress} metric="dialysis" months={12} records={timeN} paused={reduced} relay={pointRelay}/>:scene===4?<AnnualParallel onMoment={setAnnualMoment} moment={annualMoment} onYear={setYear} paused={reduced} replay={annualReplay} record={record} history={annualComparison} selection={annualSelection} scope={`${annualSelection.province?provinceNames.get(annualSelection.province):'Argentina'} · ${annualSelection.age==='all'?'todas las edades':annualSelection.age==='menor_18'?'menores de 18':'18 años y más'}`}/>:<WaitingUniverse entry={sandHandoff} mode={mode} groups={groups} count={count} total={data.total} focus={scene === 2 ? focus : null} hover={scene === 2 ? hover : null} paused={reduced} dark={dark} population={population} label={`${integer(count)} unidades. ${unit}.`} unit={unit} territoryMetric={territoryMetric} territoryContext={territoryReference} relay={pointRelay} onHover={setHover} onSelect={selectGroup} />}
+          {scene===2&&<p className="v2-chart-invitation">{dimension==='seniority'?'Elegí un tiempo para ver sus provincias.':dimension==='territory'?'Elegí una provincia para ver sus listas.':'Elegí una ilustración para explorar esa lista.'}</p>}
         </div>
       </div>
       <section id="escena-0" data-scene="0" className="v2-scene v2-opening"><div className="v2-opening-content"><p className="v2-kicker">¿Cuánto tarda una segunda posibilidad?</p><h1>LA<br /><span>ESPERA</span></h1><a className="v2-scroll" href="#escena-1">Una exploración visual sobre la lista de espera de órganos y tejidos en Argentina <span>↓</span></a></div></section>
-      <section id="escena-1" data-scene="1" className="v2-scene v2-number-scene"><div className="v2-copy"><p className="v2-kicker">01 / Una cifra</p><h2>La espera se cuenta.</h2><p><strong>personas esperando un órgano o tejido en Argentina.</strong></p><p className="v2-note">Datos al {data.snapshot}.</p></div></section>
+      <section id="escena-1" data-scene="1" className="v2-scene v2-number-scene"><div className="v2-copy"><p className="v2-kicker">01 / Una cifra</p><h2>La espera se cuenta.</h2><p><strong>personas esperando un órgano o tejido en Argentina.</strong></p><NextScene to={2}>Descubrí qué hay detrás de la cifra</NextScene></div></section>
       <section id="escena-2" data-scene="2" className="v2-scene v2-explore"><div className="v2-copy">
         <p className="v2-kicker">02 / Desarmar la cifra</p>
         <h2>Esperar…<br />{dimension==='organ'?'¿qué?':dimension==='territory'?'¿dónde?':'¿hace cuánto?'}</h2>
-        <p>{dimension === 'organ' ? selection.smallLists ? 'Las otras esperas, una por una.' : 'Distintas esperas.' : dimension === 'seniority' ? 'El tiempo que ya llevan esperando. Todavía no tuvieron su oportunidad.' : ''}</p>
+        <p className="v2-explore-context">{dimension === 'seniority' ? 'El tiempo que ya llevan en lista.' : dimension === 'territory' ? 'La espera, provincia por provincia.' : selection.smallLists ? 'Las otras esperas, una por una.' : 'Distintas esperas'}</p>
         <div className="v2-tabs" role="group" aria-label="Mirar la espera por">{([['organ','Lista'],['territory','Provincia'],['seniority','Antigüedad']] as const).map(([id,label]) => <button type="button" aria-pressed={dimension === id} key={id} onClick={() => changeDimension(id)}>{label}</button>)}</div>
         <div className="v2-selection" aria-label="Selecciones conectadas">
           {selection.smallLists && <button type="button" onClick={regroup} aria-label="Salir del desglose de otras listas">Otras listas <span>×</span></button>}
@@ -135,33 +150,41 @@ export default function WaitingExperience({ data }: { data: UniverseData }) {
           {selection.seniority && <button type="button" onClick={() => clearSelection('seniority')} aria-label={`Quitar antigüedad ${readableLabel(selection.seniority)}`}>{readableLabel(selection.seniority)} <span>×</span></button>}
           {selection.province && <button type="button" onClick={() => clearSelection('province')} aria-label={`Quitar provincia ${provinceNames.get(selection.province)}`}>{provinceNames.get(selection.province)} <span>×</span></button>}
         </div>
-        {(exploration.unavailable || selection.listId || selection.province || selection.seniority || selection.smallLists) && <p className="v2-exploration-total" aria-live="polite">{exploration.unavailable ? 'Cruce no publicado' : <><strong>{integer(visibleGroups.reduce((sum,g) => sum+g.value,0))}</strong> inscripciones{selection.listId || selection.province || selection.seniority || selection.smallLists ? ' en esta selección' : ' · todas las listas'}</>}</p>}
+        {(exploration.unavailable || selection.listId || selection.province || selection.seniority || selection.smallLists) && <p className="v2-exploration-total" aria-live="polite">{exploration.unavailable ? 'Cruce no publicado' : <><strong>{integer(visibleGroups.reduce((sum,g) => sum+g.value,0))}</strong> inscripciones</>}</p>}
         {dimension === 'territory' && <div className="v2-territory-controls">
           <div className="v2-tabs v2-map-switch" role="group" aria-label="Color del mapa">{([['count','Cantidad'],['pmh','Por millón']] as const).map(([id,label]) => <button type="button" key={id} aria-pressed={territoryMetric === id} disabled={id === 'pmh' && !canUsePmh} onClick={() => { setTerritoryMetric(id); setHover(null); }}>{label}</button>)}</div>
           <p className="v2-map-caption">{territoryMetric === 'count' ? 'Inscripciones por provincia.' : 'Inscripciones por millón de habitantes.'}{!canUsePmh && <><br /><span>PMH no disponible para este cruce.</span></>}</p>
           {territorialScale.length > 0 && <div className="v2-map-legend" aria-label={`Color: de ${metricText(territorialScale[0])} a ${metricText(territorialScale.at(-1)!)} ${territoryMetric === 'pmh' ? 'por millón de habitantes' : 'inscripciones'}`}><span style={{background:`linear-gradient(90deg,${territorialScale[0].color},${territorialScale.at(-1)!.color})`}} /><div><span>{metricText(territorialScale[0])}</span><span>{metricText(territorialScale.at(-1)!)}</span></div></div>}
         </div>}
-        <p className="v2-note">{dimension === 'organ' ? 'Elegí una lista y explorá cómo se desglosa la espera.' : dimension === 'seniority' ? 'Elegí un tiempo para ver sus provincias.' : 'Elegí una provincia para ver sus listas.'}{dimension==='organ'&&<><br />Cada ilustración representa un tipo de lista de espera.</>}</p>
+
         {notice && <p role="status" className="v2-availability">{notice}</p>}
         {exploration.unavailable && <p className="v2-availability">Quitá una selección para volver a los datos disponibles.</p>}
         {!exploration.unavailable && !count && scene === 2 && <p className="v2-availability">No hay inscripciones para esta selección.</p>}
+        <div className="v2-explore-secondary">
         {(selection.listId || selection.province || selection.seniority || selection.smallLists) && <button className="v2-back" onClick={reset}>← Toda la espera</button>}
         {dimension === 'organ' && groups.some(g => g.kind === 'collection') && <button className="v2-small-switch" onClick={() => selectGroup('OTHER_LISTS')}>Desglosar las listas menores ↗</button>}
         {dimension === 'organ' && selection.smallLists && <button className="v2-small-switch" onClick={regroup}>← Reagrupar las listas menores</button>}
-        <details className="v2-exact"><summary>Ver cada grupo</summary><div>{groups.map(group => <button key={group.id} disabled={group.value === 0} onClick={() => selectGroup(group.id)} aria-pressed={focus === group.id}><span>{group.label}{group.kind === 'collection' ? ' · desglosar' : ''}</span><strong>{dimension === 'territory' ? metricText(group)+(territoryMetric === 'pmh' ? ' PMH' : '') : integer(group.value)}</strong></button>)}</div></details>
-      </div></section>
+        <details className="v2-exact"><summary>Ver valores y elegir por nombre</summary><div>{groups.map(group => <button key={group.id} disabled={group.value === 0} onClick={() => selectGroup(group.id)} aria-pressed={focus === group.id}><span>{group.label}{group.kind === 'collection' ? ' · desglosar' : ''}</span><strong>{dimension === 'territory' ? metricText(group)+(territoryMetric === 'pmh' ? ' PMH' : '') : integer(group.value)}</strong></button>)}</div></details>
+        </div>
+      </div><div className="v2-explore-next"><NextScene to={3}>Seguir: el tiempo de la espera</NextScene></div></section>
       <section id="escena-3" data-scene="3" className="v2-scene v2-time-scene"><div className="v2-copy"><p className="v2-kicker">03 / Foco renal</p><h2>Esperar…<br />antes de esperar</h2><p>En la espera renal, el tiempo puede empezar en diálisis, antes de entrar en lista.</p>
         <JourneyControls progress={journeyProgress} onProgress={setJourneyProgress}/>
+        <NextScene to={4}>De una espera a los cambios de cada año</NextScene>
       </div></section>
-      <section id="escena-4" data-scene="4" className="v2-scene v2-annual-scene"><div className="v2-copy"><p className="v2-kicker">04 / Año tras año</p><h2>La espera fue<br />cambiando.</h2><p>La lista recibe inscripciones y registra egresos. Elegí un año para ver sus movimientos y los motivos publicados.</p>
-        <label className="v2-year" htmlFor="v2-year">{year}{record.partial&&<small> parcial</small>}</label><input id="v2-year" aria-label="Año del registro" className="v2-range" type="range" min={data.history[0].year} max={2025} value={year} onChange={event=>setYear(Number(event.target.value))} aria-valuetext={`${year}${record.partial?' parcial al 31 de julio':''}: ${record.waitlist===null?'conteo de lista no disponible':integer(record.waitlist)+' en lista'}`}/>
+      <section id="escena-4" data-scene="4" className="v2-scene v2-annual-scene"><div className="v2-copy">
+        <p className="v2-kicker">04 / Año tras año</p>
+        <nav className="v2-annual-moments" aria-label="Momentos de Año tras año">{annualMoments.map((item,index)=><button type="button" key={item.id} aria-current={annualMoment===item.id?'step':undefined} onClick={()=>setAnnualMoment(item.id)}><span>{index+1}</span>{item.label}</button>)}</nav>
+        <h2 id="v2-annual-moment-title">{annualChapter.title}</h2>
+        <p className="v2-interaction-hint" id="v2-year-help">{annualChapter.hint}</p>
+        <label className="v2-year" htmlFor="v2-year">{year}{record.partial&&<small> parcial</small>}</label><input id="v2-year" aria-describedby="v2-year-help" aria-label="Año del registro" className="v2-range" type="range" min={data.history[0].year} max={2025} value={year} onChange={event=>setYear(Number(event.target.value))} aria-valuetext={`${year}: ${record.waitlist===null?'conteo de lista no disponible':integer(record.waitlist)+' en lista'}`}/>
         <div className="v2-range-ends"><span>{data.history[0].year}</span><span>2025</span></div>
-        {record.partial?<><p className="v2-partial-warning">Corte al 31/07/2026 · enero–julio. Las cantidades son parciales y no equivalen a un año completo.</p><div className="v2-year-milestone"><div><span>Mayo de 2026 · récord mensual</span><strong>109 procesos de donación de órganos</strong><p>El mayor registro mensual informado para el país.</p><a href={partial2026.record.url}>INCUCAI · fuente del récord ↗</a></div></div></>:<YearMilestone year={year}/>}
-        {scene===4&&<AnnualTimeExplorer year={year} provinceNames={provinceNames} selection={annualSelection} onSelection={setAnnualSelection} onSeries={setAnnualTimes} showFilters={annualRefine} renalNational={data.history}/>}
-        <button className="v2-small-switch" aria-expanded={annualRefine} onClick={toggleAnnualRefinement}>{annualRefine?'← Ocultar filtros de provincia y edad':'Agregar provincia y edad ↗'}</button>
-
+        {scene===4&&<AnnualTimeExplorer year={year} provinceNames={provinceNames} selection={annualSelection} onSelection={setAnnualSelection} onSeries={setAnnualTimes} showFilters={annualRefine} renalNational={data.history} showSummary={false}/>}
+        <button type="button" className="v2-small-switch" aria-expanded={annualRefine} onClick={toggleAnnualRefinement}>{annualRefine?'← Ocultar filtros de provincia y edad':'Explorar por provincia y edad ↗'}</button>
+        {annualMoment==='history'&&<details className="v2-year-context"><summary>Contexto de {year}</summary>{record.partial?<p>Mayo de 2026 · récord mensual de 109 procesos de donación de órganos.</p>:<YearMilestone year={year}/>}</details>}
+        <div className="v2-annual-turns"><button type="button" disabled={annualStep===0} onClick={()=>setAnnualMoment(annualMoments[annualStep-1].id)}>← Anterior</button>{annualStep<2?<button type="button" onClick={()=>setAnnualMoment(annualMoments[annualStep+1].id)}>Seguir: {annualMoments[annualStep+1].label.toLowerCase()} →</button>:<a href="#escena-2">Volver a explorar ↑</a>}</div>
+        <div className="v2-journey-end"><button type="button" onClick={()=>setMethodOpen(true)}>Sobre los datos ↗</button></div>
       </div></section>
     </div>
-    <DataMethod data={data} open={methodOpen} onClose={()=>setMethodOpen(false)}/>
+    <DataMethod data={data} record={record} selection={annualSelection} open={methodOpen} onClose={()=>setMethodOpen(false)}/>
   </main>;
 }

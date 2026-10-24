@@ -65,3 +65,26 @@ test('source hashes match acquisition originals when available',t=>{
     assert.equal(createHash('sha256').update(bytes).digest('hex'),source.sha256);
   }
 });
+
+test('renal national medians and bands use the published national cohort, not provincial quantiles',()=>{
+ const row=make({list:'RENAL',province:null,age:'all'}).find(row=>row.year===2025);
+ assert.deepEqual([row.median,row.p25,row.p75,row.quantileN],[16.12,4.97,39.46,1542]);
+ assert.notEqual(row.median,row.average);
+ const aggregate=make({list:'CORNEAS',province:null,age:'all'}).find(row=>row.year===2025);
+ assert.equal(aggregate.median,null);assert.equal(aggregate.p25,null);assert.equal(aggregate.p75,null);assert.ok(aggregate.average>0);
+ const exact=make({list:'CORNEAS',province:'BUENOS AIRES',age:'18_mas'}).find(row=>row.year===2025);
+ const source=cells.find(row=>row.year===2025&&row.list==='CORNEAS'&&row.province==='BUENOS AIRES'&&row.age==='18_mas');
+ assert.deepEqual([exact.median,exact.p25,exact.p75],[source.median,source.p25,source.p75]);
+ const bothAges=make({list:'CORNEAS',province:'BUENOS AIRES',age:'all'}).find(row=>row.year===2025);assert.equal(bothAges.median,null);
+ assert.equal(make({list:'RENAL',province:null,age:'all'}).at(-1).p25,null,'monthly partial means never become percentiles');
+});
+test('explicit hepatic list rows apply only to their exact national list and keep their own cohort',()=>{
+ const rows=read('annual-national-quantiles.generated.json').rows;
+ const build=selection=>comparisonHistory(history,selection,history.map(row=>annualTimeDetail(cells,row.year,selection)),counts,partial,rows);
+ const row=build({list:'HEPATICA',province:null,age:'all'}).find(row=>row.year===2025);
+ assert.deepEqual([row.median,row.p25,row.p75,row.quantileN,row.unit],[105.73,21.61,349.35,445,'días']);
+ const filtered=build({list:'HEPATICA',province:'CORDOBA',age:'all'}).find(row=>row.year===2025);assert.equal(filtered.median,null);
+ const oldDetails=history.map(row=>annualTimeDetail(cells,row.year,{list:'RENAL',province:null,age:'all'}));
+ const stale=comparisonHistory(history,{list:'CORNEAS',province:null,age:'all'},oldDetails,counts,partial,rows);assert.ok(stale.every(row=>row.median===null));
+ for(const source of rows){assert.ok(source.p25<=source.median&&source.median<=source.p75);const path=new URL('../../../../'+source.source,import.meta.url);if(existsSync(path))assert.equal(createHash('sha256').update(readFileSync(path)).digest('hex'),source.sha256);}
+});

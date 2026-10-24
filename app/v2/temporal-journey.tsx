@@ -8,9 +8,9 @@ export function JourneyControls({progress,onProgress}:{progress:number;onProgres
   return <div className="v2-journey-controls">
     <p className="v2-journey-label">Diálisis</p>
     <p className="v2-journey-rhythm">Una persona se dializa en promedio 3 veces por semana, 4 horas cada vez.</p>
-    <p className="v2-journey-instruction">{progress<.62?'Arrastrá para hacer pasar el tiempo.':progress<.70?'156 sesiones se reúnen en una persona.':'Seguí arrastrando. Sumá personas y tiempo.'}</p>
+    <p className="v2-journey-instruction" id="v2-time-help" aria-live="polite">{progress<.62?'Arrastrá para hacer pasar el tiempo.':progress<.70?'156 sesiones se reúnen en una persona.':progress<1?'Seguí arrastrando. Sumá personas y tiempo.':'Llegaste al conjunto. Podés volver atrás y recorrerlo a tu ritmo.'}</p>
     <label className="v2-sr-only" htmlFor="v2-time-drag">Arrastrar para acumular tiempo</label>
-    <input id="v2-time-drag" type="range" min="0" max="1000" step="1" value={Math.round(progress*1000)} onChange={e=>onProgress(Number(e.target.value)/1000)} aria-valuetext={progress<.62?`${Math.round(progress/.62*100)}% del recorrido individual`:progress<.70?'Las 156 sesiones se reúnen en 624 horas para una persona':`${Math.round((progress-.70)/.30*100)}% de la perspectiva colectiva`} />
+    <input id="v2-time-drag" aria-describedby="v2-time-help" type="range" min="0" max="1000" step="1" value={Math.round(progress*1000)} onChange={e=>onProgress(Number(e.target.value)/1000)} aria-valuetext={progress<.62?`${Math.round(progress/.62*100)}% del recorrido individual`:progress<.70?'Las 156 sesiones se reúnen en 624 horas para una persona':`${Math.round((progress-.70)/.30*100)}% de la perspectiva colectiva`} />
     <div className="v2-journey-ends"><span>Una persona</span><span>El conjunto</span></div>
   </div>;
 }
@@ -99,7 +99,7 @@ export default function TemporalJourney({progress,metric,months,records,paused,r
   return <div ref={box} className="v2-temporal-journey">
     <canvas ref={canvas} aria-hidden="true"/>
     <div className="v2-journey-counter" data-collective={state.collective} aria-live="off"><strong>{progress?'≈ ':''}{state.collective?decimal(value):integer(value)}</strong><span>{state.collective?<><b className="v2-accumulated-title">{scale} acumulados de espera</b>{metric==='dialysis'&&<small className="v2-accumulated-detail">dializándose en un año · escenario hipotético</small>}</>:<>{scale}{metric==='dialysis'?' · escenario anual':''}</>}</span><p>{state.collective?`${integer(state.people)} ${metric==='dialysis'?'pacientes · 2025':'receptores'} · ${integer(state.duration.value)} ${metric==='dialysis'?'horas':'días en lista'}`:state.individual===1?`${decimal(months)} meses ${metric==='dialysis'?'del escenario · un año completo':'de calendario · media publicada'}`:'Un recorrido. Una persona.'}</p></div>
-    <p className="v2-journey-caption">{metric==='dialysis'?(state.collapse===0?'Un cuadrado · una sesión de 4 horas':state.collapse<1?'Las sesiones se reúnen, su tiempo se conserva.':'Un cuadrado · 156 sesiones · 624 horas por persona')+' · estimación hipotética, stock al 31/12/2025':state.collective?'Un punto · un receptor renal trasplantado en 2025':'Recorrido ilustrativo de la media · receptores renales 2025'}</p>
+    <p className="v2-journey-caption">{metric==='dialysis'?(state.collapse===0?'Un cuadrado · una sesión de 4 horas':state.collapse<1?'Las sesiones se reúnen, su tiempo se conserva.':'Un cuadrado · 156 sesiones · 624 horas por persona'):state.collective?'Un punto · un receptor renal trasplantado en 2025':'Recorrido ilustrativo de la media · receptores renales 2025'}</p>
     <span className="v2-sr-only" role="status">{integer(state.people)} {state.collective?metric==='dialysis'?'pacientes al cierre de 2025 en un escenario hipotético':'receptores trasplantados':'recorrido ilustrativo'}, {decimal(value)} {scale}.</span>
   </div>;
 }

@@ -1,13 +1,16 @@
 'use client';
-import {useId,useRef,useState} from 'react';
+import {useId,useMemo,useRef,useState} from 'react';
 import AnnualPointPile from './annual-point-pile';
+import AnnualEntryBreakdown from './annual-entry-breakdown';
+import {historyTime,type AnnualMoment,type HistoryMetric} from './annual-story-model';
 import {decimal,integer} from './universe-model';
 import type {ComparisonYear} from './annual-comparison-model';
+import {hasQuantileBand,quantileBandPath} from './quantile-band-model';
 import {flowGroups,selectFlow} from './annual-flow-model';
 import flows from './annual-flows.generated.json';
 import type {AnnualTimeSelection} from './annual-time-model';
 
-function ExitBreakdown({groups,showCodes=false}:{groups:ReturnType<typeof flowGroups>;showCodes?:boolean}){
+export function ExitBreakdown({groups,showCodes=false}:{groups:ReturnType<typeof flowGroups>;showCodes?:boolean}){
   const [deceased,living,death,other]=groups;
   const [kind,setKind]=useState<'transplant'|'other'|null>(null);
   const dialog=useRef<HTMLDialogElement>(null),id=useId();
@@ -23,47 +26,48 @@ function ExitBreakdown({groups,showCodes=false}:{groups:ReturnType<typeof flowGr
   </div>;
 }
 
-export default function AnnualFlowView({record,history,scope,selection,replay}:{record:ComparisonYear;history:ComparisonYear[];scope:string;selection:AnnualTimeSelection;replay:number}){
-  const flow=selectFlow(flows,selection.list,record.year,selection.province,selection.age);
-  const groups=flowGroups(flow?.causes??[]);
-  const maximum=Math.max(1,...history.map(r=>r.waitlist??0),...(flows.lists[selection.list as keyof typeof flows.lists]??[]).map(r=>selection.province?r.provinces[selection.province as keyof typeof r.provinces]??0:Math.max(r.entries,r.exits??0)));
-  const previous=history.find(r=>r.year===record.year-1)?.waitlist??null;
-  const points=history.filter(r=>!r.partial&&r.waitlist!==null);
-  const x=(year:number)=>40+(year-2005)/20*520;
-  const y=(value:number)=>95-value/maximum*70;
-  const path=points.map((r,i)=>`${i&&points[i-1].year===r.year-1?'L':'M'}${x(r.year)},${y(r.waitlist!)}`).join(' ');
-  const timePoints=history.filter(r=>!r.partial&&r.year<=2025&&r.average!==null);
-  const timeMaximum=Math.max(1,...timePoints.map(r=>r.average!));
-  const timeY=(value:number)=>145-value/timeMaximum*120;
-  const timePath=timePoints.map((r,i)=>`${i&&timePoints[i-1].year===r.year-1?'L':'M'}${x(r.year)},${timeY(r.average!)}`).join(' ');
-  return <div className="v2-annual-parallel v2-list-flow" data-year={record.year} data-list={selection.list}>
-    <header className="v2-flow-heading"><span>{record.label} · {scope}</span><h3>Un año en la lista</h3><p>{record.year}{record.partial?' · enero–julio':''}</p></header>
-    <div className="v2-flow-bars-and-causes"><div className="v2-flow-bars">
-    <AnnualPointPile scaleMaximum={maximum} key={`${record.year}-${selection.list}-${selection.province}-${selection.age}`} previous={previous} current={record.waitlist} entries={flow?.entries??null} exits={flow?.exits??null} groups={groups} paused={false} replay={replay}/>
-    </div><div className="v2-flow-causes" aria-live="polite">{flow?.exits!=null?<ExitBreakdown key={`legend-${record.year}-${selection.list}-${selection.province}-${selection.age}`} groups={groups}/>:<p>{record.partial?'Sin flujos comparables al 31/07/2026.':selection.age!=='all'?'Sin conteos históricos de ingresos y egresos por edad.':flow?.exitsState==='sin_resultado_publicado'?'CRESI respondió «no existe resultado» para estos egresos.':'Sin desglose de egresos verificado para esta selección.'}</p>}</div>
+export default function AnnualFlowView({record,history,scope,selection,replay,moment,onYear,onMoment,paused}:{record:ComparisonYear;history:ComparisonYear[];scope:string;selection:AnnualTimeSelection;replay:number;moment:AnnualMoment;onYear:(year:number)=>void;onMoment:(moment:AnnualMoment)=>void;paused:boolean}){
+  const [metric,setMetric]=useState<HistoryMetric>('time');
+  const [balance,setBalance]=useState<number|null>(null);
+  const previous=history.find(row=>row.year===record.year-1)?.waitlist??null;
+  const flow=useMemo(()=>selectFlow(flows,selection.list,record.year,selection.province,selection.age),[selection.list,record.year,selection.province,selection.age]);
+  const groups=useMemo(()=>flowGroups(flow?.causes??[]),[flow?.causes]);
+  const maximum=Math.max(1,...history.map(row=>row.waitlist??0),...(flows.lists[selection.list as keyof typeof flows.lists]??[]).map(row=>selection.province?row.provinces[selection.province as keyof typeof row.provinces]??0:Math.max(row.entries,row.exits??0)));
+  const canAnimate=previous!==null&&flow?.entries!=null&&flow?.exits!=null&&previous+flow.entries>=flow.exits;
+  const series=history.filter(row=>!row.partial&&row.year<=2025);
+  const value=(row:ComparisonYear)=>metric==='stock'?row.waitlist:historyTime(row).value;
+  const ceiling=Math.max(1,...series.map(row=>value(row)??0),...(metric==='time'?series.map(row=>hasQuantileBand(row)?row.p75!:0):[]));
+  const x=(year:number)=>45+(year-2005)/20*510,y=(n:number)=>285-n/ceiling*225;
+  const path=series.map((row,i)=>value(row)===null?'':`${i&&value(series[i-1])!==null&&series[i-1].year===row.year-1?'L':'M'}${x(row.year)},${y(value(row)!)}`).join(' ');
+  const statistic=historyTime(record).kind==='median'?'Mediana':'Media';
+  const timePath=(kind:'median'|'mean')=>series.map((row,i)=>{const point=historyTime(row);return point.kind!==kind||point.value===null?'':`${i&&historyTime(series[i-1]).kind===kind&&historyTime(series[i-1]).value!==null&&series[i-1].year===row.year-1?'L':'M'}${x(row.year)},${y(point.value)}`;}).join(' ');
+  const mixedTime=new Set(series.filter(row=>historyTime(row).value!==null).map(row=>historyTime(row).kind)).size>1;
+  const band=metric==='time'?quantileBandPath(series,x,y):'';
+  const missing=record.partial?'Sin movimientos para este corte.':selection.age!=='all'?'Sin movimientos disponibles por edad.':flow?.exitsState==='sin_resultado_publicado'?'Sin egresos publicados para este año.':'Sin egresos disponibles para esta selección.';
+  return <div className="v2-annual-parallel v2-list-flow v2-annual-story" data-moment={moment} data-year={record.year} data-list={selection.list}>
+    <header className="v2-story-scope">{record.label} · {scope}</header>
+    <div className="v2-story-visual">
+      <AnnualPointPile previous={previous} current={record.waitlist} onBalance={setBalance} moment={moment} metric={metric} entries={flow?.entries??null} exits={flow?.exits??null} groups={groups} maximum={maximum} history={history} paused={paused} replay={replay}/>
+      {moment==='movements'&&<svg viewBox="0 0 600 360" className="v2-story-overlay" role="group" aria-label={`Ingresos: ${flow?.entries==null?'sin dato':integer(flow.entries)}. Egresos: ${flow?.exits==null?'sin dato':integer(flow.exits)}. El saldo ilustrado no es el cierre publicado.`}>
+        <text x="110" y="32" textAnchor="middle">{flow?.entries==null?'s/d':integer(flow.entries)}</text><text x="490" y="32" textAnchor="middle">{flow?.exits==null?'s/d':integer(flow.exits)}</text>
+        <text x="110" y="318" textAnchor="middle">Ingresos</text><text x="300" y="32" textAnchor="middle">{balance===null?'s/d':integer(balance)}</text><text x="300" y="318" textAnchor="middle">{canAnimate?'Saldo ilustrado':'Lista al cierre'}</text><g className="v2-egresos-trigger" role="button" tabIndex={0} aria-label="Ver motivos de egreso" onClick={()=>onMoment('causes')} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();onMoment('causes');}}}><rect x="420" y="296" width="140" height="42" fill="transparent"/><text x="490" y="318" textAnchor="middle">Egresos ↗</text></g>
+      </svg>}
+      {moment==='causes'&&<svg viewBox="0 0 600 360" className="v2-story-overlay" role="img" aria-label={flow?.exits==null?missing:`Egresos por motivo. Trasplante: ${integer(groups[0].value+groups[1].value)}. Fallecimiento: ${integer(groups[2].value)}. Otros motivos: ${integer(groups[3].value)}.`}>
+      </svg>}
+      {moment==='history'&&<svg viewBox="0 0 600 360" className="v2-story-overlay v2-story-history" role="group" aria-label={metric==='stock'?'Evolución del tamaño de la lista':'Evolución del tiempo hasta el trasplante: mediana con P25 a P75 cuando están disponibles; media sin banda en los demás casos'}>
+        {[0,ceiling/2,ceiling].map(n=><g key={n}><line x1="45" x2="555" y1={y(n)} y2={y(n)} stroke="currentColor" opacity=".12"/><text x="36" y={y(n)+4} textAnchor="end">{metric==='stock'?integer(Math.round(n)):decimal(n)}</text></g>)}
+        {metric==='time'&&<path d={band} fill="var(--v2-accent)" fillOpacity=".16" stroke="none"/>}
+        {metric==='stock'?<path d={path} fill="none" stroke="var(--v2-accent)" strokeWidth="2"/>:<><path d={timePath('median')} fill="none" stroke="var(--v2-accent)" strokeWidth="2"/><path d={timePath('mean')} fill="none" stroke="var(--v2-accent)" strokeWidth="2" strokeDasharray="6 4"/></>}
+        <line x1={x(record.year)} x2={x(record.year)} y1="48" y2="285" stroke="currentColor" opacity=".4" strokeDasharray="3 4"/>
+        {series.filter(row=>value(row)!==null).map(row=><circle key={row.year} cx={x(row.year)} cy={y(value(row)!)} r={row.year===record.year?6:4} fill={row.year===record.year?'var(--v2-accent)':'var(--v2-paper)'} stroke="var(--v2-accent)" tabIndex={0} role="button" aria-pressed={row.year===record.year} aria-label={`${row.year}: ${metric==='time'?(historyTime(row).kind==='median'?'Mediana':'Media')+' ':''}${metric==='stock'?integer(value(row)!):decimal(value(row)!)} ${metric==='stock'?'inscripciones':record.unit}`} onClick={()=>onYear(row.year)} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();onYear(row.year);}}}><title>{row.year} · {metric==='stock'?integer(value(row)!):`${historyTime(row).kind==='median'?'Mediana':'Media'} ${decimal(historyTime(row).value!)} ${row.unit}${hasQuantileBand(row)?` · P25 ${decimal(row.p25!)} · P75 ${decimal(row.p75!)}`:''}`}</title></circle>)}
+        {metric==='time'&&hasQuantileBand(record)&&<line x1={x(record.year)} x2={x(record.year)} y1={y(record.p25!)} y2={y(record.p75!)} stroke="var(--v2-accent)" strokeWidth="2"/>}
+        <text x="45" y="318">2005</text><text x="555" y="318" textAnchor="end">2025</text>
+      </svg>}
     </div>
-    <div className="v2-flow-history v2-flow-time"><span>Tiempo medio de espera de receptores trasplantados · {record.average===null?'sin dato para '+record.year:decimal(record.average)+' '+record.unit+' en '+record.year}</span>
-      {timePoints.length?<svg viewBox="0 0 600 175" role="img" aria-label={`Tiempo medio de espera de receptores trasplantados de ${record.label}, en ${record.unit}. Año seleccionado ${record.year}.`}>
-        {[0,timeMaximum/2,timeMaximum].map(value=><g key={value}><line x1="40" x2="560" y1={timeY(value)} y2={timeY(value)} stroke="currentColor" opacity=".12"/><text x="34" y={timeY(value)+5} textAnchor="end">{decimal(value)}</text></g>)}
-        <path d={timePath} fill="none" stroke="var(--v2-accent)" strokeWidth="3.5"/>
-        <line x1={x(record.year)} x2={x(record.year)} y1="10" y2="148" stroke="var(--v2-accent)" strokeDasharray="3 4"/>
-        {record.average!==null&&<circle cx={x(record.year)} cy={timeY(record.average)} r="4" fill="var(--v2-accent)"/>}
-        <text x="40" y="172">2005</text><text x="560" y="172" textAnchor="end">2025</text>
-      </svg>:<p>Sin datos de tiempo medio para esta selección.</p>}
+    <div className="v2-story-reading" aria-live="polite">
+      {moment==='movements'&&<><p className="v2-story-close">Cierre publicado · <strong>{record.waitlist===null?'s/d':integer(record.waitlist)}</strong> en lista</p><AnnualEntryBreakdown key={`${selection.list}-${record.year}-${selection.province}-${selection.age}`} list={selection.list} year={record.year} province={selection.province} age={selection.age} flowEntries={flow?.entries??null}/><p className="v2-story-separate">Tocá Egresos para ver los motivos.</p>{flow?.exits==null&&<p>{missing}</p>}</>}
+      {moment==='causes'&&(flow?.exits!=null?<><ExitBreakdown key={`${record.year}-${selection.list}-${selection.province}-${selection.age}`} groups={groups}/><p className="v2-story-invitation">Abrí Trasplante u Otros motivos para ver el detalle.</p></>:<p>{missing}</p>)}
+      {moment==='history'&&<><div className="v2-tabs v2-history-metric" role="group" aria-label="Qué evolución explorar"><button type="button" aria-pressed={metric==='time'} onClick={()=>setMetric('time')}>Tiempo de espera</button><button type="button" aria-pressed={metric==='stock'} onClick={()=>setMetric('stock')}>Ver cantidades</button></div><p>{metric==='stock'?'Inscripciones al cierre':`${statistic} hasta el trasplante · ${record.unit}`} · {value(record)===null?'s/d':metric==='stock'?integer(value(record)!):decimal(value(record)!)} en {record.year}</p>{metric==='time'&&mixedTime&&<p className="v2-quantile-legend">— Mediana · ⋯ Media</p>}{metric==='time'&&hasQuantileBand(record)&&<p className="v2-quantile-legend">P25–P75 · {decimal(record.p25!)}–{decimal(record.p75!)} {record.unit}</p>}{!series.some(row=>value(row)!==null)&&<p>{metric==='time'?'Sin datos de tiempo para esta selección.':'Sin datos para esta selección.'}</p>}</>}
     </div>
-    <div className="v2-flow-history"><span>Cómo cambió el tamaño de la lista · {record.waitlist===null?"sin dato":integer(record.waitlist)+" en "+record.year}</span><svg viewBox="0 0 600 118" role="img" aria-label={`Evolución de inscripciones en lista de ${record.label}. Año seleccionado ${record.year}.`}>
-      <path d={path} fill="none" stroke="#617f87" strokeWidth="3.5"/>
-      {!record.partial&&<line x1={x(record.year)} x2={x(record.year)} y1="15" y2="98" stroke="var(--v2-accent)" strokeDasharray="3 4"/>}
-      {record.waitlist!==null&&!record.partial&&<circle cx={x(record.year)} cy={y(record.waitlist)} r="4" fill="var(--v2-accent)"/>}
-      <text x="40" y="115">2005</text><text x="560" y="115" textAnchor="end">2025</text>
-    </svg></div>
-    <details className="v2-flow-detail"><summary>Causas y alcance de los datos</summary>
-      <p>*Egresos: exclusiones permanentes publicadas, que ya incluyen trasplantes y fallecimientos. No se agregan exclusiones transitorias. Los ingresos cuentan inscripciones; no necesariamente personas nuevas.</p>
-      {flow?.exits!=null&&<p>Trasplante reúne los grupos de donante vivo y fallecido; al desplegarlo se muestra cada subtotal con su color. Los subtotales coinciden con los colores del gráfico. «Otros motivos de egreso · agrupados» reúne todos los motivos restantes de la columna Otras de CRESI; no equivale a «Otros motivos no especificados», que corresponde a la etiqueta original OTRA CAUSA. El grupo completo puede incluir trasplantes con córnea del exterior.</p>}
-      {flow?.exits!=null&&<ExitBreakdown key={`detail-${record.year}-${selection.list}-${selection.province}-${selection.age}`} groups={groups} showCodes/>}
-      {flow?.exits!=null&&<p>El formulario indica fecha de exclusión y el resultado imprime fecha de inscripción. Por esa discrepancia, no presentamos un balance conciliado.{flow.residual!==null&&` Diferencia sin conciliar en ${record.year}: ${flow.residual>0?'+':''}${integer(flow.residual)} registros entre stock observado y stock anterior + ingresos − exclusiones.`}</p>}
-      <a href={`${process.env.NEXT_PUBLIC_BASE_PATH??''}/datos/flujos-anuales-lista.json`} download>Descargar cifras y fuentes con SHA256 ↗</a>
-    </details>
-    <p className="v2-flow-footnote">Un punto · una inscripción o un registro de exclusión. La secuencia muestra cantidades agregadas, sin vincular personas entre reportes.{flow?.exits!=null?' *Exclusiones permanentes; balance sin conciliar.':''}{record.average!==null&&` Media de espera de receptores trasplantados: ${decimal(record.average)} ${record.unit}.`}</p>
   </div>;
 }
