@@ -8,8 +8,8 @@ test('independent bands conserve proportions and never divide by zero',()=>{
  assert.equal(flowBands([{id:'zero',label:'Zero',value:0,color:'red'}])[0].height,0);
  assert.deepEqual(flowBands([]),[]);
 });
-test('context findings distinguish missing values, zero and observed changes in people waiting',()=>{
- assert.match(contextFinding(0,5,0,0),/5 personas registradas menos/);
+test('context findings distinguish missing values, zero and observed stock changes',()=>{
+ assert.match(contextFinding(0,5,0,0),/disminuyó en 5/);
  assert.match(contextFinding(5,5,null,null),/no cambió/);
  assert.match(contextFinding(null,null,0,0),/0 ingresos y 0 egresos/);
  assert.match(contextFinding(null,5,null,0),/Falta información/);

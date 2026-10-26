@@ -3,6 +3,7 @@ import {useId,useMemo,useRef,useState} from 'react';
 import AnnualPointPile from './annual-point-pile';
 import IndependentFlow from './independent-flow';
 import {contextFinding} from './context-finding';
+import AnnualEntryBreakdown from './annual-entry-breakdown';
 import {historyTime,type AnnualMoment,type HistoryMetric} from './annual-story-model';
 import {decimal,integer} from './universe-model';
 import type {ComparisonYear} from './annual-comparison-model';
@@ -27,8 +28,10 @@ export function ExitBreakdown({groups,showCodes=false}:{groups:ReturnType<typeof
   </div>;
 }
 
-export default function AnnualFlowView({record,history,scope,selection,replay,moment,onYear,paused}:{record:ComparisonYear;history:ComparisonYear[];scope:string;selection:AnnualTimeSelection;replay:number;moment:AnnualMoment;onYear:(year:number)=>void;paused:boolean}){
+export default function AnnualFlowView({record,history,scope,selection,replay,moment,onYear,onMoment,paused}:{record:ComparisonYear;history:ComparisonYear[];scope:string;selection:AnnualTimeSelection;replay:number;moment:AnnualMoment;onYear:(year:number)=>void;onMoment:(moment:AnnualMoment)=>void;paused:boolean}){
   const [metric,setMetric]=useState<HistoryMetric>('time');
+  const [causeKind,setCauseKind]=useState<'entries'|'exits'>('exits');
+  function showCauses(kind:'entries'|'exits'){setCauseKind(kind);onMoment('causes');}
   const [balance,setBalance]=useState<number|null>(null);
   const previous=history.find(row=>row.year===record.year-1)?.waitlist??null;
   const flow=useMemo(()=>selectFlow(flows,selection.list,record.year,selection.province,selection.age),[selection.list,record.year,selection.province,selection.age]);
@@ -43,12 +46,19 @@ export default function AnnualFlowView({record,history,scope,selection,replay,mo
   const timePath=(kind:'median'|'mean')=>series.map((row,i)=>{const point=historyTime(row);return point.kind!==kind||point.value===null?'':`${i&&historyTime(series[i-1]).kind===kind&&historyTime(series[i-1]).value!==null&&series[i-1].year===row.year-1?'L':'M'}${x(row.year)},${y(point.value)}`;}).join(' ');
   const mixedTime=new Set(series.filter(row=>historyTime(row).value!==null).map(row=>historyTime(row).kind)).size>1;
   const band=metric==='time'?quantileBandPath(series,x,y):'';
+  const missing=record.partial?'Sin movimientos para este corte.':selection.age!=='all'?'Sin movimientos disponibles por edad.':flow?.exitsState==='sin_resultado_publicado'?'Sin egresos publicados para este año.':'Sin egresos disponibles para esta selección.';
   return <div className="v2-annual-parallel v2-list-flow v2-annual-story" data-moment={moment} data-year={record.year} data-list={selection.list}>
     <header className="v2-story-scope">{record.label} · {scope}</header><p className="v2-context-finding" aria-live="polite">{contextFinding(record.waitlist,previous,flow?.entries??null,flow?.exits??null)}</p>
-    {moment!=='history'&&<IndependentFlow key={selection.list+'|'+record.year+'|'+selection.province+'|'+selection.age} list={selection.list} year={record.year} province={selection.province} age={selection.age} groups={groups} exits={flow?.exits??null} flowEntries={flow?.entries??null} stock={record.waitlist}><div className="v2-story-visual"><AnnualPointPile previous={previous} current={record.waitlist} onBalance={setBalance} moment="movements" metric={metric} entries={flow?.entries??null} exits={flow?.exits??null} groups={groups} maximum={maximum} history={history} paused={paused} replay={replay}/></div><p className="v2-balance-reading">{balance===null?'s/d':integer(balance)} · {previous!==null&&flow?.entries!=null&&flow?.exits!=null&&previous+flow.entries>=flow.exits?'Resultado ilustrativo de los movimientos':'Cifra publicada; no hay datos para simular los movimientos'}</p></IndependentFlow>}
-    {moment==='history'&&<details className="v2-flow-original" open><summary>Evolución temporal</summary><div className="v2-story-visual">
-      <AnnualPointPile previous={previous} current={record.waitlist} onBalance={setBalance} moment={moment} metric={metric} entries={flow?.entries??null} exits={flow?.exits??null} groups={groups} maximum={maximum} history={history} paused={paused} replay={replay}/>
-      <svg viewBox="0 0 600 360" className="v2-story-overlay v2-story-history" role="group" aria-label={metric==='stock'?'Evolución de la cantidad de personas en lista':'Evolución del tiempo hasta el trasplante: mediana con P25 a P75 cuando están disponibles; media sin banda en los demás casos'}>
+    {moment!=='history'&&<IndependentFlow key={selection.list+'|'+record.year+'|'+selection.province+'|'+selection.age} list={selection.list} year={record.year} province={selection.province} age={selection.age} groups={groups} exits={flow?.exits??null} flowEntries={flow?.entries??null} stock={record.waitlist}><div className="v2-story-visual"><AnnualPointPile previous={previous} current={record.waitlist} onBalance={setBalance} moment="movements" metric={metric} entries={flow?.entries??null} exits={flow?.exits??null} groups={groups} maximum={maximum} history={history} paused={paused} replay={replay}/></div><p className="v2-balance-reading">{balance===null?'s/d':integer(balance)} · {previous!==null&&flow?.entries!=null&&flow?.exits!=null&&previous+flow.entries>=flow.exits?'Saldo ilustrado':'Stock publicado (sin saldo calculable)'}</p></IndependentFlow>}
+    <details className="v2-flow-original" open={moment==='history'}><summary>{moment==='history'?'Evolución temporal':'Explorar animación y detalles por motivo'}</summary><div className="v2-story-visual">
+      {moment==='causes'&&causeKind==='entries'?<AnnualEntryBreakdown key={`${selection.list}-${record.year}-${selection.province}-${selection.age}`} list={selection.list} year={record.year} province={selection.province} age={selection.age} flowEntries={flow?.entries??null}/>:<AnnualPointPile previous={previous} current={record.waitlist} onBalance={setBalance} moment={moment} metric={metric} entries={flow?.entries??null} exits={flow?.exits??null} groups={groups} maximum={maximum} history={history} paused={paused} replay={replay}/>}
+      {moment==='movements'&&<svg viewBox="0 0 600 360" className="v2-story-overlay" role="group" aria-label={`Ingresos: ${flow?.entries==null?'sin dato':integer(flow.entries)}. Egresos: ${flow?.exits==null?'sin dato':integer(flow.exits)}. El saldo ilustrado no es el cierre publicado.`}>
+        <text x="110" y="32" textAnchor="middle">{flow?.entries==null?'s/d':integer(flow.entries)}</text><text x="490" y="32" textAnchor="middle">{flow?.exits==null?'s/d':integer(flow.exits)}</text>
+        <g className="v2-egresos-trigger" role="button" tabIndex={0} aria-label="Ver motivos de ingreso" onClick={()=>showCauses('entries')} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();showCauses('entries');}}}><rect x="40" y="296" width="140" height="42" fill="transparent"/><text x="110" y="318" textAnchor="middle">Ingresos ↗</text></g><text x="300" y="32" textAnchor="middle">{balance===null?'s/d':integer(balance)}</text><text x="300" y="318" textAnchor="middle"><tspan x="300" dy="-4" fontSize="13">Cantidad de personas</tspan><tspan x="300" dy="17" fontSize="13">en lista de espera*</tspan></text><g className="v2-egresos-trigger" role="button" tabIndex={0} aria-label="Ver motivos de egreso" onClick={()=>showCauses('exits')} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();showCauses('exits');}}}><rect x="420" y="296" width="140" height="42" fill="transparent"/><text x="490" y="318" textAnchor="middle">Egresos ↗</text></g>
+      </svg>}
+      {moment==='causes'&&causeKind==='exits'&&<svg viewBox="0 0 600 360" className="v2-story-overlay" role="img" aria-label={flow?.exits==null?missing:`Egresos por motivo. Trasplante: ${integer(groups[0].value+groups[1].value)}. Fallecimiento: ${integer(groups[2].value)}. Otros motivos: ${integer(groups[3].value)}.`}>
+      </svg>}
+      {moment==='history'&&<svg viewBox="0 0 600 360" className="v2-story-overlay v2-story-history" role="group" aria-label={metric==='stock'?'Evolución del tamaño de la lista':'Evolución del tiempo hasta el trasplante: mediana con P25 a P75 cuando están disponibles; media sin banda en los demás casos'}>
         {[0,ceiling/2,ceiling].map(n=><g key={n}><line x1="45" x2="555" y1={y(n)} y2={y(n)} stroke="currentColor" opacity=".12"/><text x="36" y={y(n)+4} textAnchor="end">{metric==='stock'?integer(Math.round(n)):decimal(n)}</text></g>)}
         {metric==='time'&&<path d={band} fill="var(--v2-accent)" fillOpacity=".16" stroke="none"/>}
         {metric==='stock'?<path d={path} fill="none" stroke="var(--v2-accent)" strokeWidth="2"/>:<><path d={timePath('median')} fill="none" stroke="var(--v2-accent)" strokeWidth="2"/><path d={timePath('mean')} fill="none" stroke="var(--v2-accent)" strokeWidth="2" strokeDasharray="6 4"/></>}
@@ -56,11 +66,15 @@ export default function AnnualFlowView({record,history,scope,selection,replay,mo
         {series.filter(row=>value(row)!==null).map(row=><circle key={row.year} cx={x(row.year)} cy={y(value(row)!)} r={row.year===record.year?6:4} fill={row.year===record.year?'var(--v2-accent)':'var(--v2-paper)'} stroke="var(--v2-accent)" tabIndex={0} role="button" aria-pressed={row.year===record.year} aria-label={`${row.year}: ${metric==='time'?(historyTime(row).kind==='median'?'Mediana':'Media')+' ':''}${metric==='stock'?integer(value(row)!):decimal(value(row)!)} ${metric==='stock'?'inscripciones':record.unit}`} onClick={()=>onYear(row.year)} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();onYear(row.year);}}}><title>{row.year} · {metric==='stock'?integer(value(row)!):`${historyTime(row).kind==='median'?'Mediana':'Media'} ${decimal(historyTime(row).value!)} ${row.unit}${hasQuantileBand(row)?` · P25 ${decimal(row.p25!)} · P75 ${decimal(row.p75!)}`:''}`}</title></circle>)}
         {metric==='time'&&hasQuantileBand(record)&&<line x1={x(record.year)} x2={x(record.year)} y1={y(record.p25!)} y2={y(record.p75!)} stroke="var(--v2-accent)" strokeWidth="2"/>}
         <text x="45" y="318">2005</text><text x="555" y="318" textAnchor="end">2025</text>
-      </svg>
+      </svg>}
     </div>
     <div className="v2-story-reading" aria-live="polite">
+      {moment==='movements'&&<><p className="v2-story-separate">Elegí una categoría o desplegá los diagnósticos y motivos.</p>{flow?.exits==null&&<p>{missing}</p>}</>}
+      {moment==='causes'&&<div className="v2-tabs" role="group" aria-label="Motivos de ingresos o egresos"><button type="button" aria-pressed={causeKind==='entries'} onClick={()=>setCauseKind('entries')}>Ingresos</button><button type="button" aria-pressed={causeKind==='exits'} onClick={()=>setCauseKind('exits')}>Egresos</button></div>}
+
+      {moment==='causes'&&causeKind==='exits'&&(flow?.exits!=null?<><ExitBreakdown key={`${record.year}-${selection.list}-${selection.province}-${selection.age}`} groups={groups}/><p className="v2-story-invitation">Abrí Trasplante u Otros motivos para ver el detalle.</p></>:<p>{missing}</p>)}
       {moment==='history'&&<><div className="v2-tabs v2-history-metric" role="group" aria-label="Qué evolución explorar"><button type="button" aria-pressed={metric==='time'} onClick={()=>setMetric('time')}>Tiempo de espera</button><button type="button" aria-pressed={metric==='stock'} onClick={()=>setMetric('stock')}>Ver cantidades</button></div><p>{metric==='stock'?'Inscripciones al cierre':`${statistic} hasta el trasplante · ${record.unit}`} · {value(record)===null?'s/d':metric==='stock'?integer(value(record)!):decimal(value(record)!)} en {record.year}</p>{metric==='time'&&mixedTime&&<p className="v2-quantile-legend">— Mediana · ⋯ Media</p>}{metric==='time'&&hasQuantileBand(record)&&<p className="v2-quantile-legend">P25–P75 · {decimal(record.p25!)}–{decimal(record.p75!)} {record.unit}</p>}{!series.some(row=>value(row)!==null)&&<p>{metric==='time'?'Sin datos de tiempo para esta selección.':'Sin datos para esta selección.'}</p>}</>}
     </div>
-    </details>}
+    </details>
   </div>;
 }
