@@ -62,6 +62,7 @@ function resolveKeys(data: UniverseData, selection: ExplorationSelection, provin
 export function explorationGroups(data: UniverseData, dimension: Dimension, selection: ExplorationSelection): { groups: Group[]; unavailable: boolean } {
   const sources = sourcesFor(data,selection);
   const { province, seniority } = selection;
+  if (!sources.length) return {groups:[],unavailable:true};
   if (selection.listId && seniority && valueFor(sources[0],province,seniority) === undefined) return {groups:[],unavailable:true};
   if (dimension === 'organ') {
     const groups = data.organs.filter(g => sources.some(l => l.id === g.id)).map(g => {
@@ -102,9 +103,10 @@ export function explorationGroups(data: UniverseData, dimension: Dimension, sele
   const labels = groupsFor(data,'territory',null);
   const groups = total.province.filter(row => !province || row.label === province).map(row => {
     const keys = resolveKeys(data,selection,row.label,seniority);
-    // A small-list aggregate or time-filtered rate is not in the source. Keep s/d.
+    // Current snapshots use the fixed population denominator; legacy snapshots retain published rates.
     const rateList = !seniority && !selection.smallLists ? sources.length === 1 ? sources[0] : total : selection.listId && !seniority ? sources[0] : undefined;
-    return { id:`territory:${row.label}`,sourceKey:row.label,label:labels.find(g => g.label.toUpperCase() === row.label)?.label ?? labels[total.province.indexOf(row)].label,value:keys.length,color,unitKeys:keys,pmh:rateList?.province.find(p => p.label === row.label)?.pmh };
+    const denominator=data.populationByProvince?.[row.label];
+    return { id:`territory:${row.label}`,sourceKey:row.label,label:labels.find(g => g.label.toUpperCase() === row.label)?.label ?? labels[total.province.indexOf(row)].label,value:keys.length,color,unitKeys:keys,pmh:denominator&&denominator>0?keys.length/denominator*1_000_000:rateList?.province.find(p => p.label === row.label)?.pmh };
   });
   return {groups,unavailable:false};
 }
@@ -115,7 +117,7 @@ export function selectExploration(selection: ExplorationSelection, dimension: Di
   const field = dimension === 'organ' ? 'listId' : dimension === 'seniority' ? 'seniority' : 'province';
   const value = group.sourceKey ?? group.id;
   const removing = selection[field] === value;
-  return {selection:{...selection,[field]:removing ? null : value},dimension:removing ? dimension : dimension === 'organ' ? 'territory' : dimension === 'seniority' ? 'territory' : 'organ'};
+  return {selection:{...selection,[field]:removing ? null : value},dimension:removing ? dimension : dimension === 'organ' ? 'territory' : dimension === 'territory' ? 'seniority' : 'territory'};
 }
 
 export function identifyDots(points: Dot[], groups: Group[]): Dot[] {

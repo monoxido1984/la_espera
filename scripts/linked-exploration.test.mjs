@@ -36,7 +36,7 @@ test('organ opens province and joint filters retain exact units in both directio
   const second=selectExploration(first.selection,'seniority',group(first.selection,'seniority',band));
   assert.equal(second.dimension,'territory');
   const third=selectExploration(second.selection,'territory',group(second.selection,'territory','CORDOBA'));
-  assert.equal(third.dimension,'organ');
+  assert.equal(third.dimension,'seniority');
   assert.deepEqual(third.selection,{...allWaiting,listId:'RENAL',province:'CORDOBA',seniority:band});
   for(const dimension of ['organ','seniority','territory']) assert.equal(sum(explorationGroups(data,dimension,third.selection).groups),107);
   const sets=['organ','seniority','territory'].map(d=>keys(explorationGroups(data,d,third.selection).groups));
@@ -109,4 +109,14 @@ test('expanding filtered smaller lists also preserves the unallocated time resid
   assert.equal(other.value,5);
   assert.equal(sum(details),other.value);
   assert.deepEqual(keys(details),other.unitKeys.toSorted());
+});
+
+test('organ to map to provincial waiting times keeps the selected list',()=>{
+ const first=selectExploration(allWaiting,'organ',group(allWaiting,'organ','RENAL'));
+ const next=selectExploration(first.selection,'territory',group(first.selection,'territory','CORDOBA'));
+ assert.equal(next.dimension,'seniority');
+ assert.equal(next.selection.listId,'RENAL');assert.equal(next.selection.province,'CORDOBA');
+ const published=data.lists.find(l=>l.id==='RENAL').seniorityByProvince.find(p=>p.province==='CORDOBA').items;
+ const times=explorationGroups(data,'seniority',next.selection);
+ for(const row of published)assert.equal(times.groups.find(g=>g.sourceKey===row.label).value,row.value);
 });

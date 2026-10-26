@@ -1,0 +1,32 @@
+{
+  "at": "2026-07-01",
+  "source": "datos/extraidos/reportes_dinamicos/foto_2026_08_28_dialisis/dialisis_activos_confirmados_foto_actual_base/tabla_02.csv",
+  "sha256": "f6ef954c8327673d1a5a759049b73be67bade241868f92e73cb1a302c8d9af9c",
+  "unit": "habitantes de todas las edades y sexos",
+  "provinces": {
+    "BUENOS AIRES": 17453039,
+    "CORDOBA": 3968336,
+    "SANTA FE": 3688683,
+    "CAPITAL FEDERAL": 3065991,
+    "MENDOZA": 2051912,
+    "TUCUMAN": 1778484,
+    "SALTA": 1492267,
+    "ENTRE RIOS": 1462153,
+    "RIO NEGRO": 792587,
+    "SANTIAGO DEL ESTERO": 1059927,
+    "SAN JUAN": 852747,
+    "MISIONES": 1355029,
+    "NEUQUEN": 707092,
+    "JUJUY": 802922,
+    "CHACO": 1214280,
+    "CORRIENTES": 1208334,
+    "CHUBUT": 603930,
+    "SAN LUIS": 538852,
+    "LA RIOJA": 405241,
+    "CATAMARCA": 440503,
+    "FORMOSA": 628876,
+    "LA PAMPA": 377663,
+    "SANTA CRUZ": 335096,
+    "TIERRA DEL FUEGO": 182744
+  }
+}

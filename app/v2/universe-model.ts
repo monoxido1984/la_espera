@@ -1,10 +1,11 @@
 import type { StoryData, TransplantSnapshot } from '../story-model';
 
-export type Group = { id: string; label: string; value: number; color: string; pmh?: number; sourceKey?: string; unitKeys?: string[]; kind?: 'collection' | 'unavailable'; members?: string[] };
+export type Group = { id: string; label: string; value: number; color: string; pmh?: number; sourceKey?: string; unitKeys?: string[]; kind?: 'collection' | 'unavailable'; members?: string[]; missing?: boolean };
 export type TerritoryMetric = 'count' | 'pmh';
 export type HistoryYear = { year: number; waitlist: number; donors: number; median: number; average: number; p25: number; p75: number; n: number };
 export type ListDetail = { id: string; label: string; total: number; province: { label: string; value: number; pmh?: number }[]; seniority: { label: string; value: number }[]; seniorityByProvince?: { province: string; items: { label: string; value: number }[] }[] };
 export type UniverseData = {
+  populationByProvince?: Record<string,number>;
   dialysisPopulation?: {year:number;count:number;at:string;annualPersonTime:null;measure:string;csvSha256:string;htmlSha256:string};
   dialysis?: { year: number; n: number; average: number; median: number }[];
   total: number; snapshot: string; organs: Group[]; lists: ListDetail[];
