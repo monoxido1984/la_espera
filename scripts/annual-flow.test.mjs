@@ -1,11 +1,9 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import ts from 'typescript';
+import {selectFlow,flowGroups} from '../app/v2/annual-flow-model.ts';
 const file=n=>new URL('../app/v2/'+n,import.meta.url);
 const data=JSON.parse(readFileSync(file('annual-flows.generated.json'),'utf8'));
-const module=ts.transpileModule(readFileSync(file('annual-flow-model.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
-const {selectFlow,flowGroups}=await import('data:text/javascript;base64,'+Buffer.from(module).toString('base64'));
 test('renal exits are counted once, categories preserve all source causes',()=>{
   for(const row of data.lists.RENAL.filter(r=>r.exits!==null)){
     assert.equal(row.causes.reduce((s,c)=>s+c.value,0),row.exits);
@@ -15,9 +13,11 @@ test('renal exits are counted once, categories preserve all source causes',()=>{
   assert.equal(r.entries,2559);assert.equal(r.exits,2388);assert.equal(r.residual,-86);
   assert.deepEqual(flowGroups(r.causes).map(r=>r.value),[1524,225,429,210]);
 });
-test('missing age, province exits and July never inherit national annual exits',()=>{
-  assert.equal(selectFlow(data,'RENAL',2025,'CORDOBA','all').exits,null);
-  assert.equal(selectFlow(data,'RENAL',2025,'CORDOBA','all').causes.length,0);
+test('provincial exits use their own published cross; missing age and year never inherit national exits',()=>{
+  assert.equal(selectFlow(data,'RENAL',2025,'CORDOBA','all').exits,207);
+  assert.equal(selectFlow(data,'RENAL',2025,'CORDOBA','all').causes.reduce((s,c)=>s+c.value,0),207);
+  assert.equal(selectFlow(data,'CARDIACA',2005,'CHUBUT','all').exits,null);
+  assert.equal(selectFlow(data,'CARDIACA',2005,'CHUBUT','all').exitsState,'sin_resultado_publicado');
   assert.equal(selectFlow(data,'RENAL',2025,null,'menor_18'),null);
   assert.equal(selectFlow(data,'RENAL',2026,null,'all'),null);
   assert.equal(selectFlow(data,'CORNEAS',2004,null,'all'),null);

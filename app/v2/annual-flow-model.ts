@@ -1,10 +1,13 @@
+import provincialExits from './provincial-exits.generated.json' with {type:'json'};
 export type FlowCause={label:string;value:number;code?:string;canonicalId?:string;displayLabel?:string;group?:string};
 export type FlowYear={year:number;entries:number;provinces:Record<string,number>;exits:number|null;causes:FlowCause[];residual:number|null;exitsState?:string};
 export type FlowData={lists:Record<string,FlowYear[]>};
 export function selectFlow(data:FlowData,list:string,year:number,province:string|null,age:string){
   const row=data.lists[list]?.find(r=>r.year===year);
   if(!row||age!=='all')return null;
-  return {...row,entries:province?row.provinces[province]??null:row.entries,exits:province?null:row.exits,causes:province?[]:row.causes,residual:province?null:row.residual,exitsState:province?'no_adquirido':row.exitsState};
+  if(!province)return row;
+  const cell=(provincialExits.rows as Record<string,{total:number|null;causes:FlowCause[];state:string}>)[`${list}|${year}|${province}`];
+  return {...row,entries:row.provinces[province]??null,exits:cell?.total??null,causes:cell?.causes??[],residual:null,exitsState:cell?.state??'no_adquirido'};
 }
 export function flowGroups(causes:FlowYear['causes']){
   const direct=/^TRASPLANTE CON DONANTE (FALLECIDO|VIVO)$|^FALLECIMIENTO$/;

@@ -36,7 +36,7 @@ export default function AnnualFlowView({record,history,scope,selection,replay,mo
   const previous=history.find(row=>row.year===record.year-1)?.waitlist??null;
   const flow=useMemo(()=>selectFlow(flows,selection.list,record.year,selection.province,selection.age),[selection.list,record.year,selection.province,selection.age]);
   const groups=useMemo(()=>flowGroups(flow?.causes??[]),[flow?.causes]);
-  const maximum=Math.max(1,...history.map(row=>row.waitlist??0),...(flows.lists[selection.list as keyof typeof flows.lists]??[]).map(row=>selection.province?row.provinces[selection.province as keyof typeof row.provinces]??0:Math.max(row.entries,row.exits??0)));
+  const maximum=Math.max(1,flow?.entries??0,flow?.exits??0,...history.map(row=>row.waitlist??0),...(flows.lists[selection.list as keyof typeof flows.lists]??[]).map(row=>selection.province?row.provinces[selection.province as keyof typeof row.provinces]??0:Math.max(row.entries,row.exits??0)));
   const series=history.filter(row=>!row.partial&&row.year<=2025);
   const value=(row:ComparisonYear)=>metric==='stock'?row.waitlist:historyTime(row).value;
   const ceiling=Math.max(1,...series.map(row=>value(row)??0),...(metric==='time'?series.map(row=>hasQuantileBand(row)?row.p75!:0):[]));
