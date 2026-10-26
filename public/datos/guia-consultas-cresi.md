@@ -1,147 +1,208 @@
-# La Espera — guía de consultas y preparación de datos
+# La Espera — Guía de consultas CRESI y reproducción de datos
 
-Documentación de la versión local del 15/10/2026. Fuente estadística: https://cresi.incucai.gov.ar/ (CRESI / SINTRA, INCUCAI). Sólo reportes numéricos públicos, sin autenticación ni datos identificables.
+Documentación técnica de la versión actual (26/10/2026).  
+Fuente estadística oficial: [CRESI / SINTRA · INCUCAI](https://cresi.incucai.gov.ar/).  
+Se utilizaron exclusivamente reportes numéricos públicos accesibles sin credenciales ni autenticación. No se recolectaron microdatos ni información nominal de pacientes, donantes o profesionales.
 
-## Antes de comparar resultados
+---
 
-Cada consulta tiene dos pasos: criterios de evaluación y salidas o agrupamientos. Al terminar, guardar el encabezado completo con filtros, período, salidas y fecha/hora de ejecución, además de las tablas. Los números y nombres de salida de esta guía corresponden a las capturas conservadas; CRESI puede revisarlos.
+## 1. Principios antes de comparar y reproducir
 
-No confundir período evaluado con fecha de consulta. Los reportes históricos pueden cambiar por actualizaciones del registro. La foto actual del 28/08/2026 no se reproduce retrospectivamente cambiando un filtro: repetir hoy esa consulta devuelve la situación actual. Para auditar exactamente 9.721 se necesitan las respuestas archivadas de ese día, con sus horas respectivas. La captura de varias tablas no fue una transacción simultánea.
+1. **Estructura en dos pasos:** Toda consulta pública en CRESI consta de dos pantallas consecutivas:
+   - **Paso 1 (Criterios de evaluación):** Define los filtros poblacionales, territoriales, demográficos y de fecha.
+   - **Paso 2 (Salidas seleccionadas):** Define los agrupamientos tabulares y las variables que devolverá el servidor.
+2. **Fecha de ejecución frente a período evaluado:** La fecha impresa en el encabezado del resultado registra el instante exacto en que se ejecutó la consulta. El período describe el intervalo de tiempo de los datos contenidos.
+3. **Reproducibilidad exacta frente a repetición en línea:**
+   - Para reportes de **situación actual** (como la fotografía del 24/10/2026): repetir hoy la consulta en CRESI devolverá el estado del registro al momento de la nueva consulta. Para auditar bit a bit los 9.649 registros y las celdas publicadas en esta web, se debe cotejar contra los HTML y CSV originales archivados en `datos/originales/` con sus firmas SHA256 inmutables.
+   - Para reportes de **años cerrados** (2005–2025): las consultas son reproducibles con los filtros documentados, aunque eventuales revisiones posteriores del registro institucional pueden alterar sutilmente los valores históricos respecto a las fechas de captura archivadas.
 
-## 1. Fotografía actual: cifra, listas, provincias y antigüedad
+---
 
-Formulario: **Reporte de pacientes inscriptos en lista de espera**.
+## 2. Separación de universos
 
-https://cresi.incucai.gov.ar/cresi/OpenDocument.do?accion=%2Fcresi_le.do%3FCLICK_AND_LIST_HABILITADO%3Dtrue
+Para evitar interpretaciones metodológicas erróneas, la visualización distingue cinco universos independientes:
 
-Paso 1:
-
-- Reporte: COMPLETO - TODAS LAS LISTAS DE ESPERA.
-- Situación en lista de espera: PACIENTES INSCRIPTOS EN LISTA DE ESPERA.
-- Total nacional: sin restricción de provincia, sexo o edad.
-
-Paso 2:
-
-- 2. Pacientes agrupados por provincia de residencia.
-- 16. Pacientes agrupados por antiguedad en lista de espera.
-
-Las columnas distinguen tipos de lista. Para lista × provincia × antigüedad, volver al paso 1, fijar Provincia del paciente (ejemplo: CORDOBA) y solicitar la salida 16. Repetir para las 24 jurisdicciones. No multiplicar una proporción provincial por otra proporción de antigüedad.
-
-La foto total reúne 9.721 inscripciones, no personas únicas deduplicadas. Las listas combinadas y los tejidos se mantienen. La tabla provincial de antigüedad tiene desgloses no publicados para algunas listas; se conserva la diferencia entre total conjunto y subtotales conocidos como residual, sin repartirla. No se fabrican cruces de diagnóstico, sexo, edad y antigüedad desde tablas marginales.
-
-Trazabilidad local: `datos/originales/reportes_dinamicos/foto_2026_08_28_lista_espera/` y ruta homóloga bajo `datos/extraidos/`; cada `tabla_01.csv` conserva criterios. Vistas derivadas: `foto 28-08/lista_provincia.csv` y `foto 28-08/lista_antiguedad_provincia.csv`.
-
-## 2. Cantidades anuales de inscripciones
-
-Formulario: **Reporte de prevalencia e incidencia en diálisis y lista de espera**.
-
-https://cresi.incucai.gov.ar/cresi/OpenDocument.do?accion=%2Fcresi_pre.do%3FCLICK_AND_LIST_HABILITADO%3Dfalse
-
-Paso 1: Evaluar = PACIENTES EN LISTA DE ESPERA; año elegido (ejemplo 2025); Lista de espera elegida (ejemplo RENAL o CORNEAS).
-
-Paso 2: 2. Pacientes agrupados por provincia de residencia. Leer **Total LE** por provincia y TOTAL: la nota del reporte lo define como pacientes inscriptos contabilizados al final del año de evaluación. No usar Ing LE, Prev LE ni Total IRCT.
-
-Cobertura: 13 listas × 21 años (2005–2025) = 273 combinaciones lista–año, con 24 provincias cada una. Controles 2025: Renal 5.195; Córneas 2.188. Son cantidades anuales publicadas, distintas de la foto actual y del número de receptores de trasplante. No hay conteos por edad en esta capa: al elegir edad, la cantidad es s/d.
-
-Listas: RENAL, CORNEAS, HEPATICA, CARDIACA, PULMONAR, RENOPANCREATICA, ESCLERAS, HEPATORRENAL, HEPATOINTESTINAL, HEPATOPANCREATICA, CARDIOHEPATICA, CARDIOPULMONAR y CARDIORRENAL.
-
-Archivo web: `conteos-anuales-por-lista.json`. `lists[lista]` contiene año, total, provincias y fuentes con SHA256. Se comprueba que 24 valores provinciales sumen el total de cada consulta.
-
-Adquisición local: `scripts/recolectar_conteos_historicos_por_lista.py`, colección `conteos_anuales_por_lista_2026_10_15`. Se reutilizaron la serie renal y Hepática 2005 ya verificadas; se completaron 251 consultas nuevas, sin forzar reemplazos. Preparación: `scripts/construir_conteos_anuales_por_lista_web.py --require-complete`.
-
-## 3. Tiempo hasta el trasplante: consultas conjuntas
-
-El período se selecciona por **FECHA DE DESCLAMPEO**: es el año del trasplante, no el del comienzo de la espera. En OTRO AÑO se elige 2005–2025.
-
-| Distribución / formulario | Listas | Salida | Unidad verificada |
+| Universo | Qué mide | Población y corte | Unidad |
 | --- | --- | --- | --- |
-| Renal: `cresi_renal.do` | RENAL, RENOPANCREATICA | 29. Variables estadísticas del tiempo de espera hasta el trasplante | meses |
-| Hepática: `cresi_hepatico.do` | HEPATICA, HEPATORRENAL, HEPATOPANCREATICA, HEPATOINTESTINAL | 34. Variables estadísticas del tiempo de espera hasta el trasplante | días |
-| Intratorácica: `cresi_intratoracico.do` | CARDIACA, CARDIOHEPATICA, CARDIOPULMONAR, CARDIORRENAL, PULMONAR | 28. Variables estadísticas del tiempo de espera hasta el trasplante | meses |
-| Córneas: `cresi_corneas.do` | CORNEAS, ESCLERAS | 28. Variables estadísticas del tiempo de espera hasta el trasplante | meses |
+| **Stock actual en lista** | Inscripciones activas al momento de la consulta | Fotografía del 24/10/2026 (10:43–10:47) | Inscripciones activas (una persona puede figurar en más de una lista; no son personas únicas deduplicadas). |
+| **Inscripciones en un período (altas)** | Personas registradas entre fechas, en cualquier situación posterior | 01/01/2026 al 24/10/2026 (diagnósticos 2026) y 01/01 a 31/12 (ingresos 2005–2025) | Inscripciones registradas en el período evaluado. |
+| **Egresos (bajas permanentes)** | Personas dadas de baja definitiva de la lista durante el año | Años calendario cerrados 2005–2025 | Bajas permanentes (reúne trasplantes con donante fallecido, con donante vivo, fallecimientos y otras causas). |
+| **Población en diálisis** | Pacientes en tratamiento de insuficiencia renal crónica terminal (IRCT) | Al 31/12/2025 | Personas en diálisis al cierre (31.431 pacientes en `Total IRCT`). |
+| **Receptores trasplantados** | Personas que efectivamente accedieron a un trasplante | Años calendario cerrados 2005–2025 (por fecha de desclampeo) | Receptores de trasplante evaluados en tiempo de espera. |
 
-Enlaces a los cuatro formularios:
+---
 
-- https://cresi.incucai.gov.ar/cresi/OpenDocument.do?accion=%2Fcresi_renal.do%3FCLICK_AND_LIST_HABILITADO%3Dtrue
-- https://cresi.incucai.gov.ar/cresi/OpenDocument.do?accion=%2Fcresi_hepatico.do%3FCLICK_AND_LIST_HABILITADO%3Dtrue
-- https://cresi.incucai.gov.ar/cresi/OpenDocument.do?accion=%2Fcresi_intratoracico.do%3FCLICK_AND_LIST_HABILITADO%3Dtrue
-- https://cresi.incucai.gov.ar/cresi/OpenDocument.do?accion=%2Fcresi_corneas.do%3FCLICK_AND_LIST_HABILITADO%3Dtrue
+## 3. Guía por formulario de CRESI
 
-Para cada celda, fijar simultáneamente: año, Lista de espera del receptor, Provincia de residencia del receptor y Edad del receptor = ESPECIFICAR desde 0 hasta 17 o desde 18 hasta 119 años. La interfaz rotula esos dos intervalos como menores de 18 y 18 o más. No se consultó sexo como filtro en estos formularios.
+### A. Reporte de pacientes inscriptos en lista de espera (`cresi_le.do`)
+URL: `https://cresi.incucai.gov.ar/cresi/OpenDocument.do?accion=%2Fcresi_le.do%3FCLICK_AND_LIST_HABILITADO%3Dtrue`
 
-Ejemplo: Córneas, FECHA DE DESCLAMPEO, OTRO AÑO 2025, lista CORNEAS, provincia CORDOBA, edad 0–17, salida 28. De la fila TOTAL guardar n y media en meses. La nota de la salida identifica la unidad. Para hepáticas conservar días; no asumir que todas las tablas usan meses.
+#### Parámetros de Paso 1 (Criterios de evaluación):
+* **Reporte:** `COMPLETO - TODAS LAS LISTAS DE ESPERA` (para ver todas las listas en una misma tabla) o seleccionar una lista particular.
+* **Situación en lista de espera:**
+  * Para stock actual: `PACIENTES INSCRIPTOS EN LISTA DE ESPERA`.
+  * Para diagnósticos de inscripciones en un período: `PACIENTES INSCRIPTOS EN CUALQUIER SITUACION`.
+* **Filtros de cruce utilizados:**
+  * `Provincia del paciente`: seleccionar una de las 24 provincias (o dejar sin filtro para el total nacional).
+  * `Edad del paciente`: `PEDIATRICOS (<18)` o `ADULTOS (>=18)` (o sin filtro para todas las edades).
+  * `Sexo del paciente`: `FEMENINO` o `MASCULINO` (o sin filtro para ambos sexos).
+  * `Período de evaluación (fecha inscripción)`: `ESPECIFICAR: desde 01-01-2026 hasta 24-10-2026` (para diagnósticos actuales) o `OTRO AÑO: desde 1-1-AAAA hasta 31-12-AAAA` (para ingresos históricos).
 
-Cobertura: 13 × 24 × 2 × 21 = 13.104 celdas agregadas. Al elegir una provincia y todas las edades, se reúnen sus dos celdas; para Argentina, las 24 jurisdicciones. Sólo agregar cuando están todas las celdas esperadas y la unidad coincide.
+#### Parámetros de Paso 2 (Salidas seleccionadas):
+* `2. Pacientes agrupados por provincia de residencia`: genera tabla provincial cruzada por lista de espera.
+* `10. Pacientes agrupados por diagnóstico principal`: genera tabla de frecuencias por diagnóstico clínico de ingreso.
+* `16. Pacientes agrupados por antiguedad en lista de espera`: genera tabla con las 9 bandas oficiales de permanencia (`<1mes`, `1~3meses`, `3~6meses`, `6~12meses`, `1~2años`, `2~3años`, `3~7años`, `7~10años`, `>10años`).
 
-Fórmula: **media conjunta = Σ(nᵢ × mediaᵢ) / Σnᵢ**. Los grupos reunidos deben ser disjuntos. No es un promedio simple de provincias; no se promedian medianas ni percentiles. Las medias publicadas están redondeadas y limitan la precisión. Un resultado sin observaciones conserva n = 0 y media ausente, no media cero. Una celda faltante impide publicar el agregado como completo.
+---
 
-La referencia nacional de distribución renal es una consulta separada sin provincia, edad ni lista adicional. En 2025 publica n = 1.542 y media = 28,12 meses. Los cruces renales territoriales/etarios reúnen 1.528: no se imputa la diferencia ni se infiere su causa. Renal nacional usa el reporte nacional; las selecciones específicas usan su propio n y media.
+### B. Reporte de prevalencia e incidencia en diálisis y lista de espera (`cresi_pre.do`)
+URL: `https://cresi.incucai.gov.ar/cresi/OpenDocument.do?accion=%2Fcresi_pre.do%3FCLICK_AND_LIST_HABILITADO%3Dfalse`
 
-Archivo web: `tiempos-y-fuentes.json`, con `periods` y `cells` (año, lista, provincia, edad, unidad, n, media, cuantiles, estado, fecha, ruta, SHA256 y formulario). Incluye también un corte 2026 de otra fecha; la escena anual **sólo usa 2005–2025 de ese archivo**. Julio 2026 usa exclusivamente la fuente mensual separada descrita abajo. `historia-y-fuentes.json` conserva la referencia renal nacional y las fuentes históricas.
+#### Parámetros de Paso 1:
+* **Evaluar:** `PACIENTES EN LISTA DE ESPERA` (para stock y movimientos de lista) o `PACIENTES EN DIALISIS` (para stock de diálisis).
+* **Período de evaluación:** `desde 1-1-AAAA hasta 31-12-AAAA`.
+* **Lista de espera:** elegir una de las 13 listas: `RENAL`, `CORNEAS`, `HEPATICA`, `CARDIACA`, `PULMONAR`, `RENOPANCREATICA`, `ESCLERAS`, `HEPATORRENAL`, `HEPATOINTESTINAL`, `HEPATOPANCREATICA`, `CARDIOHEPATICA`, `CARDIOPULMONAR` o `CARDIORRENAL`.
 
-Preparación: `visualizacion/scripts/build-wait-time-province.mjs` extrae las celdas de las consultas conservadas; `scripts/construir_cruces_anuales_tiempo_web.py` produce el derivado compacto de 2005–2025; `visualizacion/scripts/build-history.mjs` conserva la referencia nacional. Ninguno necesita reconstruir pacientes.
+#### Parámetros de Paso 2:
+* `2. Pacientes agrupados por provincia de residencia`.
+* **Columnas de lectura:**
+  * `Total LE`: pacientes inscriptos contabilizados al final del año evaluado (stock al cierre).
+  * `Ing LE`: pacientes ingresados a la lista de espera durante el año evaluado.
+  * `Total IRCT`: pacientes en diálisis contabilizados al final del año evaluado.
 
-## 4. Donantes anuales
+---
 
-Formulario: **Reporte de donantes de órganos y tejidos**.
+### C. Reporte de exclusiones de lista de espera (`cresi_exclusiones.do`)
+URL: `https://cresi.incucai.gov.ar/cresi/OpenDocument.do?accion=%2Fcresi_exclusiones.do%3FCLICK_AND_LIST_HABILITADO%3Dtrue`
 
-https://cresi.incucai.gov.ar/cresi/OpenDocument.do?accion=%2Fcresi_donante.do%3FCLICK_AND_LIST_HABILITADO%3Dtrue
+#### Parámetros de Paso 1:
+* **Situación en lista de espera:** `PACIENTES CON EXCLUSION PERMANENTE`.
+* **Lista de espera:** seleccionar lista.
+* **Provincia del paciente:** fijar provincia para cruce provincial o dejar sin filtro para el total nacional.
+* **Período de evaluación (fecha exclusión):** `OTRO AÑO: desde 1-1-AAAA hasta 31-12-AAAA` (nota: el encabezado del resultado impreso titula `fecha inscripción`, aunque el criterio fijado en el formulario sea fecha de exclusión).
 
-Paso 1: Consultar = DONANTES REALES Y DE TEJIDOS; período por fecha de clampeo/ablación = OTRO AÑO; Establecimiento origen = TODOS.
+#### Parámetros de Paso 2:
+* `12. Pacientes agrupados por motivo de exclusión`.
+* **Columnas de lectura:** `Tx c/DC` (trasplante donante fallecido), `Tx c/DV` (trasplante donante vivo), `Defunciones`, `Otras` y `TOTAL`. Los desgloses de motivos individuales se interpretan bajo el contrato versionado `nomenclatura_egresos.v1.json`.
 
-Paso 2: 2. Donantes agrupados por provincia del establecimiento origen. Se usa el total de donantes reales de órganos y/o tejidos, incluidos los establecimientos extranjeros publicados, como en la serie histórica. No se suma el número de órganos procurados para obtener donantes. No se trata de donantes vivos.
+---
 
-La fila azul mantiene todos los donantes del reporte nacional cuando se elige una lista: no existe en esta vista un cruce que permita asignarlos a esa lista. Tampoco se calcula una conversión inscripción → donante → receptor. La geografía de donación es la del establecimiento de origen; la del receptor es la residencia.
+### D. Reportes de distribución y tiempo de espera hasta trasplante
 
-## 5. Diálisis: población observada y escenario ilustrativo
+| Distribución | Formulario CRESI | Salida de tiempo | Unidad de tiempo |
+| --- | --- | --- | --- |
+| **Renal** | `cresi_renal.do` | Salida 29 | Meses |
+| **Hepático** | `cresi_hepatico.do` | Salida 34 | Días |
+| **Intratorácico** | `cresi_intratoracico.do` | Salida 28 | Meses |
+| **Córneas** | `cresi_corneas.do` | Salida 28 | Meses |
 
-En el formulario de prevalencia e incidencia, elegir Evaluar = PACIENTES EN DIALISIS, año 2025 y salida 2 provincial. Leer Total IRCT en TOTAL: **31.431 pacientes en tratamiento al cierre del año**, según nota de CRESI. No equivale a todas las personas que pasaron por diálisis en 2025 ni mide su tiempo total.
+#### Parámetros de Paso 1:
+* **Período de evaluación:** `FECHA DESCLAMPEO: OTRO AÑO: desde 1-1-AAAA hasta 31-12-AAAA`.
+* **Lista de espera del receptor:** seleccionar lista.
+* **Provincia de residencia del receptor:** seleccionar provincia o dejar nacional.
+* **Edad del receptor:** `ESPECIFICAR desde 0 hasta 17 años` o `desde 18 hasta 119 años`.
 
-No se dispone de las horas realmente acumuladas por esa población. La visualización supone 52 semanas para todos, 3 sesiones semanales de 4 horas: 156 sesiones, 624 horas por persona. El régimen es una referencia de hemodiálisis de la Red de Diálisis y Nefrología de la Ciudad de Buenos Aires, no un total registrado en CRESI:
+#### Parámetros de Paso 2:
+* `Variables estadísticas del tiempo de espera hasta el trasplante`.
+* **Campos leídos en la fila TOTAL:** `Total` (número de receptores $n$), `AVG*` (media), `MED*` (mediana), `P(0.25)*` (percentil 25) y `P(0.75)*` (percentil 75).
 
-https://buenosaires.gob.ar/gcaba_historico/salud/red-de-dialisis-y-neforlogia
+---
 
-**31.431 × 624 = 19.612.944 horas-persona**. Dividir por 24 × 365,2425 × 100 da aproximadamente **22,4 siglos** de bloques continuos de tiempo, aunque las sesiones del escenario se distribuyen por semanas. No describe un promedio observado de duración del tratamiento. No se aplica al stock la media de diálisis de quienes fueron trasplantados.
+## 4. Cinco ejemplos reproducibles de control
 
-Archivo web: `poblacion-dialisis-2025.json`, con fuente y hashes. Preparación: `scripts/construir_poblacion_dialisis_2025_web.py`. La descarga `tiempo-dialisis.json` corresponde al universo distinto de receptores renales hasta trasplante.
+### Ejemplo 1: Fotografía coordinada del mapa (24/10/2026)
+* **Consulta:** `mapa_buenos_aires_18mas_femenino` (ejecutada el 24/10/2026 a las 10:44).
+* **Criterios (Paso 1):** Formulario `cresi_le.do` · Reporte: `COMPLETO - TODAS LAS LISTAS DE ESPERA` · Situación: `PACIENTES INSCRIPTOS EN LISTA DE ESPERA` · Provincia: `BUENOS AIRES` · Edad: `ADULTOS (>=18)` · Sexo: `FEMENINO`.
+* **Salidas (Paso 2):**
+  * Salida 2 (Provincia): fila Buenos Aires TOTAL = 2.062 (Renal 993, Córneas 781, Hepática 147, Pulmonar 79, Renopancreática 36, Cardíaca 11, etc.).
+  * Salida 16 (Antigüedad): fila Renal: `<1mes` = 31, `1~3meses` = 66, `3~6meses` = 85, `6~12meses` = 136, `1~2años` = 191, `2~3años` = 167, `3~7años` = 238, `7~10años` = 54, `>10años` = 25 (suma total = 993).
+* **Trazabilidad:** `datos/extraidos/reportes_dinamicos/mapa_conjunto_20261024/mapa_buenos_aires_18mas_femenino/tabla_02.csv` (SHA256: `c58c783415796d517150685c4925606a696ac2bc36d6125d08c75f0c56f21dd1`).
 
-En Lista de espera, la animación usa los 28,12 meses de los 1.542 receptores renales nacionales de 2025. Convierte con 12 meses/año y 365,2425 días/año y acumula días enteros: 856 × 1.542 = 1.319.952 días-persona, aproximadamente 36,1 siglos. Es una equivalencia ilustrativa con redondeo por persona, no una suma exacta de duraciones individuales. No predice la espera actual ni se suma a diálisis: ambos tiempos pueden superponerse.
+### Ejemplo 2: Diagnósticos actuales de inscripción (2026)
+* **Consulta:** `ingresos_2026_1024_renal_buenos_aires_18mas_femenino` (ejecutada el 25/10/2026 a las 18:46).
+* **Criterios (Paso 1):** Formulario `cresi_le.do` · Reporte: `COMPLETO - TODAS LAS LISTAS DE ESPERA` · Situación: `PACIENTES INSCRIPTOS EN CUALQUIER SITUACION` · Lista: `RENAL` · Provincia: `BUENOS AIRES` · Edad: `ADULTOS (>=18)` · Sexo: `FEMENINO` · Período fecha inscripción: `desde 01-01-2026 hasta 24-10-2026`.
+* **Salidas (Paso 2):** Salida 10 (Diagnóstico principal): TOTAL = 327 inscripciones en el período; diagnósticos principales: `1*DESCONOCIDA` = 83 (25,4%), `2*GLOMERULONEFRITIS` = 49 (15,0%), `5*NEFROANGIOESCLEROSIS` = 42 (12,8%), `6*POLIQUISTOSIS RENAL` = 39 (11,9%), `12*OTRA` = 36, `9*NEFROPATIA DIABETICA` = 27, `8*NEFROPATIA LUPICA` = 25.
+* **Trazabilidad:** `datos/extraidos/reportes_dinamicos/ingresos_2026_corte_20261024/ingresos_2026_1024_renal_buenos_aires_18mas_femenino/tabla_03.csv` (SHA256: `dfec4bebe784793796cb54c5e31e5058ec473fe31f452077978f8cb08bb2dcda`).
 
-## 6. Enero–julio de 2026
+### Ejemplo 3: Ingresos anuales históricos por diagnóstico
+* **Consulta:** `ingresos_renal_2025_buenos_aires_todas` (ejecutada el 23/10/2026 a las 09:37).
+* **Criterios (Paso 1):** Formulario `cresi_le.do` · Reporte: `COMPLETO - TODAS LAS LISTAS DE ESPERA` · Situación: `PACIENTES INSCRIPTOS EN CUALQUIER SITUACION` · Lista: `RENAL` · Provincia: `BUENOS AIRES` · Período fecha inscripción: `desde 1-1-2025 hasta 31-12-2025`.
+* **Salidas (Paso 2):** Salida 10 (Diagnóstico principal): TOTAL = 980 inscripciones; `1*DESCONOCIDA` = 267 (27,2%), `2*GLOMERULONEFRITIS` = 173 (17,7%), `5*NEFROANGIOESCLEROSIS` = 122 (12,4%), `12*OTRA` = 105 (10,7%), `9*NEFROPATIA DIABETICA` = 100, `6*POLIQUISTOSIS RENAL` = 95. (En el reporte de prevalencia anual, la variable `Ing LE` registra 981).
+* **Trazabilidad:** `datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2025_buenos_aires_todas/tabla_03.csv` (SHA256: `b1f8bbe53361377c32ea6872048b4f1c7a27899ab9fba92101f5e33a41dc713e`).
 
-Donantes: formulario y criterios de la sección 4, ESPECIFICAR 01/01/2026–31/07/2026. Total conservado = 1.278.
+### Ejemplo 4: Egresos provinciales anuales por motivo
+* **Consulta:** `egresos_renal_2025_buenos_aires_todas` (ejecutada el 23/10/2026 a las 09:31).
+* **Criterios (Paso 1):** Formulario `cresi_exclusiones.do` · Situación: `PACIENTES CON EXCLUSION PERMANENTE` · Lista: `RENAL` · Provincia: `BUENOS AIRES` · Período fecha inscripción [sic]: `desde 1-1-2025 hasta 31-12-2025`.
+* **Salidas (Paso 2):** Salida 12 (Motivo de exclusión): TOTAL = 982 bajas permanentes; `Tx c/DC` = 606 (61,7%), `Tx c/DV` = 79 (8,0%), `Defunciones` = 184 (18,7%), `Otras` = 113 (11,5%, desglosadas en `21*OTRA CAUSA` = 36, `4*PATOLOGIA CARDIACA` = 19, `18*ABANDONO` = 18, `81*RECHAZO TRASPLANTE` = 9, `7*PATOLOGIA NEOPLASICA` = 6, etc.).
+* **Trazabilidad:** `datos/extraidos/reportes_dinamicos/egresos_cruzados_20261023/egresos_renal_2025_buenos_aires_todas/tabla_07.csv` (SHA256: `d866a2e99e288925d4f3b23e8006e232938f292394c259858544e6db6032b43b`).
 
-Media renal: formulario renal, FECHA DE DESCLAMPEO, sin provincia, edad ni lista adicional, salida 29. Repetir ESPECIFICAR por mes cerrado: 01/01–31/01, 01/02–28/02, 01/03–31/03, 01/04–30/04, 01/05–31/05, 01/06–30/06 y 01/07–31/07 de 2026. Ponderar las siete medias por n mensual (cohortes disjuntas). n = 892; media aproximada = 25,765639 meses, mostrada como 25,8.
+### Ejemplo 5: Tiempo hasta el trasplante
+* **Consulta:** `tiempo_trasplante_renal_renal_2025_cordoba_18_mas` (ejecutada el 26/09/2026 a las 20:10).
+* **Criterios (Paso 1):** Formulario `cresi_renal.do` · Período: `FECHA DESCLAMPEO: OTRO AÑO: desde 1-1-2025 hasta 31-12-2025` · Lista: `RENAL` · Provincia receptor: `CORDOBA` · Edad receptor: `ESPECIFICAR desde 18 hasta 119 años`.
+* **Salidas (Paso 2):** Salida 29 (Variables estadísticas del tiempo de espera hasta el trasplante): fila TOTAL: `Total` = 88 receptores; `AVG*` = 29,91 meses; `MED*` = 22,72 meses; `P(0.25)*` = 9,24 meses; `P(0.75)*` = 45,26 meses.
+* **Trazabilidad:** `datos/extraidos/reportes_dinamicos/tiempos_trasplante_fotos_reducidas_faltantes_2005_2025/tiempo_trasplante_renal_renal_2025_cordoba_18_mas/tabla_02.csv` (SHA256: `5d8205a9f59b92ff50e8d08fb3f95268ead1fd145c57357ceaaae25286171cda`).
 
-No hay stock de lista con el corte 31/07 en esta base; queda s/d. No se sustituye con agosto. No se extrapolan los donantes parciales ni se conecta esa cantidad con el año completo. La media de julio sólo se usa en Renal, Argentina, todas las edades.
+---
 
-Archivo: `parcial-2026.json`, que guarda cada media/n mensual y SHA256. Preparación: `scripts/construir_parcial_2026_web.py`.
+## 5. Reglas de cálculo y procesamiento
 
-El récord contextual es **mensual: 109 procesos de donación de órganos en mayo de 2026**. Es otro período y unidad que el total enero–julio de órganos y tejidos. Fuente provista por el usuario, INCUCAI, 08/06/2026:
+### A. Tasas por millón de habitantes (PMH)
+$$\text{PMH} = \frac{\text{inscripciones seleccionadas en la provincia}}{\text{población provincial}} \times 1.000.000$$
 
-https://www.argentina.gob.ar/noticias/argentina-alcanzo-un-nuevo-record-mensual-de-donantes-de-organos
+* **Denominador del mapa:** Proyecciones provinciales de población INDEC al 01/07/2026, base Censo 2022, ambos sexos (total nacional: 46.466.688 habitantes), conservadas en la columna Población del reporte de situación actual del Registro Nacional de IRCT archivado (`foto_2026_08_28_dialisis/dialisis_activos_confirmados_foto_actual_base/tabla_02.csv`, SHA256: `f6ef954c8327673d1a5a759049b73be67bade241868f92e73cb1a302c8d9af9c`).
+* **Denominador de la comparación anual (2005–2025):** Proyecciones poblacionales provinciales anuales de INDEC archivadas en `poblacion_indec_2005_2025_por_provincia.csv`.
+* **Regla de filtrado demográfico:** El denominador es invariablemente la **población provincial total**, aun cuando el numerador esté filtrado por edad (`<18`, `≥18`) o sexo (`femenino`, `masculino`). CRESI no provee denominadores desagregados por edad y sexo para cada provincia en esa fuente.
 
-## 7. Mapa y PMH
+### B. Balance anual no conciliado (Caso Renal 2025)
+La animación de movimientos es un recurso ilustrativo que suma ingresos y resta egresos a partir del cierre del año anterior. Sin embargo, no debe interpretarse como un balance contable cerrado:
 
-**PMH = inscripciones de la lista y provincia / población provincial × 1.000.000**, redondeado a un decimal. Se vinculan por provincia los conteos de la foto con la columna Población del reporte de situación actual del Registro Nacional de IRCT capturado el 28/08/2026; las 24 provincias suman 46.466.688 habitantes. La nota del HTML original dice que la población utilizada es de 2001 y cita INDEC, Análisis Demográfico Serie 31, proyecciones 2001–2015. Se conserva el denominador numérico y esa advertencia, sin presentarlo como proyección validada de 2026 ni corregir la referencia temporal por inferencia. No se suman tasas provinciales. No se calcula PMH para una selección de antigüedad sin denominador compatible.
+* **Nivel nacional Renal 2025:**
+  * Stock al 31/12/2024: 5.166
+  * Ingresos 2025 (`Ing LE`): 2.417 (en reporte por fecha de inscripción: 2.559)
+  * Egresos 2025 (exclusiones permanentes): 2.388 (1.524 Tx DC + 225 Tx DV + 429 defunciones + 210 otras)
+  * Cálculo ilustrativo: $5.166 + 2.417 - 2.388 = 5.195$ (coincide exactamente con el stock publicado al cierre 2025: 5.195).
+* **Nivel provincial Buenos Aires Renal 2025:**
+  * Stock al 31/12/2024: 2.042
+  * Ingresos 2025: 981 (`Ing LE`) ó 980 (por fecha de inscripción)
+  * Egresos 2025: 941 (en tabla nacional) ó 982 (en consulta provincial filtrada con fecha de exclusión)
+  * Stock publicado al 31/12/2025: 2.081
+  * Saldo calculado: $2.042 + 981 - 982 = 2.041 \neq 2.081$ (discrepancia de 40 casos).
 
-Para repetir el denominador, abrir el reporte del Registro Nacional de IRCT:
+Esta diferencia se origina en que las consultas evalúan criterios no idénticos (fecha de exclusión vs fecha de inscripción) y no rastrean traslados de domicilio entre provincias a lo largo del año. La visualización expone ambas cifras sin forzar conciliaciones artificiales.
 
-https://cresi.incucai.gov.ar/cresi/OpenDocument.do?accion=%2Fcresi_irct.do%3FCLICK_AND_LIST_HABILITADO%3Dfalse
+---
 
-Elegir CONTABILIZAR PACIENTES, PACIENTES ACTIVOS Y CONFIRMADOS y CONSULTAR LA SITUACION ACTUAL DEL REGISTRO DE IRCT. Pedir 2. Pacientes agrupados por provincia del domicilio de residencia. Conservar **Población**, no el total de pacientes. Fuente archivada: `datos/extraidos/reportes_dinamicos/foto_2026_08_28_dialisis/dialisis_activos_confirmados_foto_actual_base/tabla_02.csv`.
+## 6. Inventario de descargas y trazabilidad
 
-Preparación: `scripts/construir_metricas_territoriales_foto_2026_08_28.py`. El mapa es aproximado y las posiciones no son domicilios. Sus dos marcas por inscripción sólo mejoran legibilidad: no duplican cifras. Las islas comparten el color de Tierra del Fuego, sin añadir unidades.
+Todos los archivos están disponibles en la carpeta pública `public/datos/`:
 
-## 8. Cadena de preservación y reproducción local
+### Fotografía actual y mapa (24/10/2026)
+* `mapa-demografia.json`: 225 consultas agregadas del mapa cruzadas por lista, provincia, edad, sexo y antigüedad.
+* `auditoria-mapa-demografia.json`: Detalle de 6.278 controles de sumas, celdas sin resultado y fuentes con SHA256.
 
-En el proyecto de adquisición:
+### Diagnósticos de inscripción 2026
+* `diagnosticos-inscripcion-2026.json`: Diagnóstico principal de inscripciones 01/01 al 24/10/2026 por lista, provincia, edad y sexo.
+* `fuentes-diagnosticos-inscripcion-2026.json`: 2.925 consultas con ruta al HTML original y SHA256 verificado.
 
-1. `datos/originales/`: HTML tal como se recibió; nunca se reemplaza para corregir una cifra.
-2. `datos/extraidos/`: tablas CSV separadas y vinculadas al original; `tabla_01.csv` conserva los criterios.
-3. `metadatos/catalogo_cresi.csv`, `metadatos/manifiesto_descargas.csv`, `metadatos/salidas_reportes.csv` y `metadatos/tablas_reportes.csv`: identificación de recursos, URL solicitada/final, fecha, estado, tamaño, tipo, ruta y SHA256.
-4. Derivados y archivos web: sólo se reconstruyen desde las fuentes verificadas mediante los scripts nombrados en cada sección. Se controlan totales, cobertura, duplicados y unidades; ausencia nunca equivale automáticamente a cero.
+### Movimientos y egresos anuales (2005–2025)
+* `conteos-anuales-por-lista.json`: Total LE por lista, año y provincia (273 combinaciones lista-año).
+* `flujos-anuales-lista.json`: Movimientos anuales e ingresos/egresos nacionales clasificados bajo nomenclatura v1.0.0.
+* `ingresos-anuales.json`: Diagnósticos de ingreso por lista, año y provincia (6.825 consultas).
+* `fuentes-ingresos-anuales.json`: Fuentes y firmas SHA256 de ingresos anuales.
+* `egresos-provinciales.json`: Egresos provinciales anuales desglosados por causas (6.552 consultas).
+* `fuentes-egresos-provinciales.json`: Fuentes y firmas SHA256 de egresos provinciales.
+* `nomenclatura_egresos.v1.json`: Contrato versionado de categorías de egreso.
 
-Una huella SHA256 identifica bytes y permite comprobar que un archivo no cambió; no certifica por sí sola calidad clínica. Las descargas web contienen agregados y referencias; no el archivo completo de todos los HTML. Para una reproducción exacta de la foto dinámica se requiere el archivo preservado del proyecto.
+### Tiempos hasta el trasplante e historia
+* `tiempos-y-fuentes.json`: 13.104 celdas de tiempo (mediana, P25, P75, n y media) para 2005–2025 por lista, provincia y edad.
+* `percentiles-nacionales-por-lista.json`: Percentiles nacionales de listas hepáticas extraídos de filas explícitas.
+* `historia-y-fuentes.json`: Serie renal nacional histórica y fuentes de donantes.
 
-No es necesario volver a descargar recursos verificados para reconstruir la web. Si se consulta de nuevo CRESI, hacerlo de a una solicitud, con pausas, usando sólo opciones visibles del formulario, sin autenticación ni salidas nominales. Guardar una nueva captura y documentar diferencias; nunca sobrescribir una fuente histórica.
+### Población en diálisis y demografía
+* `poblacion-dialisis-2025.json`: Población en diálisis al 31/12/2025 (31.431 pacientes) y fuente.
+* `tiempo-dialisis.json`: Diálisis previa al trasplante en receptores renales trasplantados.
+* `poblacion_indec_2005_2025_por_provincia.csv`: Población provincial anual INDEC 2005–2025 para cálculo de PMH.
+
+### Documentación técnica y material archivado
+* `guia-consultas-cresi.md`: Este documento técnico.
+* `parcial-2026.json`: Material archivado del corte parcial enero–julio 2026, conservado exclusivamente con fines de trazabilidad histórica.

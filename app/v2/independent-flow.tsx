@@ -1,5 +1,5 @@
 'use client';
-import {useId,useState,type ReactNode} from 'react';
+import {useState,type ReactNode} from 'react';
 import entries from './annual-entries.generated.json';
 import {integer,decimal} from './universe-model';
 import type {flowGroups} from './annual-flow-model';
@@ -7,8 +7,7 @@ import type {flowGroups} from './annual-flow-model';
 import {flowBands,type Item} from './independent-flow-model';
 type Entry={total:number|null;diagnoses:{code:string;label:string;value:number}[]};
 export default function IndependentFlow({list,year,province,age,groups,exits,flowEntries,stock,children}:{list:string;year:number;province:string|null;age:string;groups:ReturnType<typeof flowGroups>;exits:number|null;flowEntries:number|null;stock:number|null;children:ReactNode}){
-  const [expanded,setExpanded]=useState(false),[exitKind,setExitKind]=useState<string|null>(null),[selected,setSelected]=useState<string|null>(null);
-  const patternId=useId().replace(/:/g,'');
+  const [expanded,setExpanded]=useState(false),[exitKind,setExitKind]=useState<string|null>(null),[selected,setSelected]=useState<string|null>(null),[openSide,setOpenSide]=useState<'entries'|'exits'|null>(null);
   const entry=age==='all'?(entries.rows as Record<string,Entry>)[`${list}|${year}|${province??'ARGENTINA'}`]:undefined;
   const diagnoses=[...(entry?.diagnoses??[])].sort((a,b)=>b.value-a.value||a.code.localeCompare(b.code));
   const incomingColors=['#b74d38','#c77c53','#a8664d','#d09a6d'];
@@ -19,30 +18,57 @@ export default function IndependentFlow({list,year,province,age,groups,exits,flo
   const outgoing:Item[]=exits===null?[]:[{id:'transplant',label:'Trasplantes',value:dc.value+dv.value,color:dc.color},death,other];
   const detail=flowBands(diagnoses.map(d=>({id:`in-${d.code}`,label:d.label,value:d.value,color:'#a87964'})));
   const exitDetail=flowBands([dc,dv,death,...other.items.map(d=>({id:d.canonicalId,label:d.label,value:d.value,color:other.color}))]);
-  const exitChildren=exitKind==='transplant'?exitDetail.slice(0,2):exitKind==='other'?exitDetail.slice(3):[];
   const chosen=[...flowBands(incoming).map(d=>({...d,side:'Diagnósticos'})),...detail.map(d=>({...d,side:'Diagnósticos'})),...flowBands(outgoing).map(d=>({...d,side:'Egresos'})),...exitDetail.map(d=>({...d,side:'Egresos'}))].find(d=>`${d.side}:${d.id}`===selected);
-  function column(items:Item[],side:string){return <div className={`v2-independent-side ${side==='Diagnósticos'?'v2-independent-in':'v2-independent-out'}`}><h4>{side==='Diagnósticos'?'Ingresos':'Egresos'}</h4><strong className="v2-independent-total">{(side==='Diagnósticos'?flowEntries:exits)===null?'s/d':integer((side==='Diagnósticos'?flowEntries:exits)!)}</strong><span className="v2-independent-total-label">{side==='Diagnósticos'?'Ingresos registrados en el año':'Egresos registrados en el año'}</span><div className="v2-independent-items">{flowBands(items).map(d=><button type="button" key={d.id} aria-pressed={selected===`${side}:${d.id}`} onClick={()=>setSelected(selected===`${side}:${d.id}`?null:`${side}:${d.id}`)} style={{borderLeftColor:d.color}}><span>{d.label}</span><strong>{integer(d.value)} <small>· {decimal(d.percent)}%</small></strong><i className="v2-flow-dot-bar" aria-hidden="true" style={{color:d.color,width:`${Math.max(5,d.percent)}%`}}/></button>)}</div>{side==='Diagnósticos'?<>{!entry||entry.total===null?<p>Sin desglose publicado para este cruce.</p>:entry.total!==flowEntries&&<p>{integer(entry.total)} por fecha de inscripción</p>}{rest.length>0&&<><button type="button" aria-expanded={expanded} onClick={()=>{if(expanded&&detail.slice(4).some(d=>selected===`Diagnósticos:${d.id}`))setSelected(null);setExpanded(!expanded);}}>{expanded?'Cerrar diagnósticos':'Desplegar diagnósticos'} {expanded?'−':'+'}</button>{expanded&&<div className="v2-independent-detail" role="group" aria-label="Otros diagnósticos"><p>Otros diagnósticos</p>{detail.slice(4).map(d=><button type="button" key={d.id} aria-pressed={selected===`Diagnósticos:${d.id}`} onClick={()=>setSelected(selected===`Diagnósticos:${d.id}`?null:`Diagnósticos:${d.id}`)}><span>{d.label}</span><strong>{integer(d.value)} · {decimal(d.percent)}%</strong></button>)}</div>}</>}</>:<>{exits===null?<p>Sin egresos publicados para este cruce.</p>:<div className="v2-independent-expand">{['transplant','other'].map(kind=><button type="button" key={kind} aria-expanded={exitKind===kind} onClick={()=>{if(exitChildren.some(d=>selected===`Egresos:${d.id}`))setSelected(null);setExitKind(exitKind===kind?null:kind);}}>{kind==='transplant'?'Trasplantes':'Otros motivos'} {exitKind===kind?'−':'+'}</button>)}</div>}{exitKind&&exits!==null&&<div className="v2-independent-detail" role="group" aria-label={exitKind==='transplant'?'Desglose de trasplantes':'Desglose de otros motivos'}><p>{exitKind==='transplant'?'Trasplantes':'Otros motivos'}</p>{exitChildren.map(d=><button type="button" key={d.id} aria-pressed={selected===`Egresos:${d.id}`} onClick={()=>setSelected(selected===`Egresos:${d.id}`?null:`Egresos:${d.id}`)}><span>{d.label}</span><strong>{integer(d.value)} · {decimal(d.percent)}%</strong></button>)}</div>}</>}</div>;}
-  const diagramHeight=Math.max(500,incoming.length*76+110,outgoing.length*76+110);
-  function ribbon(items:Item[],side:'Diagnósticos'|'Egresos'){
-    const total=items.reduce((sum,item)=>sum+item.value,0);
-    let center=diagramHeight*.22;
-    return items.map((item,index)=>{
-      const thickness=total?Math.max(item.value/total*diagramHeight*.52,3):0;
-      const row=96+index*76+25;
-      const start=side==='Diagnósticos'?260:640,end=side==='Diagnósticos'?380:520;
-      const middle=(start+end)/2;
-      const path=`M${start},${row-thickness/2} C${middle},${row-thickness/2} ${middle},${center} ${end},${center} L${end},${center+thickness} C${middle},${center+thickness} ${middle},${row+thickness/2} ${start},${row+thickness/2}Z`;
-      center+=thickness;
-      const id=`${patternId}-${side}-${index}`;
-      const active=!selected||selected===`${side}:${item.id}`||(side==='Diagnósticos'&&item.id==='in-rest'&&detail.slice(4).some(d=>selected===`Diagnósticos:${d.id}`))||(side==='Egresos'&&((item.id==='transplant'&&[dc.id,dv.id].some(id=>selected===`Egresos:${id}`))||(item.id===other.id&&other.items.some(d=>selected===`Egresos:${d.canonicalId}`))));
-      return <g key={id} opacity={active?.9:.16}><defs><pattern id={id} width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="2.5" cy="2.5" r="1.45" fill={item.color}/></pattern></defs><path d={path} fill={`url(#${id})`}/></g>;
-    });
+  type Side = 'entries' | 'exits';
+  function toggleSide(side: Side) {
+    setOpenSide(openSide === side ? null : side);
+    setExpanded(false);
+    setExitKind(null);
+    setSelected(null);
   }
-  return <div className="v2-independent-flow">
-    <svg viewBox={`0 0 900 ${diagramHeight}`} preserveAspectRatio="none" className="v2-independent-bands" style={{height:diagramHeight}} aria-hidden="true">{ribbon(incoming,'Diagnósticos')}{ribbon(outgoing,'Egresos')}</svg>
-    {column(incoming,'Diagnósticos')}
-    <div className="v2-independent-center"><h4>Lista de espera</h4><strong>{stock===null?'s/d':integer(stock)}</strong><span>Personas registradas al cierre</span><div className="v2-independent-animation">{children}</div></div>
-    {column(outgoing,'Egresos')}
-    {chosen&&<div className="v2-independent-caption" aria-live="polite"><p><strong>{chosen.label}</strong> · {integer(chosen.value)} · {decimal(chosen.percent)}% de {chosen.side.toLowerCase()} del reporte.</p></div>}
+  function itemButton(item: ReturnType<typeof flowBands>[number], side: Side, nested = false) {
+    const name = side === 'entries' ? 'Diagnósticos' : 'Egresos';
+    const key = name + ':' + item.id;
+    const expandable = !nested && (item.id === 'in-rest' || item.id === 'transplant' || item.id === other.id);
+    const opened = item.id === 'in-rest' ? expanded : item.id === 'transplant' ? exitKind === 'transplant' : item.id === other.id ? exitKind === 'other' : false;
+    return <button type="button" className="v2-flow-summary-row" key={key} aria-pressed={selected === key} aria-expanded={expandable ? opened : undefined} onClick={() => {
+      setSelected(selected === key ? null : key);
+      if (item.id === 'in-rest') setExpanded(!expanded);
+      if (item.id === 'transplant') setExitKind(exitKind === 'transplant' ? null : 'transplant');
+      if (item.id === other.id) setExitKind(exitKind === 'other' ? null : 'other');
+    }}>
+      <i aria-hidden="true" style={{background: item.color}}/>
+      <span>{item.label}{expandable ? (opened ? ' −' : ' +') : ''}</span>
+      <strong>{integer(item.value)} · {decimal(item.percent)}%</strong>
+    </button>;
+  }
+  function column(side: Side) {
+    const isEntry = side === 'entries';
+    const count = isEntry ? flowEntries : exits;
+    const open = openSide === side;
+    const rows = flowBands(isEntry ? incoming : outgoing);
+    const nested = isEntry ? (expanded ? detail.slice(4) : []) : exitKind === 'transplant' ? exitDetail.slice(0,2) : exitKind === 'other' ? exitDetail.slice(3) : [];
+    const label = isEntry ? 'Ingresos' : 'Egresos';
+    return <div className={'v2-independent-side ' + (isEntry ? 'v2-independent-in' : 'v2-independent-out')}>
+      <h4>{label}</h4>
+      <button type="button" className="v2-flow-summary-trigger" aria-expanded={open} onClick={() => toggleSide(side)}>
+        <strong className="v2-independent-total">{count === null ? 's/d' : integer(count)}</strong>
+        <span className="v2-independent-total-label">{isEntry ? 'Ingresos registrados en el año' : 'Egresos registrados en el año'}</span>
+        <span className="v2-flow-summary-action">{isEntry ? 'Explorar motivos de ingreso' : 'Explorar motivos de egreso'} {open ? '−' : '+'}</span>
+      </button>
+      {open && <div className="v2-flow-summary-panel" role="group" aria-label={isEntry ? 'Diagnósticos de ingreso' : 'Motivos de egreso'}>
+        <div className="v2-independent-detail-header"><p>{isEntry ? 'Diagnósticos' : 'Motivos de egreso'}</p><button type="button" onClick={() => toggleSide(side)}>Cerrar ×</button></div>
+        {rows.length ? rows.map(item => itemButton(item, side)) : <p>Sin desglose publicado para este cruce.</p>}
+        {isEntry && entry?.total != null && entry.total !== flowEntries && <p>{integer(entry.total)} por fecha de inscripción</p>}
+        {nested.length > 0 && <div className="v2-flow-summary-nested">{nested.map(item => itemButton(item, side, true))}</div>}
+      </div>}
+    </div>;
+  }
+  return <div className="v2-independent-flow v2-flow-summary">
+    {column('entries')}
+    <div className="v2-independent-center"><h4>Lista de espera</h4><strong>{stock === null ? 's/d' : integer(stock)}</strong><span>Personas registradas al cierre</span></div>
+    {column('exits')}
+    <div className="v2-flow-summary-animation">{children}</div>
+    {chosen && <div className="v2-independent-caption" aria-live="polite"><p><strong>{chosen.label}</strong> · {integer(chosen.value)} · {decimal(chosen.percent)}% de {chosen.side.toLowerCase()} del reporte.</p></div>}
   </div>;
 }

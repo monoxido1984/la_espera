@@ -6,17 +6,16 @@ import flows from './annual-flows.generated.json';
 import type {AnnualTimeSelection} from './annual-time-model';
 import type {ComparisonYear} from './annual-comparison-model';
 import {MILESTONES} from '../historical-milestones';
-import partial2026 from './partial-2026.generated.json';
 import mapSnapshot from './map-demographics.generated.json';
 import {decimal,integer,type UniverseData} from './universe-model';
 
 const report=(name:string,enabled=true)=>`https://cresi.incucai.gov.ar/cresi/OpenDocument.do?accion=%2Fcresi_${name}.do%3FCLICK_AND_LIST_HABILITADO%3D${enabled}`;
 const base=process.env.NEXT_PUBLIC_BASE_PATH??'';
 const timeReports=[
-  {module:'Renal',lists:'Renal y renopancreática',url:report('renal'),output:'29',unit:'meses'},
-  {module:'Hepático',lists:'Hepática, hepatorrenal, hepatopancreática y hepatointestinal',url:report('hepatico'),output:'34',unit:'días'},
-  {module:'Intratorácico',lists:'Cardíaca, cardiohepática, cardiopulmonar, cardiorrenal y pulmonar',url:report('intratoracico'),output:'28',unit:'meses'},
-  {module:'Córneas',lists:'Córneas y escleras',url:report('corneas'),output:'28',unit:'meses'},
+  {module:'Renal',form:'cresi_renal.do',lists:'Renal y renopancreática',url:report('renal'),output:'29',unit:'meses'},
+  {module:'Hepático',form:'cresi_hepatico.do',lists:'Hepática, hepatorrenal, hepatopancreática y hepatointestinal',url:report('hepatico'),output:'34',unit:'días'},
+  {module:'Intratorácico',form:'cresi_intratoracico.do',lists:'Cardíaca, cardiohepática, cardiopulmonar, cardiorrenal y pulmonar',url:report('intratoracico'),output:'28',unit:'meses'},
+  {module:'Córneas',form:'cresi_corneas.do',lists:'Córneas y escleras',url:report('corneas'),output:'28',unit:'meses'},
 ];
 
 export default function DataMethod({data,record,selection,open,onClose}:{data:UniverseData;record:ComparisonYear;selection:AnnualTimeSelection;open:boolean;onClose:()=>void}){
@@ -28,112 +27,287 @@ export default function DataMethod({data,record,selection,open,onClose}:{data:Un
     dialog.showModal();document.body.style.overflow='hidden';
     return()=>{document.body.style.overflow=previousOverflow;if(dialog.open)dialog.close();};
   },[open]);
-  const latest=data.history.at(-1)!;
+
   const year=record.year;
   const flow=selectFlow(flows,selection.list,year,selection.province,selection.age);
+  const dialysisTotal=data.dialysisPopulation?.count??31431;
+
   return <dialog ref={panel} id="sobre-los-datos" className="v2-method-dialog" aria-labelledby="v2-method-title" onCancel={onClose} onClose={onClose} onClick={event=>{if(event.target===event.currentTarget)onClose();}}>
     <div className="v2-method-bar"><span>Fuentes y metodología</span><button type="button" onClick={onClose} aria-label="Cerrar Sobre los datos">Cerrar <span aria-hidden="true">×</span></button></div>
     <section className="v2-method">
-    <p className="v2-kicker">La historia detrás de la historia</p><h2 id="v2-method-title">Sobre los datos.</h2>
-    <p>Esta exploración usa estadísticas públicas agregadas de <a href="https://cresi.incucai.gov.ar/">CRESI, Central de Reportes y Estadísticas del SINTRA · INCUCAI</a>. Se consultaron reportes numéricos sin autenticación. No se obtuvieron fichas, nombres ni recorridos individuales.</p>
-    <p>Las fechas no son intercambiables: la cifra de apertura es una fotografía; las series históricas usan años completos; las series anuales de 2026 llegan sólo hasta julio; la foto de apertura y mapa corresponde al 24/10/2026. La fecha de ejecución del reporte se conserva aparte del período que describe.</p>
-    <div className="v2-method-table" role="region" aria-label="Fuentes y períodos de cada escena" tabIndex={0}><table><caption>Qué dato sostiene cada escena</caption><thead><tr><th scope="col">En pantalla</th><th scope="col">Población y corte</th><th scope="col">Reporte de origen</th></tr></thead><tbody>
-      <tr><th scope="row">Cifra de apertura</th><td>{integer(data.total)} inscripciones capturadas el {data.snapshot}; no personas únicas deduplicadas.</td><td>Pacientes inscriptos en lista de espera.</td></tr>
-      <tr><th scope="row">Mapa, listas y antigüedad · sección 02</th><td>Captura del {mapSnapshot.date}, entre 10:43 y 10:47. Dos grupos de edad y sexo cruzados con provincia, lista y antigüedad. La apertura utiliza esta misma fotografía, sumando las consultas provinciales. Las series anuales mantienen sus propios períodos.</td><td>225 consultas de pacientes inscriptos en lista de espera; salidas por provincia y antigüedad.</td></tr>
-      <tr><th scope="row">Esperar… ¿por qué? · sección 02</th><td>Inscripciones entre 01/01 y 24/10/2026 en cualquier situación posterior, por lista, provincia, edad y sexo; no es la cantidad de personas en lista al cierre.</td><td>2.925 consultas de pacientes inscriptos en lista de espera; diagnóstico principal.</td></tr>
-      <tr><th scope="row">Tiempo renal en lista</th><td>{integer(latest.n)} receptores del reporte nacional de distribución renal {latest.year}; media {decimal(latest.average)} meses.</td><td>Variables estadísticas del tiempo de espera hasta el trasplante.</td></tr>
-      <tr><th scope="row">Diálisis</th><td>31.431 pacientes en tratamiento al 31/12/2025. Las horas son un escenario hipotético, no una medición de ese año.</td><td>Prevalencia e incidencia en diálisis y lista de espera; columna Total IRCT.</td></tr>
-      <tr><th scope="row">Año tras año</th><td>2005–2025: Total LE de la lista elegida, mediana y P25–P75 de receptores cuando existen percentiles publicados para la selección; se conservan las medias y los donantes nacionales. Julio 2026 es parcial.</td><td>Prevalencia e incidencia; reportes de trasplante por distribución; donantes reales y de tejidos.</td></tr>
-    </tbody></table></div>
-    <details><summary>Mapa: controles, diferencias y datos ausentes</summary><p>Al elegir una provincia se explora la antigüedad que ya llevan en lista, conservando la lista seleccionada. Las barras de mujeres y hombres utilizan los cruces publicados para cada sexo, lista, provincia y grupo de edad. Ambas series tienen una escala común de cantidades. Son distribuciones de inscripciones actuales, no tiempos hasta un trasplante ni trayectorias individuales. Los desgloses ausentes se muestran como s/d.</p><p>Se verificaron 6.278 comparaciones en la captura del 24/10/2026. Hay una diferencia de un registro en Renal entre la suma provincial (5.597) y el reporte nacional (5.598), también visible en sus controles de mujeres adultas y antigüedad de 6–12 meses. La fila de Tucumán del reporte nacional muestra 104 y la consulta filtrada de esa provincia, 103. No se conoce su causa; no se corrige ni se distribuye entre provincias. El mapa suma únicamente las celdas provinciales publicadas para la selección y señala esta diferencia. Los ocho controles que la detectan no representan ocho personas distintas.</p><p>Trece consultas de grupos pequeños respondieron «no existe resultado». No se convierten en cero: las provincias conservan su forma sin puntos en esos cruces y el aviso aparece al seleccionarlas. La antigüedad de una celda incompatible con su propio total se conserva como no disponible. No se agregan tasas por millón sin denominadores compatibles con el cruce.</p><a href={`${base}/datos/mapa-demografia.json`} download>Descargar cruces del mapa ↗</a>{' · '}<a href={`${base}/datos/auditoria-mapa-demografia.json`} download>Controles y fuentes SHA256 ↗</a></details>
-    <details><summary>Diagnósticos de inscripción · corte 24/10/2026</summary><p>«Esperar… ¿por qué?» usa el diagnóstico principal que CRESI publica para inscripciones entre el 01/01 y el 24/10/2026 en cualquier situación posterior. Cada consulta fija simultáneamente lista, provincia, grupo de edad y sexo. Es una población de inscripciones durante el período, distinta de las personas que figuran en lista al cierre y de los egresos anuales. El diagnóstico no identifica una causa administrativa de ingreso ni demuestra una relación con el motivo posterior de egreso. La antigüedad en lista no forma parte de este cruce.</p><p>Se conservaron 2.925 consultas: 1.090 con resultado y 1.835 con respuesta «no existe resultado». Los faltantes no se convierten en cero. Los cuatro diagnósticos principales se ordenan por cantidad; «Otros diagnósticos» suma los restantes sólo para presentarlos y deja disponible el detalle original.</p><a href={`${base}/datos/diagnosticos-inscripcion-2026.json`} download>Descargar diagnósticos ↗</a>{' · '}<a href={`${base}/datos/fuentes-diagnosticos-inscripcion-2026.json`} download>Fuentes y SHA256 ↗</a></details>
+      <p className="v2-kicker">La historia detrás de la historia</p>
+      <h2 id="v2-method-title">Sobre los datos.</h2>
+      <p>Esta exploración utiliza estadísticas públicas agregadas de <a href="https://cresi.incucai.gov.ar/">CRESI (Central de Reportes y Estadísticas del SINTRA · INCUCAI)</a>. Se consultaron reportes numéricos oficiales accesibles sin autenticación. No se obtuvieron fichas, identidades ni recorridos individuales.</p>
+      <p>Esta documentación describe exclusivamente la versión actual de la visualización: la fotografía coordinada de lista de espera al {mapSnapshot.date} ({integer(data.total)} inscripciones activas), los diagnósticos principales de inscripción de 2026, la población en diálisis al cierre de 2025 ({integer(dialysisTotal)} pacientes) y las series anuales completas 2005–2025 de stock, movimientos anuales y tiempos de espera de receptores trasplantados.</p>
 
-    <details className="v2-method-flow"><summary>Movimientos anuales: causas y alcance de los datos</summary>
-      <p>Selección del recorrido: {year} · {record.label} · {selection.province??'Argentina'} · {selection.age==='all'?'todas las edades':selection.age==='menor_18'?'menores de 18':'18 años y más'}.</p>
-      <p>Mediana de espera de receptores trasplantados: {record.median===null?'sin percentiles publicados para esta selección':`${decimal(record.median)} ${record.unit} · P25 ${record.p25===null?'s/d':decimal(record.p25)} · P75 ${record.p75===null?'s/d':decimal(record.p75)} · ${integer(record.quantileN??0)} receptores`}.</p>
-      <p>Tiempo medio de espera de receptores trasplantados: {record.average===null?'sin dato':`${decimal(record.average)} ${record.unit} · ${integer(record.n)} receptores`}.</p>
-      <p>Las dos vistas conservan el año y los filtros. En Movimientos, la animación parte de la cantidad publicada al cierre del año anterior, suma ingresos y resta egresos. El resultado es ilustrativo y puede diferir de la cantidad publicada al cierre del año seleccionado; no constituye un balance conciliado ni identifica personas únicas. Cuando falta una cantidad necesaria o el cálculo sería negativo, la animación muestra directamente la cifra publicada disponible. Las marcas representan cantidades agregadas, no recorridos individuales. Al pasar a Historia, las marcas de los movimientos se retiran y algunas enlazan gráficamente con los años de la curva; allí cada marca identifica un año, no una persona ni una inscripción. El cambio entre cantidad y mediana no convierte personas en tiempo.</p>
-      <p>Un punto representa una inscripción o un registro de exclusión. La secuencia muestra cantidades agregadas, sin vincular personas entre reportes. Las ramas de ingresos y egresos del diagrama tienen escalas proporcionales independientes: no representan trayectorias individuales ni convierten la cantidad publicada al cierre en un resultado anual calculado. Los diagnósticos por fecha de inscripción y los movimientos «Ing LE» proceden de reportes diferentes y sus totales pueden diferir.</p>
-      <p>Egresos: exclusiones permanentes publicadas, que ya incluyen trasplantes y fallecimientos. No se agregan exclusiones transitorias. Los ingresos cuentan inscripciones; no necesariamente personas nuevas.</p>
-      <p>El desglose provincial incorpora 6.552 consultas de lista × año × provincia para 2005–2025, todas las edades: 3.205 con motivos publicados y 3.347 con respuesta sin resultado. Cada valor proviene del cruce conjunto, sin distribuir el total nacional por proporciones. Los faltantes siguen como s/d. El período elegido en el formulario es por fecha de exclusión, pero el encabezado del resultado imprime «fecha de inscripción»; se conserva esa discrepancia y no se interpreta como un balance anual conciliado.</p>
-      {flow?.exits!=null&&<p>Trasplante reúne los grupos de donante vivo y fallecido; al desplegarlo se muestra cada subtotal con su color. Los subtotales coinciden con los colores del gráfico. «Otros motivos de egreso · agrupados» reúne todos los motivos restantes de la columna Otras de CRESI; no equivale a «Otros motivos no especificados», que corresponde a la etiqueta original OTRA CAUSA. El grupo completo puede incluir trasplantes con córnea del exterior.</p>}
-      {flow?.exits!=null&&<ExitBreakdown key={`method-${year}-${selection.list}-${selection.province}-${selection.age}`} groups={flowGroups(flow.causes)} showCodes/>}
-      {flow?.exits!=null&&<p>El formulario indica fecha de exclusión y el resultado imprime fecha de inscripción. Por esa discrepancia, no presentamos un balance conciliado.{flow.residual!==null&&` Diferencia sin conciliar en ${year}: ${flow.residual>0?'+':''}${integer(flow.residual)} registros entre la cantidad publicada al cierre y la cantidad del año anterior + ingresos − exclusiones.`}</p>}
-      <a href={`${process.env.NEXT_PUBLIC_BASE_PATH??''}/datos/flujos-anuales-lista.json`} download>Descargar cifras y fuentes con SHA256 ↗</a>
-      {' · '}<a href={`${base}/datos/egresos-provinciales.json`} download>Descargar egresos provinciales ↗</a>{' · '}<a href={`${base}/datos/fuentes-egresos-provinciales.json`} download>Fuentes provinciales y SHA256 ↗</a>
-    </details>
+      {/* APARTADO 1: QUÉ DATOS UTILIZAMOS */}
+      <details open className="v2-method-section">
+        <summary><strong>1. Qué datos utilizamos</strong> — Universos y fuentes por escena</summary>
+        <h3>Separación de universos y poblaciones</h3>
+        <p>Los datos en pantalla provienen de reportes de diseño y universos diferentes que no deben confundirse:</p>
+        <ul>
+          <li><strong>Stock en lista de espera (situación actual):</strong> Conteo de inscripciones con estado activo capturadas el {mapSnapshot.date} (entre {mapSnapshot.started.slice(11,16)} y {mapSnapshot.ended.slice(11,16)}). Una inscripción corresponde a una persona en una lista específica. Una misma persona puede figurar inscripta en más de una lista (por ejemplo, renal y renopancreática). Por ende, el conjunto de inscripciones no representa personas únicas deduplicadas.</li>
+          <li><strong>Inscripciones en un período (altas):</strong> Personas registradas entre fechas determinadas en cualquier situación posterior (continúen inscriptas, hayan recibido un trasplante o hayan sido dadas de baja). Se usan en dos vistas: diagnósticos 2026 (01/01 al {mapSnapshot.date}) e ingresos anuales (2005–2025). Miden ingresos a la lista durante el período, no el remanente en lista al cierre.</li>
+          <li><strong>Egresos de lista de espera (bajas permanentes):</strong> Personas dadas de baja permanente de la lista durante un año calendario (2005–2025). Reúnen trasplantes con donante fallecido, trasplantes con donante vivo, fallecimientos en lista y otras causas (mejoría clínica, patologías sobrevinientes, etc.).</li>
+          <li><strong>Pacientes en diálisis:</strong> Personas en tratamiento de insuficiencia renal crónica terminal (IRCT) al 31/12/2025 ({integer(dialysisTotal)} pacientes). Es una población clínica independiente de la lista de espera: sólo una fracción se encuentra inscripta.</li>
+          <li><strong>Receptores trasplantados y tiempos de espera:</strong> Personas que efectivamente recibieron un trasplante durante el año evaluado (por fecha de desclampeo). Sus estadísticas de tiempo describen a la cohorte que llegó al trasplante, no la espera futura de quienes continúan esperando.</li>
+        </ul>
 
+        <h3>Fuentes y períodos de cada escena</h3>
+        <div className="v2-method-table" role="region" aria-label="Fuentes y períodos de cada escena" tabIndex={0}>
+          <table>
+            <caption>Asignación de reportes y variables por escena</caption>
+            <thead>
+              <tr>
+                <th scope="col">Escena y foco</th>
+                <th scope="col">Población y corte</th>
+                <th scope="col">Reporte oficial CRESI</th>
+                <th scope="col">Variable utilizada</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">01 / La cifra (Apertura)</th>
+                <td>Stock de inscripciones activas · {mapSnapshot.date} ({mapSnapshot.started.slice(11,16)}–{mapSnapshot.ended.slice(11,16)}).</td>
+                <td>Reporte de pacientes inscriptos en lista de espera (<code>cresi_le.do</code>).</td>
+                <td>Suma provincial de inscripciones activas ({integer(data.total)} en total; 5.597 en Renal).</td>
+              </tr>
+              <tr>
+                <th scope="row">02 / Lista, provincia y antigüedad</th>
+                <td>Stock en lista por órgano o tejido, jurisdicción, 2 edades (&lt;18, ≥18), sexo (F, M) y 9 bandas de antigüedad · {mapSnapshot.date}.</td>
+                <td>Reporte de pacientes inscriptos en lista de espera (<code>cresi_le.do</code>) · 225 consultas agregadas.</td>
+                <td>Salida 2 (Provincia de residencia) y Salida 16 (Antigüedad en lista de espera).</td>
+              </tr>
+              <tr>
+                <th scope="row">02 / ¿Por qué? (Diagnósticos 2026)</th>
+                <td>Inscripciones en cualquier situación posterior · 01/01/2026 al {mapSnapshot.date}, cruzadas por lista, provincia, edad y sexo.</td>
+                <td>Reporte de pacientes inscriptos en lista de espera (<code>cresi_le.do</code>) · 2.925 consultas agregadas.</td>
+                <td>Salida 10 (Diagnóstico principal).</td>
+              </tr>
+              <tr>
+                <th scope="row">02 / Contexto renal (Diálisis)</th>
+                <td>Población prevalente en diálisis · Al 31/12/2025 ({integer(dialysisTotal)} pacientes). Escenario ilustrativo de 52 semanas × 3 sesiones × 4 h.</td>
+                <td>Prevalencia e incidencia en diálisis y lista de espera (<code>cresi_pre.do</code>).</td>
+                <td>Salida 2 provincial, columna <code>Total IRCT</code> (pacientes en tratamiento al cierre).</td>
+              </tr>
+              <tr>
+                <th scope="row">03 / Movimientos anuales</th>
+                <td>Stock al cierre, altas anuales y bajas permanentes · Años cerrados 2005–2025, todas las edades.</td>
+                <td>Prevalencia e incidencia (<code>cresi_pre.do</code>) y Exclusiones de lista (<code>cresi_exclusiones.do</code>).</td>
+                <td><code>Total LE</code> (stock cierre), <code>Ing LE</code> / Diagnósticos (ingresos) y Motivos de exclusión permanente (egresos con desglose provincial).</td>
+              </tr>
+              <tr>
+                <th scope="row">03 / Historia de tiempos</th>
+                <td>Receptores trasplantados evaluados por fecha de desclampeo · Años cerrados 2005–2025.</td>
+                <td>Distribución renal (<code>cresi_renal.do</code>), hepática (<code>cresi_hepatico.do</code>), intratorácica (<code>cresi_intratoracico.do</code>) y córneas (<code>cresi_corneas.do</code>).</td>
+                <td>Salida <code>Variables estadísticas del tiempo de espera hasta el trasplante</code>: mediana, P25, P75, n y media.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
 
-    <details><summary>Cómo repetir las consultas en CRESI</summary>
-      <p>Entrá a CRESI y abrí el reporte público indicado abajo. Cada consulta tiene dos pasos: primero elegís los criterios de evaluación; después, las salidas o agrupamientos. Los enlaces llevan al formulario, no a un resultado congelado. Los nombres y números de salida corresponden a las capturas utilizadas y pueden cambiar si CRESI actualiza el sitio.</p>
-      <section className="v2-method-recipe"><h3>1. La cifra y el desglose por lista, provincia y antigüedad</h3>
-        <ol><li>Abrí <a href={report('le')}>Reporte de pacientes inscriptos en lista de espera ↗</a>.</li><li>En <strong>Reporte</strong>, elegí <strong>COMPLETO - TODAS LAS LISTAS DE ESPERA</strong>. En <strong>Situación en lista de espera</strong>, elegí <strong>PACIENTES INSCRIPTOS EN LISTA DE ESPERA</strong>. Para el total nacional, no restrinjas provincia, sexo ni edad.</li><li>En el segundo paso, seleccioná <strong>2. Pacientes agrupados por provincia de residencia</strong> y <strong>16. Pacientes agrupados por antiguedad en lista de espera</strong>. Las columnas del resultado identifican las listas.</li><li>Para repetir un cruce provincial, volvé al primer paso, fijá <strong>Provincia del paciente</strong> —por ejemplo, CORDOBA— y pedí la salida 16. Así obtenés lista × antigüedad dentro de esa provincia. Repetí para las 24 jurisdicciones.</li></ol>
-        <p><strong>Advertencia para reproducir la foto:</strong> son consultas de situación actual. Los {integer(data.total)} corresponden a las respuestas guardadas el {data.snapshot}, cada una con su hora de ejecución; no a un filtro retrospectivo que permita volver a ese día. Repetir hoy los mismos pasos puede producir otros valores. La captura coordinada tampoco es una transacción simultánea de todas las tablas.</p>
-      </section>
-      <section className="v2-method-recipe"><h3>2. Cantidades anuales en lista y población en diálisis</h3>
-        <ol><li>Abrí <a href={report('pre',false)}>Reporte de prevalencia e incidencia en diálisis y lista de espera ↗</a>.</li><li>Para la fila de inscripciones, elegí <strong>Evaluar: PACIENTES EN LISTA DE ESPERA</strong>, el año —por ejemplo, 2025— y <strong>Lista de espera: RENAL</strong> o la lista que quieras reproducir.</li><li>Pedí <strong>2. Pacientes agrupados por provincia de residencia</strong>. Leé <strong>Total LE</strong> en cada provincia y en TOTAL: la nota del reporte lo define como pacientes inscriptos contabilizados al final del año de evaluación. No uses Ing LE, Prev LE o Total IRCT como si fueran la misma medida. Se repitió por 13 listas y 21 años, de 2005 a 2025.</li><li>Para los 31.431 de diálisis, en el mismo formulario elegí <strong>Evaluar: PACIENTES EN DIALISIS</strong>, año <strong>2025</strong>, y la salida provincial. Leé <strong>Total IRCT</strong> en TOTAL: pacientes en tratamiento contabilizados al cierre del año, según la nota del reporte.</li></ol>
-        <p>Ejemplos de control: en 2025, Total LE renal = 5.195 y de córneas = 2.188. Estos totales anuales no se sustituyen por la fotografía actual ni por la cantidad de trasplantados. La base de conteos no contiene un desglose por edad; si se elige edad, esa cantidad queda como s/d.</p>
-      </section>
-      <section className="v2-method-recipe"><h3>3. Tiempo de espera hasta el trasplante</h3>
-        <ol><li>Abrí el reporte de trasplantes asignados en la distribución correspondiente a la lista, según la tabla de abajo.</li><li>Elegí <strong>Período de evaluación: FECHA DE DESCLAMPEO</strong>, <strong>OTRO AÑO</strong> y el año deseado. Es el año del trasplante, no el año en que comenzó la espera.</li><li>Para el cruce territorial y etario, elegí <strong>Lista de espera del receptor</strong>, <strong>Provincia de residencia del receptor</strong> y <strong>Edad del receptor: ESPECIFICAR</strong>. Se consultaron los intervalos <strong>0–17</strong> y <strong>18–119 años</strong>, rotulados menores de 18 y 18 o más en la web.</li><li>Seleccioná <strong>Variables estadísticas del tiempo de espera hasta el trasplante</strong>. De la fila TOTAL se conservan número de receptores y media; también se archivan mediana y percentiles, la curva histórica utiliza mediana y P25–P75 cuando están publicados para la población seleccionada.</li></ol>
-        <div className="v2-method-table" role="region" aria-label="Reportes de tiempo por lista" tabIndex={0}><table><thead><tr><th scope="col">Distribución</th><th scope="col">Listas consultadas</th><th scope="col">Salida / unidad</th></tr></thead><tbody>{timeReports.map(r=><tr key={r.module}><th scope="row"><a href={r.url}>{r.module} ↗</a></th><td>{r.lists}</td><td>{r.output} · {r.unit}</td></tr>)}</tbody></table></div>
-        <p>La referencia renal nacional se toma directamente del reporte de distribución renal, sin restricción provincial o de edad y sin filtro adicional de lista, tal como se archivó: 1.542 receptores en 2025. Los filtros por lista, provincia y edad provienen de consultas específicas; no deben confundirse con esa referencia nacional.</p>
-      </section>
-      <section className="v2-method-recipe"><h3>4. Donantes por año</h3>
-        <ol><li>Abrí <a href={report('donante')}>Reporte de donantes de órganos y tejidos ↗</a>.</li><li>En <strong>Consultar</strong>, elegí <strong>DONANTES REALES Y DE TEJIDOS</strong>. Elegí el período por <strong>fecha de clampeo/ablación</strong>: OTRO AÑO para un año completo. En <strong>Establecimiento origen</strong>, elegí <strong>TODOS</strong>.</li><li>Pedí <strong>2. Donantes agrupados por provincia del establecimiento origen</strong>. Se utiliza la columna TOTAL de donantes, no la suma de órganos procurados. La serie conserva también los establecimientos extranjeros publicados.</li></ol>
-        <p>La fila azul representa el total nacional del reporte de órganos y/o tejidos y conserva su alcance al cambiar la lista. No es un conteo de donantes asignados a esa lista. La geografía del donante refiere al establecimiento de origen; la del receptor, a su residencia.</p>
-      </section>
-      <section className="v2-method-recipe"><h3>5. El corte enero–julio de 2026</h3>
-        <ol><li>Para donantes, usá el mismo reporte y criterios anteriores, con <strong>ESPECIFICAR: 01/01/2026–31/07/2026</strong>. Resultado conservado: {integer(partial2026.donors)} donantes.</li><li>Para la media renal, abrí el reporte renal sin provincia, edad ni lista adicional y pedí la salida 29. Elegí FECHA DE DESCLAMPEO y ESPECIFICAR para cada mes cerrado: enero, febrero, marzo, abril, mayo, junio y julio de 2026, desde el día 1 hasta el último día de cada mes.</li><li>De cada mes guardá TOTAL de receptores y media en meses. Combiná esas siete cohortes mensuales disjuntas con la fórmula ponderada explicada abajo: {integer(partial2026.renal.n)} receptores y aproximadamente {decimal(partial2026.renal.average)} meses.</li></ol>
-        <p>No se reemplaza julio por agosto ni se extrapola a doce meses. No tenemos un conteo de lista con ese mismo corte: se muestra s/d. La media de julio sólo está disponible para Renal nacional y todas las edades. Su tramo es discontinuo y la cantidad parcial de donantes no se une a los totales de años completos.</p>
-      </section>
-    </details>
+      {/* APARTADO 2: CÓMO REPRODUCIRLOS */}
+      <details className="v2-method-section">
+        <summary><strong>2. Cómo reproducirlos</strong> — Formularios, filtros exactos y ejemplos paso a paso</summary>
+        <p>Para repetir una búsqueda en CRESI, navegá por los reportes públicos desde la portada. Cada consulta tiene dos pasos: en el primero se configuran los filtros y períodos; en el segundo se seleccionan las salidas tabulares. Los nombres corresponden a los controles literales de CRESI.</p>
 
-    <details><summary>Qué cruces se hicieron y cuáles no</summary>
-      <p><strong>Fotografía actual:</strong> lista × provincia y lista × antigüedad se leen de las tablas publicadas. Para lista × provincia × antigüedad se ejecutó de nuevo la consulta de antigüedad con una provincia fijada. No se multiplicaron porcentajes de tablas independientes. Cuando falta un desglose por lista, se conserva el residual del mismo total conjunto: total menos subtotales conocidos, sin repartirlo entre categorías.</p>
-      <p><strong>Tiempo histórico:</strong> se ejecutaron 13 listas × 24 provincias × 2 grupos de edad × 21 años: <strong>13.104 celdas</strong> para 2005–2025. Cada celda es una consulta con esos filtros simultáneos, no una persona. Para una provincia y todas las edades se reúnen sus dos celdas etarias; para Argentina se reúnen las 24 jurisdicciones. Sólo se agrega si están presentes todas las celdas esperadas y tienen la misma unidad.</p>
-      <p><strong>Conteos históricos:</strong> 13 listas × 21 años = <strong>273 combinaciones lista–año</strong>, cada una con las 24 provincias. El dato de cantidad no se obtiene de la tabla de tiempos. La selección anual aplica la misma lista y provincia a ambas fuentes, pero conserva dos poblaciones distintas: inscripciones en lista y receptores trasplantados.</p>
-      <p><strong>No se hicieron enlaces individuales:</strong> no se cruzaron fichas de lista, diálisis, donación y trasplante para seguir personas, ni se reconstruyó un cubo de sexo, edad, diagnóstico y antigüedad desde márgenes independientes. Los movimientos de puntos son recursos gráficos, no trayectorias clínicas ni una conversión entre poblaciones.</p>
-      <p>La base territorial y etaria puede no cubrir el mismo conjunto que el reporte nacional: en renal 2025 suma 1.528 registros, frente a 1.542 nacionales. Se conserva la referencia nacional cuando corresponde y se informa el n del cruce filtrado; no se distribuye la diferencia entre provincias o edades ni se atribuye su causa.</p>
-    </details>
+        <section className="v2-method-recipe">
+          <h3>Guía por formulario de origen</h3>
+          <ol>
+            <li><strong>Reporte de lista de espera (<a href={report('le')}>cresi_le.do ↗</a>):</strong>
+              <ul>
+                <li>En <em>Reporte</em>, elegir <code>COMPLETO - TODAS LAS LISTAS DE ESPERA</code>.</li>
+                <li>En <em>Situación en lista de espera</em>: para el stock del mapa usar <code>PACIENTES INSCRIPTOS EN LISTA DE ESPERA</code>; para diagnósticos de inscripción usar <code>PACIENTES INSCRIPTOS EN CUALQUIER SITUACION</code>.</li>
+                <li>Filtros opcionales de cruce: <em>Provincia del paciente</em> (24 provincias), <em>Edad del paciente</em> (<code>PEDIATRICOS (&lt;18)</code> o <code>ADULTOS (&gt;=18)</code>), <em>Sexo del paciente</em> (<code>FEMENINO</code> o <code>MASCULINO</code>), y <em>Período de evaluación (fecha inscripción)</em>: <code>ESPECIFICAR: desde 01-01-2026 hasta 24-10-2026</code>.</li>
+                <li>En el segundo paso, seleccionar <code>2. Pacientes agrupados por provincia de residencia</code>, <code>10. Pacientes agrupados por diagnóstico principal</code> y/o <code>16. Pacientes agrupados por antiguedad en lista de espera</code>.</li>
+              </ul>
+            </li>
+            <li><strong>Reporte de prevalencia e incidencia (<a href={report('pre',false)}>cresi_pre.do ↗</a>):</strong>
+              <ul>
+                <li>En <em>Evaluar</em>, elegir <code>PACIENTES EN LISTA DE ESPERA</code> o <code>PACIENTES EN DIALISIS</code>.</li>
+                <li>En <em>Período de evaluación</em>: seleccionar el año cerrado (ejemplo: <code>desde 1-1-2025 hasta 31-12-2025</code>).</li>
+                <li>En <em>Lista de espera</em>: elegir una de las 13 listas (ejemplo: <code>RENAL</code>).</li>
+                <li>En el segundo paso, elegir <code>2. Pacientes agrupados por provincia de residencia</code>. Leer la columna <code>Total LE</code> (stock cierre), <code>Ing LE</code> (ingresos anuales) o <code>Total IRCT</code> (pacientes en diálisis al cierre).</li>
+              </ul>
+            </li>
+            <li><strong>Reporte de exclusiones de lista de espera (<a href={report('exclusiones')}>cresi_exclusiones.do ↗</a>):</strong>
+              <ul>
+                <li>En <em>Situación en lista de espera</em>, elegir <code>PACIENTES CON EXCLUSION PERMANENTE</code>.</li>
+                <li>En <em>Lista de espera</em>, seleccionar la lista. En <em>Provincia del paciente</em>, fijar la provincia deseada o dejar nacional.</li>
+                <li>En <em>Período de evaluación</em>, elegir <code>OTRO AÑO: desde 1-1-AAAA hasta 31-12-AAAA</code> (el formulario titula fecha de exclusión y el resultado imprime fecha de inscripción).</li>
+                <li>En el segundo paso, pedir <code>12. Pacientes agrupados por motivo de exclusión</code>. Leer las columnas <code>Tx c/DC</code>, <code>Tx c/DV</code>, <code>Defunciones</code>, <code>Otras</code> y <code>TOTAL</code>.</li>
+              </ul>
+            </li>
+            <li><strong>Reportes de tiempo de espera hasta el trasplante:</strong>
+              <ul>
+                <li>Formularios por órgano: Renal (<a href={report('renal')}>cresi_renal.do ↗</a>, salida 29 en meses), Hepático (<a href={report('hepatico')}>cresi_hepatico.do ↗</a>, salida 34 en días), Intratorácico (<a href={report('intratoracico')}>cresi_intratoracico.do ↗</a>, salida 28 en meses) y Córneas (<a href={report('corneas')}>cresi_corneas.do ↗</a>, salida 28 en meses).</li>
+                <li>En <em>Período de evaluación</em>, elegir <code>FECHA DESCLAMPEO: OTRO AÑO</code> y el año del trasplante.</li>
+                <li>Filtros simultáneos: <em>Lista de espera del receptor</em>, <em>Provincia de residencia del receptor</em> y <em>Edad del receptor: ESPECIFICAR desde 0 hasta 17 años</em> o <em>desde 18 hasta 119 años</em>.</li>
+                <li>En el segundo paso, pedir <code>Variables estadísticas del tiempo de espera hasta el trasplante</code>. De la fila <code>TOTAL</code> se leen <code>Total</code> (receptores), <code>AVG*</code> (media), <code>MED*</code> (mediana), <code>P(0.25)*</code> (P25) y <code>P(0.75)*</code> (P75).</li>
+              </ul>
+              <div className="v2-method-table" role="region" aria-label="Reportes de tiempo por lista" tabIndex={0} style={{margin:'14px 0'}}>
+                <table>
+                  <thead><tr><th scope="col">Distribución</th><th scope="col">Listas consultadas</th><th scope="col">Salida y unidad</th></tr></thead>
+                  <tbody>
+                    {timeReports.map(r=><tr key={r.module}><th scope="row"><a href={r.url}>{r.module} (<code>{r.form}</code>) ↗</a></th><td>{r.lists}</td><td>Salida {r.output} · {r.unit}</td></tr>)}
+                  </tbody>
+                </table>
+              </div>
+            </li>
+          </ol>
+        </section>
 
-    <details><summary>Cálculos: medias, siglos acumulados y tasas por millón</summary>
-      <h3>Media de espera</h3><p>La curva histórica utiliza <strong>mediana con una banda entre P25 y P75</strong>: el intervalo contiene el 50 % central de los tiempos observados, no es un intervalo de confianza ni una predicción de espera futura. Son tiempos de quienes recibieron un trasplante. No se promedian ni se reúnen percentiles de provincias, edades o meses. La referencia renal nacional proviene del reporte nacional archivado; las otras referencias nacionales incorporadas proceden únicamente de filas que identifican explícitamente la lista hepática correspondiente. Los módulos de córneas e intratorácico no se asignan a listas individuales desde su TOTAL. Para los demás cruces sólo se usan los percentiles de una provincia y un grupo de edad consultados simultáneamente. Cuando falta la mediana para una selección y año, la curva utiliza la media disponible, rotulada Media y dibujada con trazos, sin sombreado. Los tramos de media y mediana no se unen entre sí como una misma medida. Si faltan ambas, se conserva el hueco. El sombreado se interrumpe en los años faltantes. Las cohortes de la referencia nacional y los cruces provinciales pueden diferir; se conserva el tamaño de cada fuente. Las medias también se conservan como información complementaria. Para reunir celdas o meses disjuntos: <strong>media conjunta = suma de (receptores de cada celda × media de esa celda) ÷ suma de receptores</strong>. No es el promedio simple de las medias provinciales. Las medias publicadas ya están redondeadas, por lo que la agregación es aproximada. No se promedian medianas ni percentiles. Las listas hepáticas conservan días y las demás meses: no se mezclan unidades.</p>
-      <h3>Tiempo colectivo en lista</h3><p>El calendario ilustra la media previa al trasplante de los 1.542 receptores renales de 2025. Se convierte con 12 meses por año y 365,2425 días por año; la interacción acumula días enteros. Al completarse, redondea la duración individual de 28,12 meses a 856 días y multiplica: <strong>856 × 1.542 = 1.319.952 días-persona ≈ 36,1 siglos</strong>. Es una equivalencia ilustrativa del tiempo agregado, no la suma exacta de duraciones individuales ni la espera futura de los inscriptos actuales.</p>
-      <h3>Escenario de diálisis</h3><p>Se supone un año completo de 52 semanas para cada integrante del stock de cierre: <strong>3 sesiones × 4 horas × 52 semanas = 624 horas por persona</strong>. Entonces, <strong>31.431 × 624 = 19.612.944 horas-persona ≈ 22,4 siglos</strong>, dividiendo por 24 horas, 365,2425 días y 100 años. Los cuadrados iniciales valen cuatro horas; 156 sesiones se reúnen en una unidad de 624 horas antes de ampliar el conjunto.</p><p>Esto no es el total real observado en 2025 ni el promedio de duración de esa población. No supone que conozcamos sus fechas de ingreso, egreso o sesiones. La media de diálisis previa al trasplante de otro reporte de receptores no se aplica al stock. Los tiempos en lista y diálisis pueden superponerse y no se suman.</p><p>El régimen de hemodiálisis se apoya en la <a href="https://buenosaires.gob.ar/gcaba_historico/salud/red-de-dialisis-y-neforlogia">Red de Diálisis y Nefrología del Gobierno de la Ciudad de Buenos Aires ↗</a>: en general, tres sesiones semanales de unas cuatro horas. Es una referencia de tratamiento, no un dato de sesiones registradas en CRESI.</p>
-      <h3>Inscripciones por millón de habitantes</h3><p><strong>PMH = inscripciones seleccionadas en la provincia ÷ población provincial × 1.000.000</strong>, mostrado con un decimal. Los conteos del mapa corresponden al 24/10/2026. Se reutiliza el denominador provincial INDEC al 01/07/2026, base Censo 2022, ambos sexos, verificado en la auditoría local: sus 24 jurisdicciones suman 46.466.688 habitantes. Se conserva la columna Población del reporte del Registro Nacional de IRCT capturado el 28/08/2026; su nota histórica cita proyecciones 2001–2015, aunque los valores numéricos fueron cotejados con las proyecciones de 2026. Edad, sexo, lista y antigüedad filtran las inscripciones conjuntas publicadas; el denominador permanece en la población total provincial, no en la población del subgrupo. Los faltantes no se convierten en cero y no se suman tasas provinciales.</p>
-    </details>
+        <h3>Cinco ejemplos reproducibles con trazabilidad exacta</h3>
+        <div className="v2-method-table" role="region" aria-label="Cinco ejemplos reproducibles" tabIndex={0}>
+          <table>
+            <caption>Parámetros literales, campo leído y archivo archivado</caption>
+            <thead>
+              <tr>
+                <th scope="col">Ejemplo</th>
+                <th scope="col">Criterios de evaluación (Paso 1)</th>
+                <th scope="col">Salida y campo leído (Paso 2)</th>
+                <th scope="col">Archivo y trazabilidad</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">1. Fotografía del mapa</th>
+                <td><code>cresi_le.do</code> · Reporte COMPLETO · PACIENTES INSCRIPTOS EN LISTA DE ESPERA · Provincia BUENOS AIRES · Edad ADULTOS (&gt;=18) · Sexo FEMENINO (captura 24/10/2026 10:44).</td>
+                <td>Salida 2 (Provincia): Buenos Aires TOTAL = 2.062 (Renal 993, Córneas 781, etc.). Salida 16 (Antigüedad): Renal &lt;1m = 31, 1~3m = 66, 3~6m = 85, 6~12m = 136, 1~2a = 191, 2~3a = 167, 3~7a = 238, 7~10a = 54, &gt;10a = 25 (suma = 993).</td>
+                <td><code>datos/extraidos/reportes_dinamicos/mapa_conjunto_20261024/mapa_buenos_aires_18mas_femenino/tabla_02.csv</code> (SHA256: <code>c58c783415796d51...</code>).</td>
+              </tr>
+              <tr>
+                <th scope="row">2. Diagnósticos actuales 2026</th>
+                <td><code>cresi_le.do</code> · Reporte COMPLETO · PACIENTES INSCRIPTOS EN CUALQUIER SITUACION · Lista RENAL · Provincia BUENOS AIRES · Edad ADULTOS (&gt;=18) · Sexo FEMENINO · Período fecha inscripción: desde 01-01-2026 hasta 24-10-2026.</td>
+                <td>Salida 10 (Diagnóstico principal): TOTAL = 327 inscripciones; DESCONOCIDA = 83 (25,4%), GLOMERULONEFRITIS = 49 (15,0%), NEFROANGIOESCLEROSIS = 42 (12,8%), POLIQUISTOSIS RENAL = 39 (11,9%).</td>
+                <td><code>datos/extraidos/reportes_dinamicos/ingresos_2026_corte_20261024/ingresos_2026_1024_renal_buenos_aires_18mas_femenino/tabla_03.csv</code> (SHA256: <code>dfec4bebe7847937...</code>).</td>
+              </tr>
+              <tr>
+                <th scope="row">3. Ingresos anuales</th>
+                <td><code>cresi_le.do</code> · Reporte COMPLETO · PACIENTES INSCRIPTOS EN CUALQUIER SITUACION · Lista RENAL · Provincia BUENOS AIRES · Período fecha inscripción: desde 1-1-2025 hasta 31-12-2025.</td>
+                <td>Salida 10 (Diagnóstico principal): TOTAL = 980 inscripciones; DESCONOCIDA = 267 (27,2%), GLOMERULONEFRITIS = 173 (17,7%), NEFROANGIOESCLEROSIS = 122 (12,4%), OTRA = 105 (10,7%). Columna <code>Ing LE</code> en prevalencia: 981.</td>
+                <td><code>datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2025_buenos_aires_todas/tabla_03.csv</code> (SHA256: <code>b1f8bbe53361377c...</code>).</td>
+              </tr>
+              <tr>
+                <th scope="row">4. Egresos provinciales</th>
+                <td><code>cresi_exclusiones.do</code> · PACIENTES CON EXCLUSION PERMANENTE · Lista RENAL · Provincia BUENOS AIRES · Período fecha inscripción [sic]: desde 1-1-2025 hasta 31-12-2025.</td>
+                <td>Salida 12 (Motivo de exclusión): TOTAL = 982 bajas permanentes; Tx c/DC = 606 (61,7%), Tx c/DV = 79 (8,0%), Defunciones = 184 (18,7%), Otras = 113 (11,5%, desglosadas por causas individuales auditadas).</td>
+                <td><code>datos/extraidos/reportes_dinamicos/egresos_cruzados_20261023/egresos_renal_2025_buenos_aires_todas/tabla_07.csv</code> (SHA256: <code>d866a2e99e288925...</code>).</td>
+              </tr>
+              <tr>
+                <th scope="row">5. Tiempo hasta trasplante</th>
+                <td><code>cresi_renal.do</code> · Período FECHA DESCLAMPEO: OTRO AÑO: desde 1-1-2025 hasta 31-12-2025 · Lista RENAL · Provincia receptor CORDOBA · Edad receptor: ESPECIFICAR desde 18 hasta 119 años.</td>
+                <td>Salida 29 (Variables estadísticas), fila TOTAL: Total = 88 receptores; AVG* = 29,91 meses; MED* = 22,72 meses; P(0.25)* = 9,24 meses; P(0.75)* = 45,26 meses.</td>
+                <td><code>datos/extraidos/reportes_dinamicos/tiempos_trasplante_fotos_reducidas_faltantes_2005_2025/tiempo_trasplante_renal_renal_2025_cordoba_18_mas/tabla_02.csv</code> (SHA256: <code>5d8205a9f59b92ff...</code>).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-    <details><summary>Qué representa cada punto y cómo leer los faltantes</summary>
-      <p>En la cifra y las listas, un punto representa una inscripción. La expresión editorial «personas esperando» no equivale a personas únicas deduplicadas. Córneas y escleras son tejidos; las listas combinadas se mantienen como las publica CRESI. «Otras listas» reúne las listas con menos de 100 inscripciones en la fotografía, sin eliminar sus categorías.</p>
-      <p>La posición es una composición gráfica, no una dirección ni una ubicación individual. El mapa es aproximado y conserva su forma al pasar de Cantidad a Por millón: cambia el color. Dibuja dos marcas por inscripción para legibilidad; los valores y cálculos no se duplican. CABA aparece ampliada y separada. Las islas se integran gráficamente a Tierra del Fuego y usan su color, sin añadir unidades estadísticas.</p>
-      <p><strong>s/d</strong> significa que no hay un dato disponible para ese cruce o corte. Una consulta de tiempo que responde sin observaciones conserva n = 0 y media ausente, no una media de cero. Los ceros explícitos de cantidad se conservan. La captura del 24/10 incluye los cruces de antigüedad publicados por lista; una respuesta sin resultado se conserva como ausente y no se asigna por resta.</p>
-      <p>Los años completos, la foto actual, los donantes y los receptores no son una misma cohorte. No se calcula una tasa de conversión entre filas. Las curvas muestran conteos, medianas y percentiles publicados o medias ponderadas cuando falta la mediana, sin suavizado ni proyección y con escalas independientes desde cero.</p>
-    </details>
+        <p><strong>Distinción entre reproducibilidad exacta y repetición en línea:</strong> Repetir una consulta dinámica en CRESI hoy devolverá el estado actual del registro, no el del {mapSnapshot.date}. Para auditar y reproducir con exactitud bit a bit las cifras de esta versión, se requiere cotejar los archivos originales preservados en <code>datos/originales/</code> contra el catálogo maestro y sus SHA256.</p>
+      </details>
 
-    <details><summary>Archivos, trazabilidad y reproducción de la preparación</summary>
-      <p>Para repetir una búsqueda, conservá el reporte elegido, los filtros, las salidas, el período y la fecha de ejecución que aparecen en el encabezado del resultado. Compará la fila TOTAL, la unidad y el número de casos antes de comparar valores. Las revisiones posteriores del registro pueden modificar los resultados históricos.</p>
-      <p>En el proyecto, cada consulta conserva el HTML original sin editar y las tablas extraídas aparte. El catálogo y el manifiesto registran URL solicitada y final, fecha, estado HTTP, tipo y tamaño de respuesta, ruta y SHA256. Esta huella identifica el archivo exacto usado; no certifica por sí sola la calidad clínica del contenido. Se verifican sumas provinciales, cobertura, unidades y duplicados de claves de agregación.</p>
-      <p>Las descargas permiten auditar los valores de esta web. Las de historia, tiempos, diálisis y corte parcial incluyen rutas de fuente y huellas SHA256; la de conteos conserva la fuente de cada lista–año. Los HTML originales se conservan en el proyecto de adquisición, no se incluyen completos en estas descargas. La guía detalla los filtros y los pasos de preparación.</p>
-      <ul className="v2-method-downloads">
-        <li><a href={`${base}/datos/guia-consultas-cresi.md`} download>Guía para repetir las consultas y preparar los datos ↗</a></li>
-        <li><a href={`${base}/datos/percentiles-nacionales-por-lista.json`} download>Percentiles nacionales de filas hepáticas por lista, con fuentes y SHA256 ↗</a></li>
-        <li><a href={`${base}/datos/flujos-anuales-lista.json`} download>Movimientos anuales y motivos de egreso, con fuentes y SHA256 ↗</a></li>
-        <li><a href={`${base}/datos/conteos-anuales-por-lista.json`} download>Conteos anuales por lista y provincia, con fuentes ↗</a></li>
-        <li><a href={`${base}/datos/tiempos-y-fuentes.json`} download>Celdas de tiempo por lista, provincia y edad, con fuentes ↗</a></li>
-        <li><a href={`${base}/datos/historia-y-fuentes.json`} download>Serie nacional renal, donantes y fuentes históricas ↗</a></li>
-        <li><a href={`${base}/datos/poblacion-dialisis-2025.json`} download>Pacientes en diálisis al 31/12/2025 y fuente ↗</a></li>
-        <li><a href={`${base}/datos/tiempo-dialisis.json`} download>Diálisis previa al trasplante renal: otro universo ↗</a></li>
-        <li><a href={`${base}/datos/parcial-2026.json`} download>Corte parcial: siete meses renales, donantes y fuentes ↗</a></li>
-      </ul>
-    </details>
+      {/* APARTADO 3: CÓMO PROCESAMOS LOS DATOS */}
+      <details className="v2-method-section">
+        <summary><strong>3. Cómo procesamos los datos</strong> — Reglas de agregación, estadísticas y advertencias metodológicas</summary>
+        
+        <h3>Tratamiento de faltantes (s/d frente a cero)</h3>
+        <p>La sigla <strong>s/d</strong> indica que CRESI no publicó un resultado para esa combinación demográfica o territorial, o que el cruce no formó parte del alcance. Una respuesta sin resultado nunca se convierte en cero ni se deduce por resta de márgenes. Los ceros explícitos se respetan exclusivamente cuando CRESI publicó <code>0</code> o <code>-</code> dentro de una tabla observada.</p>
 
-    <details><summary>Hitos y fuentes de contexto</summary>
-      <p>Los hitos contextualizan los años; no atribuyen toda la variación a una política ni establecen causalidad individual.</p>{MILESTONES.map(event=><p key={event.id}><strong>{event.year} · {event.title}.</strong> {event.reading} {event.sources.map(source=><a key={source.href} href={source.href}>{source.label} ↗ </a>)}</p>)}
-      <p><strong>Mayo de 2026: récord histórico mensual de 109 procesos de donación de órganos.</strong> Es una unidad y un período distintos de los {integer(partial2026.donors)} donantes de órganos y/o tejidos de enero–julio. <a href={partial2026.record.url}>INCUCAI, noticia publicada el 08/06/2026 ↗</a>.</p>
-    </details>
-    <details><summary>Las listas de la fotografía, sin simplificar categorías</summary><dl>{data.organs.map(group=><div key={group.id}><dt>{group.label}</dt><dd>{integer(group.value)}</dd></div>)}</dl></details>
-    <div className="v2-footer-links"><a href={`${base}/datos/guia-consultas-cresi.md`} download>Guía de consultas CRESI ↗</a><a href="#escena-0" onClick={onClose}>Volver al principio ↑</a><span>LA ESPERA / V.02</span></div>
+        <h3>Diferencia entre consulta nacional y suma provincial</h3>
+        <p>En la captura coordinada del {mapSnapshot.date} se auditaron 6.278 comparaciones. Se identificó una discrepancia de exactamente 1 registro en la lista Renal entre la suma de las 24 provincias (5.597) y el reporte nacional consolidado (5.598). Esta diferencia aparece reflejada en Tucumán (103 casos en su consulta provincial filtrada frente a 104 en la fila provincial del reporte nacional). Se documenta con transparencia; no se maquilla ni se distribuye artificialmente.</p>
+
+        <h3>Medianas, medias y rango intercuartílico P25–P75</h3>
+        <p>La curva histórica prioriza la <strong>mediana publicada acompañada de la banda P25–P75</strong>. Este intervalo contiene el 50% central de los tiempos observados en personas trasplantadas; no es un intervalo de confianza ni una proyección. Cuando una selección carece de mediana publicada, se recurre a la media disponible (representada con trazo discontinuo y sin sombreado). Las medianas y percentiles nunca se promedian ni combinan entre provincias o edades.</p>
+        <p>Para la selección activa en el recorrido ({year} · {record.label} · {selection.province??'Argentina'}): la mediana publicada es {record.median!==null?`${decimal(record.median)} ${record.unit} (P25 ${record.p25!==null?decimal(record.p25):'s/d'} – P75 ${record.p75!==null?decimal(record.p75):'s/d'}, con ${integer(record.quantileN??0)} receptores)`:'no disponible (se recurre a la media cuando existe)'}, con una media observada de {record.average!==null?`${decimal(record.average)} ${record.unit} (${integer(record.n)} receptores)`:'s/d'}.</p>
+
+        <h3>Tasas por millón de habitantes (PMH)</h3>
+        <p>La tasa provincial se calcula como:</p>
+        <p style={{fontFamily:'monospace',background:'#18232111',padding:'10px 14px',borderRadius:'4px'}}>
+          PMH = (inscripciones de la selección en la provincia ÷ población provincial) × 1.000.000
+        </p>
+        <ul>
+          <li><strong>Denominadores del mapa:</strong> Proyecciones poblacionales INDEC al 01/07/2026, base Censo 2022, ambos sexos (total nacional: 46.466.688 habitantes), archivadas en la columna Población del reporte de situación actual del Registro Nacional de IRCT (SHA256: <code>f6ef954c8327673d...</code>).</li>
+          <li><strong>Denominadores de la comparación anual:</strong> Proyecciones anuales provinciales INDEC 2005–2025 (archivo <code>poblacion_indec_2005_2025_por_provincia.csv</code>).</li>
+          <li><strong>Regla de filtrado fundamental:</strong> El denominador es siempre la <strong>población provincial total</strong>, aun cuando el numerador esté filtrado por edad (&lt;18, ≥18) o sexo, ya que CRESI no publica denominadores demográficos cruzados por edad y sexo para cada provincia en esa fuente.</li>
+        </ul>
+
+        <h3>Balance anual no conciliado (Ejemplo real Renal 2025)</h3>
+        <p>La animación de Movimientos es ilustrativa: parte del cierre del año anterior, suma ingresos y resta egresos. Sin embargo, los reportes públicos de CRESI no constituyen una contabilidad por partida doble ni enlazan individuos:</p>
+        <ul>
+          <li><strong>Renal Nacional 2025:</strong> Stock cierre 2024 = 5.166; Ingresos 2025 = 2.417 (en <code>Ing LE</code>) ó 2.559 (en reporte por fecha de inscripción); Egresos 2025 = 2.388 bajas permanentes (1.524 Tx fallecido, 225 Tx vivo, 429 defunciones, 210 otras). El cálculo ilustrativo da: 5.166 + 2.417 − 2.388 = 5.195 (coincidente con el stock publicado al 31/12/2025: 5.195).</li>
+          <li><strong>Buenos Aires Renal 2025:</strong> Stock inicial cierre 2024 = 2.042; Ingresos 2025 = 981 (<code>Ing LE</code>) ó 980 (por fecha de inscripción); Egresos 2025 = 941 (en tabla nacional) ó 982 (en consulta provincial filtrada); Stock publicado al cierre 2025 = 2.081. El saldo ilustrativo (2.042 + 981 − 982 = 2.041) difiere en 40 registros del stock publicado (2.081).</li>
+        </ul>
+        <p>Esta divergencia se debe a que las fuentes evalúan momentos y criterios dispares (fecha de exclusión frente a fecha de inscripción impresa en el encabezado) y no capturan traslados interprovinciales de residencia. No se fuerza una conciliación artificial.</p>
+
+        {flow?.exits!=null&&<div style={{margin:'20px 0'}}>
+          <p><strong>Desglose de motivos de egreso para la selección activa ({year} · {selection.list} · {selection.province??'Argentina'}):</strong></p>
+          <ExitBreakdown key={`method-${year}-${selection.list}-${selection.province}-${selection.age}`} groups={flowGroups(flow.causes)} showCodes/>
+        </div>}
+
+        <h3>Escenario de diálisis</h3>
+        <p>Los 31.431 pacientes en tratamiento al 31/12/2025 se exploran mediante un escenario ilustrativo: 52 semanas × 3 sesiones semanales × 4 horas = 624 horas/año por persona (19.612.944 horas-persona ≈ 22,4 siglos colectivos). Es una referencia de tratamiento de la Red de Diálisis y Nefrología del GCABA, no horas acumuladas individualmente en CRESI ni duración media de la diálisis.</p>
+
+        <h3>Hitos históricos de contexto (2005–2025)</h3>
+        <p>Los hitos contextualizan las series temporales sin atribuirles causalidad directa exclusiva:</p>
+        {MILESTONES.map(event=><p key={event.id}><strong>{event.year} · {event.title}.</strong> {event.reading} {event.sources.map(source=><a key={source.href} href={source.href}>{source.label} ↗ </a>)}</p>)}
+      </details>
+
+      {/* APARTADO 4: DESCARGAS Y TRAZABILIDAD */}
+      <details className="v2-method-section">
+        <summary><strong>4. Descargas y trazabilidad</strong> — Conjuntos de datos, códigos y fuentes con SHA256</summary>
+        <p>Cada archivo publicado cuenta con su huella digital criptográfica SHA256 y referencias al reporte de origen. Los enlaces a continuación permiten descargar y auditar todos los datos utilizados:</p>
+        
+        <h3>Fotografía actual y mapa (24/10/2026)</h3>
+        <ul className="v2-method-downloads">
+          <li><a href={`${base}/datos/mapa-demografia.json`} download>Cruces del mapa por lista, provincia, edad, sexo y antigüedad (mapa-demografia.json) ↗</a></li>
+          <li><a href={`${base}/datos/auditoria-mapa-demografia.json`} download>Auditoría completa, controles de sumas y fuentes SHA256 del mapa ↗</a></li>
+        </ul>
+
+        <h3>Diagnósticos de inscripción 2026 (corte 24/10/2026)</h3>
+        <ul className="v2-method-downloads">
+          <li><a href={`${base}/datos/diagnosticos-inscripcion-2026.json`} download>Diagnósticos de inscripciones 01/01 al 24/10/2026 por lista, provincia, edad y sexo ↗</a></li>
+          <li><a href={`${base}/datos/fuentes-diagnosticos-inscripcion-2026.json`} download>Fuentes originales y SHA256 de diagnósticos 2026 (2.925 consultas) ↗</a></li>
+        </ul>
+
+        <h3>Movimientos y egresos anuales (2005–2025)</h3>
+        <ul className="v2-method-downloads">
+          <li><a href={`${base}/datos/conteos-anuales-por-lista.json`} download>Conteos anuales de lista (Total LE) por provincia (2005–2025) ↗</a></li>
+          <li><a href={`${base}/datos/flujos-anuales-lista.json`} download>Movimientos anuales e ingresos/egresos nacionales con causas auditadas ↗</a></li>
+          <li><a href={`${base}/datos/ingresos-anuales.json`} download>Diagnósticos de ingresos anuales por lista, año y provincia (2005–2025) ↗</a></li>
+          <li><a href={`${base}/datos/fuentes-ingresos-anuales.json`} download>Fuentes y SHA256 de diagnósticos de ingresos anuales ↗</a></li>
+          <li><a href={`${base}/datos/egresos-provinciales.json`} download>Egresos provinciales anuales desglosados por causa (2005–2025) ↗</a></li>
+          <li><a href={`${base}/datos/fuentes-egresos-provinciales.json`} download>Fuentes y SHA256 de egresos provinciales (6.552 consultas) ↗</a></li>
+          <li><a href={`${base}/datos/nomenclatura_egresos.v1.json`} download>Contrato oficial de nomenclatura de egresos v1.0.0 ↗</a></li>
+        </ul>
+
+        <h3>Tiempos hasta el trasplante e historia</h3>
+        <ul className="v2-method-downloads">
+          <li><a href={`${base}/datos/tiempos-y-fuentes.json`} download>Celdas conjuntas de tiempo por lista, provincia y edad (2005–2025, 13.104 celdas) ↗</a></li>
+          <li><a href={`${base}/datos/percentiles-nacionales-por-lista.json`} download>Percentiles nacionales hepáticos explícitos por lista, con fuentes y SHA256 ↗</a></li>
+          <li><a href={`${base}/datos/historia-y-fuentes.json`} download>Serie renal nacional histórica, donantes y fuentes con SHA256 ↗</a></li>
+        </ul>
+
+        <h3>Poblaciones de diálisis y demografía</h3>
+        <ul className="v2-method-downloads">
+          <li><a href={`${base}/datos/poblacion-dialisis-2025.json`} download>Población en diálisis al 31/12/2025, fuente y SHA256 ↗</a></li>
+          <li><a href={`${base}/datos/tiempo-dialisis.json`} download>Diálisis previa al trasplante en receptores renales ↗</a></li>
+          <li><a href={`${base}/datos/poblacion_indec_2005_2025_por_provincia.csv`} download>Población provincial anual INDEC 2005–2025 para cálculo de PMH ↗</a></li>
+        </ul>
+
+        <h3>Documentación técnica y material archivado</h3>
+        <ul className="v2-method-downloads">
+          <li><a href={`${base}/datos/guia-consultas-cresi.md`} download>Guía técnica de consultas CRESI y criterios de reproducción ↗</a></li>
+          <li><a href={`${base}/datos/parcial-2026.json`} download>Material archivado: corte parcial siete meses 2026 (conservado por trazabilidad histórica) ↗</a></li>
+        </ul>
+      </details>
+
+      <div className="v2-footer-links">
+        <a href={`${base}/datos/guia-consultas-cresi.md`} download>Guía de consultas CRESI ↗</a>
+        <a href="#escena-0" onClick={onClose}>Volver al principio ↑</a>
+        <span>LA ESPERA / V.02</span>
+      </div>
     </section>
   </dialog>;
 }
