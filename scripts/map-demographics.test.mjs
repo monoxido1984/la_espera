@@ -42,9 +42,12 @@ test('no-result provinces retain their map shape without a published rate, and t
     assert.ok(row);assert.equal(row.value,0);assert.equal(row.pmh,undefined);
   }
   const all=mapUniverseData(original,snapshot,'all','all');
-  assert.equal(all.total,9649);assert.equal(snapshot.cohorts['all|all'].nationalTotal,9650);
+  assert.equal(snapshot.date,'27/10/2026');
+  assert.equal(all.total,9641);assert.equal(snapshot.cohorts['all|all'].nationalTotal,9642);
   assert.ok(all.lists.every(l=>l.province.every(p=>Number.isFinite(p.pmh))));
-  assert.ok(describeMapDiscrepancy(snapshot.discrepancies[0]).includes('5597'));
+  const discrepancy=snapshot.discrepancies.find(row=>row.kind==='provincias_vs_nacional'&&row.scope==='all|all|CORNEAS');
+  assert.ok(discrepancy);assert.equal(discrepancy.observed,2190);assert.equal(discrepancy.expected,2191);
+  assert.ok(describeMapDiscrepancy(discrepancy).includes('2190'));
 });
 
  test('current PMH reuses exact 2026 denominators for all jointly observed selections',()=>{

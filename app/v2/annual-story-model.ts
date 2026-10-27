@@ -1,4 +1,4 @@
-export type AnnualMoment='movements'|'causes'|'history';
+export type AnnualMoment='movements'|'causes'|'history'|'compare';
 export type HistoryMetric='stock'|'time';
 export function historyTime(row:{median?:number|null;average:number|null}){
   if(row.median!=null)return {value:row.median,kind:'median' as const};
@@ -25,10 +25,10 @@ export function annualStoryLayout({moment,entries,exits,groups,maximum,history,m
     while(index<groups.length-1&&i>=boundary+groups[index].value){boundary+=groups[index].value;index++;}
     const lane=i<transplant?0:i<transplant+(groups[2]?.value??0)?1:2;
     const offset=lane===0?0:lane===1?transplant:transplant+(groups[2]?.value??0);
-    result.push({id:`out-${i}`,...pile(moment==='causes'?i-offset:i,moment==='causes'?[115,300,485][lane]:445),r:step*.43,color:moment==='movements'?'#7400bd':groups[index]?.color??'#617f87',alpha:moment==='history'?0:1});
+    result.push({id:`out-${i}`,...pile(moment==='causes'?i-offset:i,moment==='causes'?[115,300,485][lane]:445),r:step*.43,color:moment==='movements'?'#7400bd':groups[index]?.color??'#617f87',alpha:moment==='history'||moment==='compare'?0:1});
   }
   // Historical marks are a graphic relay, not counts or linked patient records.
-  if(moment==='history')[...result.filter(dot=>dot.id.startsWith('out-')),...result.filter(dot=>dot.id.startsWith('in-'))].forEach((dot,i)=>{const mark=marks[i];if(mark){dot.x=mark.x;dot.y=mark.y;dot.r=3;dot.color='#b74d38';dot.alpha=1;}else dot.alpha=0;});
+  if(moment==='history'||moment==='compare')[...result.filter(dot=>dot.id.startsWith('out-')),...result.filter(dot=>dot.id.startsWith('in-'))].forEach((dot,i)=>{const mark=marks[i];if(mark){dot.x=mark.x;dot.y=mark.y;dot.r=3;dot.color='#b74d38';dot.alpha=1;}else dot.alpha=0;});
   return result;
 }
 

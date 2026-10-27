@@ -3,20 +3,33 @@ import {useState,type ReactNode} from 'react';
 import entries from './annual-entries.generated.json';
 import {integer,decimal} from './universe-model';
 import type {flowGroups} from './annual-flow-model';
+import {isGenericDiagnosis,toSentenceCase} from './current-diagnoses';
 
 import {flowBands,type Item} from './independent-flow-model';
 type Entry={total:number|null;diagnoses:{code:string;label:string;value:number}[]};
+
 export default function IndependentFlow({list,year,province,age,groups,exits,flowEntries,stock,children}:{list:string;year:number;province:string|null;age:string;groups:ReturnType<typeof flowGroups>;exits:number|null;flowEntries:number|null;stock:number|null;children:ReactNode}){
   const [expanded,setExpanded]=useState(false),[exitKind,setExitKind]=useState<string|null>(null),[selected,setSelected]=useState<string|null>(null),[openSide,setOpenSide]=useState<'entries'|'exits'|null>(null);
   const entry=age==='all'?(entries.rows as Record<string,Entry>)[`${list}|${year}|${province??'ARGENTINA'}`]:undefined;
-  const diagnoses=[...(entry?.diagnoses??[])].sort((a,b)=>b.value-a.value||a.code.localeCompare(b.code));
+  const allDiagnoses=entry?.diagnoses??[];
+  const specific=allDiagnoses.filter(d=>!isGenericDiagnosis(d.label)).sort((a,b)=>b.value-a.value||a.code.localeCompare(b.code));
+  const generic=allDiagnoses.filter(d=>isGenericDiagnosis(d.label));
+  const genericTotal=generic.reduce((sum,d)=>sum+d.value,0);
+  const firstSpecific=specific.slice(0,4);
+  const restSpecific=specific.slice(4);
+  const restSpecificTotal=restSpecific.reduce((sum,d)=>sum+d.value,0);
+  const otherTotal=genericTotal+restSpecificTotal;
   const incomingColors=['#b74d38','#c77c53','#a8664d','#d09a6d'];
-  const incoming:Item[]=diagnoses.slice(0,4).map((d,index)=>({id:`in-${d.code}`,label:d.label,value:d.value,color:incomingColors[index]}));
-  const rest=diagnoses.slice(4);
-  if(rest.length)incoming.push({id:'in-rest',label:'Otros diagnósticos',value:rest.reduce((s,d)=>s+d.value,0),color:'#a87964'});
+  const incoming:Item[]=[
+    ...firstSpecific.map((d,index)=>({id:`in-${d.code}`,label:toSentenceCase(d.label),value:d.value,color:incomingColors[index]??'#a8664d'})),
+    ...(otherTotal>0?[{id:'in-rest',label:'Otros diagnósticos o sin especificar',value:otherTotal,color:'#a87964'}]:[])
+  ];
   const [dc,dv,death,other]=groups;
   const outgoing:Item[]=exits===null?[]:[{id:'transplant',label:'Trasplantes',value:dc.value+dv.value,color:dc.color},death,other];
-  const detail=flowBands(diagnoses.map(d=>({id:`in-${d.code}`,label:d.label,value:d.value,color:'#a87964'})));
+  const detail=flowBands([
+    ...restSpecific.map(d=>({id:`in-${d.code}`,label:toSentenceCase(d.label),value:d.value,color:'#a87964'})),
+    ...generic.map(d=>({id:`in-${d.code}`,label:toSentenceCase(d.label),value:d.value,color:'#a87964'}))
+  ]);
   const exitDetail=flowBands([dc,dv,death,...other.items.map(d=>({id:d.canonicalId,label:d.label,value:d.value,color:other.color}))]);
   const chosen=[...flowBands(incoming).map(d=>({...d,side:'Diagnósticos'})),...detail.map(d=>({...d,side:'Diagnósticos'})),...flowBands(outgoing).map(d=>({...d,side:'Egresos'})),...exitDetail.map(d=>({...d,side:'Egresos'}))].find(d=>`${d.side}:${d.id}`===selected);
   type Side = 'entries' | 'exits';
@@ -47,15 +60,17 @@ export default function IndependentFlow({list,year,province,age,groups,exits,flo
     const count = isEntry ? flowEntries : exits;
     const open = openSide === side;
     const rows = flowBands(isEntry ? incoming : outgoing);
-    const nested = isEntry ? (expanded ? detail.slice(4) : []) : exitKind === 'transplant' ? exitDetail.slice(0,2) : exitKind === 'other' ? exitDetail.slice(3) : [];
+    const nested = isEntry ? (expanded ? detail : []) : exitKind === 'transplant' ? exitDetail.slice(0,2) : exitKind === 'other' ? exitDetail.slice(3) : [];
     const label = isEntry ? 'Ingresos' : 'Egresos';
     return <div className={'v2-independent-side ' + (isEntry ? 'v2-independent-in' : 'v2-independent-out')}>
       <h4>{label}</h4>
-      <button type="button" className="v2-flow-summary-trigger" aria-expanded={open} onClick={() => toggleSide(side)}>
+      <div className="v2-flow-col-header">
         <strong className="v2-independent-total">{count === null ? 's/d' : integer(count)}</strong>
         <span className="v2-independent-total-label">{isEntry ? 'Ingresos registrados en el año' : 'Egresos registrados en el año'}</span>
-        <span className="v2-flow-summary-action">{isEntry ? 'Explorar motivos de ingreso' : 'Explorar motivos de egreso'} {open ? '−' : '+'}</span>
-      </button>
+        <button type="button" className="v2-flow-summary-action" aria-expanded={open} onClick={() => toggleSide(side)}>
+          {isEntry ? 'Explorar motivos de ingreso' : 'Explorar motivos de egreso'} {open ? '−' : '+'}
+        </button>
+      </div>
       {open && <div className="v2-flow-summary-panel" role="group" aria-label={isEntry ? 'Diagnósticos de ingreso' : 'Motivos de egreso'}>
         <div className="v2-independent-detail-header"><p>{isEntry ? 'Diagnósticos' : 'Motivos de egreso'}</p><button type="button" onClick={() => toggleSide(side)}>Cerrar ×</button></div>
         {rows.length ? rows.map(item => itemButton(item, side)) : <p>Sin desglose publicado para este cruce.</p>}

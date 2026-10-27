@@ -38,7 +38,8 @@ export default function DataMethod({data,record,selection,open,onClose}:{data:Un
       <p className="v2-kicker">La historia detrás de la historia</p>
       <h2 id="v2-method-title">Sobre los datos.</h2>
       <p>Esta exploración utiliza estadísticas públicas agregadas de <a href="https://cresi.incucai.gov.ar/">CRESI (Central de Reportes y Estadísticas del SINTRA · INCUCAI)</a>. Se consultaron reportes numéricos oficiales accesibles sin autenticación. No se obtuvieron fichas, identidades ni recorridos individuales.</p>
-      <p>Esta documentación describe exclusivamente la versión actual de la visualización: la fotografía coordinada de lista de espera al {mapSnapshot.date} ({integer(data.total)} inscripciones activas), los diagnósticos principales de inscripción de 2026, la población en diálisis al cierre de 2025 ({integer(dialysisTotal)} pacientes) y las series anuales completas 2005–2025 de stock, movimientos anuales y tiempos de espera de receptores trasplantados.</p>
+      <p><strong>«Un punto, una persona en lista de espera»:</strong> la unidad observada es una inscripción en una lista de espera. Para la representación, cada inscripción se trata como un registro único y recibe un punto. Es un supuesto de lectura de los agregados: no contamos con identificadores individuales para verificar esa unicidad ni deduplicar personas entre listas. Por eso, la cifra cuenta inscripciones y no personas únicas identificadas.</p>
+      <p>Esta documentación describe exclusivamente la versión actual de la visualización: la fotografía coordinada de lista de espera al {mapSnapshot.date} ({integer(data.total)} inscripciones activas), los diagnósticos principales de esas mismas inscripciones activas, la población en diálisis al cierre de 2025 ({integer(dialysisTotal)} pacientes) y las series anuales completas 2005–2025 de stock, movimientos anuales y tiempos de espera de receptores trasplantados.</p>
 
       {/* APARTADO 1: QUÉ DATOS UTILIZAMOS */}
       <details open className="v2-method-section">
@@ -47,7 +48,7 @@ export default function DataMethod({data,record,selection,open,onClose}:{data:Un
         <p>Los datos en pantalla provienen de reportes de diseño y universos diferentes que no deben confundirse:</p>
         <ul>
           <li><strong>Stock en lista de espera (situación actual):</strong> Conteo de inscripciones con estado activo capturadas el {mapSnapshot.date} (entre {mapSnapshot.started.slice(11,16)} y {mapSnapshot.ended.slice(11,16)}). Una inscripción corresponde a una persona en una lista específica. Una misma persona puede figurar inscripta en más de una lista (por ejemplo, renal y renopancreática). Por ende, el conjunto de inscripciones no representa personas únicas deduplicadas.</li>
-          <li><strong>Inscripciones en un período (altas):</strong> Personas registradas entre fechas determinadas en cualquier situación posterior (continúen inscriptas, hayan recibido un trasplante o hayan sido dadas de baja). Se usan en dos vistas: diagnósticos 2026 (01/01 al {mapSnapshot.date}) e ingresos anuales (2005–2025). Miden ingresos a la lista durante el período, no el remanente en lista al cierre.</li>
+          <li><strong>Inscripciones en un período (altas):</strong> Personas registradas entre fechas determinadas en cualquier situación posterior (continúen inscriptas, hayan recibido un trasplante o hayan sido dadas de baja). Se usan en los ingresos anuales (2005–2025). Los diagnósticos de la escena 02 corresponden, en cambio, a las inscripciones activas de la fotografía actual. Miden ingresos a la lista durante el período, no el remanente en lista al cierre.</li>
           <li><strong>Egresos de lista de espera (bajas permanentes):</strong> Personas dadas de baja permanente de la lista durante un año calendario (2005–2025). Reúnen trasplantes con donante fallecido, trasplantes con donante vivo, fallecimientos en lista y otras causas (mejoría clínica, patologías sobrevinientes, etc.).</li>
           <li><strong>Pacientes en diálisis:</strong> Personas en tratamiento de insuficiencia renal crónica terminal (IRCT) al 31/12/2025 ({integer(dialysisTotal)} pacientes). Es una población clínica independiente de la lista de espera: sólo una fracción se encuentra inscripta.</li>
           <li><strong>Receptores trasplantados y tiempos de espera:</strong> Personas que efectivamente recibieron un trasplante durante el año evaluado (por fecha de desclampeo). Sus estadísticas de tiempo describen a la cohorte que llegó al trasplante, no la espera futura de quienes continúan esperando.</li>
@@ -70,7 +71,7 @@ export default function DataMethod({data,record,selection,open,onClose}:{data:Un
                 <th scope="row">01 / La cifra (Apertura)</th>
                 <td>Stock de inscripciones activas · {mapSnapshot.date} ({mapSnapshot.started.slice(11,16)}–{mapSnapshot.ended.slice(11,16)}).</td>
                 <td>Reporte de pacientes inscriptos en lista de espera (<code>cresi_le.do</code>).</td>
-                <td>Suma provincial de inscripciones activas ({integer(data.total)} en total; 5.597 en Renal).</td>
+                <td>Suma provincial de inscripciones activas ({integer(data.total)} en total; {integer(data.lists.find(list=>list.id==='RENAL')?.total??0)} en Renal).</td>
               </tr>
               <tr>
                 <th scope="row">02 / Lista, provincia y antigüedad</th>
@@ -79,9 +80,9 @@ export default function DataMethod({data,record,selection,open,onClose}:{data:Un
                 <td>Salida 2 (Provincia de residencia) y Salida 16 (Antigüedad en lista de espera).</td>
               </tr>
               <tr>
-                <th scope="row">02 / ¿Por qué? (Diagnósticos 2026)</th>
-                <td>Inscripciones en cualquier situación posterior · 01/01/2026 al {mapSnapshot.date}, cruzadas por lista, provincia, edad y sexo.</td>
-                <td>Reporte de pacientes inscriptos en lista de espera (<code>cresi_le.do</code>) · 2.925 consultas agregadas.</td>
+                <th scope="row">02 / ¿Por qué? (Diagnósticos de inscripciones activas)</th>
+                <td>Inscripciones activas al {mapSnapshot.date}, sin limitar el año de inscripción; cruzadas por lista, provincia, edad y sexo.</td>
+                <td>Reporte de pacientes inscriptos en lista de espera (<code>cresi_le.do</code>) · Las mismas 225 consultas agregadas del mapa.</td>
                 <td>Salida 10 (Diagnóstico principal).</td>
               </tr>
               <tr>
@@ -118,8 +119,8 @@ export default function DataMethod({data,record,selection,open,onClose}:{data:Un
             <li><strong>Reporte de lista de espera (<a href={report('le')}>cresi_le.do ↗</a>):</strong>
               <ul>
                 <li>En <em>Reporte</em>, elegir <code>COMPLETO - TODAS LAS LISTAS DE ESPERA</code>.</li>
-                <li>En <em>Situación en lista de espera</em>: para el stock del mapa usar <code>PACIENTES INSCRIPTOS EN LISTA DE ESPERA</code>; para diagnósticos de inscripción usar <code>PACIENTES INSCRIPTOS EN CUALQUIER SITUACION</code>.</li>
-                <li>Filtros opcionales de cruce: <em>Provincia del paciente</em> (24 provincias), <em>Edad del paciente</em> (<code>PEDIATRICOS (&lt;18)</code> o <code>ADULTOS (&gt;=18)</code>), <em>Sexo del paciente</em> (<code>FEMENINO</code> o <code>MASCULINO</code>), y <em>Período de evaluación (fecha inscripción)</em>: <code>ESPECIFICAR: desde 01-01-2026 hasta 24-10-2026</code>.</li>
+                <li>En <em>Situación en lista de espera</em>: para el mapa y sus diagnósticos actuales usar <code>PACIENTES INSCRIPTOS EN LISTA DE ESPERA</code>. Para ingresos anuales, usar <code>PACIENTES INSCRIPTOS EN CUALQUIER SITUACION</code> y el período de inscripción del año correspondiente.</li>
+                <li>Filtros opcionales de cruce: <em>Provincia del paciente</em> (24 provincias), <em>Edad del paciente</em> (<code>PEDIATRICOS (&lt;18)</code> o <code>ADULTOS (&gt;=18)</code>), <em>Sexo del paciente</em> (<code>FEMENINO</code> o <code>MASCULINO</code>), sin restringir <em>Período de evaluación (fecha inscripción)</em> para la fotografía actual. La fecha de inscripción no reconstruye una fotografía histórica de actividad.</li>
                 <li>En el segundo paso, seleccionar <code>2. Pacientes agrupados por provincia de residencia</code>, <code>10. Pacientes agrupados por diagnóstico principal</code> y/o <code>16. Pacientes agrupados por antiguedad en lista de espera</code>.</li>
               </ul>
             </li>
@@ -173,15 +174,15 @@ export default function DataMethod({data,record,selection,open,onClose}:{data:Un
             <tbody>
               <tr>
                 <th scope="row">1. Fotografía del mapa</th>
-                <td><code>cresi_le.do</code> · Reporte COMPLETO · PACIENTES INSCRIPTOS EN LISTA DE ESPERA · Provincia BUENOS AIRES · Edad ADULTOS (&gt;=18) · Sexo FEMENINO (captura 24/10/2026 10:44).</td>
-                <td>Salida 2 (Provincia): Buenos Aires TOTAL = 2.062 (Renal 993, Córneas 781, etc.). Salida 16 (Antigüedad): Renal &lt;1m = 31, 1~3m = 66, 3~6m = 85, 6~12m = 136, 1~2a = 191, 2~3a = 167, 3~7a = 238, 7~10a = 54, &gt;10a = 25 (suma = 993).</td>
-                <td><code>datos/extraidos/reportes_dinamicos/mapa_conjunto_20261024/mapa_buenos_aires_18mas_femenino/tabla_02.csv</code> (SHA256: <code>c58c783415796d51...</code>).</td>
+                <td><code>cresi_le.do</code> · Reporte COMPLETO · PACIENTES INSCRIPTOS EN LISTA DE ESPERA · Todas las listas · Provincia BUENOS AIRES · Edad ADULTOS (&gt;=18) · Sexo FEMENINO (captura {mapSnapshot.date}).</td>
+                <td>Salida 2 (Provincia): Buenos Aires TOTAL = 2.055 (Renal 992, Córneas 774). Salida 16 (Antigüedad): Renal &lt;1m = 34, 1~3m = 64, 3~6m = 86, 6~12m = 132, 1~2a = 191, 2~3a = 167, 3~7a = 239, 7~10a = 54, &gt;10a = 25 (suma = 992).</td>
+                <td><code>datos/extraidos/reportes_dinamicos/foto_actual_diagnosticos_20261027/mapa_buenos_aires_18mas_femenino/tabla_02.csv</code> (SHA256: <code>faab69845da3c308...</code>).</td>
               </tr>
               <tr>
-                <th scope="row">2. Diagnósticos actuales 2026</th>
-                <td><code>cresi_le.do</code> · Reporte COMPLETO · PACIENTES INSCRIPTOS EN CUALQUIER SITUACION · Lista RENAL · Provincia BUENOS AIRES · Edad ADULTOS (&gt;=18) · Sexo FEMENINO · Período fecha inscripción: desde 01-01-2026 hasta 24-10-2026.</td>
-                <td>Salida 10 (Diagnóstico principal): TOTAL = 327 inscripciones; DESCONOCIDA = 83 (25,4%), GLOMERULONEFRITIS = 49 (15,0%), NEFROANGIOESCLEROSIS = 42 (12,8%), POLIQUISTOSIS RENAL = 39 (11,9%).</td>
-                <td><code>datos/extraidos/reportes_dinamicos/ingresos_2026_corte_20261024/ingresos_2026_1024_renal_buenos_aires_18mas_femenino/tabla_03.csv</code> (SHA256: <code>dfec4bebe7847937...</code>).</td>
+                <th scope="row">2. Diagnósticos de inscripciones activas</th>
+                <td><code>cresi_le.do</code> · Reporte COMPLETO · PACIENTES INSCRIPTOS EN LISTA DE ESPERA · Todas las listas (columna RN para Renal) · Provincia BUENOS AIRES · Edad ADULTOS (&gt;=18) · Sexo FEMENINO · Sin restricción de fecha de inscripción.</td>
+                <td>Salida 10 (Diagnóstico principal), columna RN: TOTAL = 992 inscripciones activas; DESCONOCIDA = 286, GLOMERULONEFRITIS = 174, NEFROANGIOESCLEROSIS = 122 y POLIQUISTOSIS RENAL = 121. El total renal coincide con el mapa para el mismo cruce.</td>
+                <td><code>datos/extraidos/reportes_dinamicos/foto_actual_diagnosticos_20261027/mapa_buenos_aires_18mas_femenino/tabla_03.csv</code> (SHA256: <code>68bea226835d5103...</code>).</td>
               </tr>
               <tr>
                 <th scope="row">3. Ingresos anuales</th>
@@ -216,17 +217,19 @@ export default function DataMethod({data,record,selection,open,onClose}:{data:Un
         <p>La sigla <strong>s/d</strong> indica que CRESI no publicó un resultado para esa combinación demográfica o territorial, o que el cruce no formó parte del alcance. Una respuesta sin resultado nunca se convierte en cero ni se deduce por resta de márgenes. Los ceros explícitos se respetan exclusivamente cuando CRESI publicó <code>0</code> o <code>-</code> dentro de una tabla observada.</p>
 
         <h3>Diferencia entre consulta nacional y suma provincial</h3>
-        <p>En la captura coordinada del {mapSnapshot.date} se auditaron 6.278 comparaciones. Se identificó una discrepancia de exactamente 1 registro en la lista Renal entre la suma de las 24 provincias (5.597) y el reporte nacional consolidado (5.598). Esta diferencia aparece reflejada en Tucumán (103 casos en su consulta provincial filtrada frente a 104 en la fila provincial del reporte nacional). Se documenta con transparencia; no se maquilla ni se distribuye artificialmente.</p>
+        <p>En la captura coordinada del {mapSnapshot.date} se auditaron 6.282 comparaciones del mapa. Cuatro controles señalan una misma diferencia en Córneas: el total de la tabla geográfica nacional es 2.191, mientras que diagnósticos, antigüedad, edades, sexos y la suma provincial dan 2.190. La visualización usa consistentemente los cruces provinciales publicados: 9.641 inscripciones activas, de las cuales 5.585 son renales. Cada desglose de diagnósticos suma el mismo total de su selección en el mapa. Los controles nacionales se conservan en las auditorías, sin forzar una conciliación. La captura se realizó entre {mapSnapshot.started.slice(11,16)} y {mapSnapshot.ended.slice(11,16)}; no es una transacción instantánea.</p>
 
         <h3>Medianas, medias y rango intercuartílico P25–P75</h3>
         <p>La curva histórica prioriza la <strong>mediana publicada acompañada de la banda P25–P75</strong>. Este intervalo contiene el 50% central de los tiempos observados en personas trasplantadas; no es un intervalo de confianza ni una proyección. Cuando una selección carece de mediana publicada, se recurre a la media disponible (representada con trazo discontinuo y sin sombreado). Las medianas y percentiles nunca se promedian ni combinan entre provincias o edades.</p>
         <p>Para la selección activa en el recorrido ({year} · {record.label} · {selection.province??'Argentina'}): la mediana publicada es {record.median!==null?`${decimal(record.median)} ${record.unit} (P25 ${record.p25!==null?decimal(record.p25):'s/d'} – P75 ${record.p75!==null?decimal(record.p75):'s/d'}, con ${integer(record.quantileN??0)} receptores)`:'no disponible (se recurre a la media cuando existe)'}, con una media observada de {record.average!==null?`${decimal(record.average)} ${record.unit} (${integer(record.n)} receptores)`:'s/d'}.</p>
+        <p>Los hallazgos sobre antigüedad de quienes siguen en lista suman los intervalos publicados 3–7, 7–10 y más de 10 años para describir «3 años o más». No estiman un corte de 5 años dentro del intervalo 3–7. Diálisis al cierre de 2025 y lista renal al {mapSnapshot.date} son poblaciones y fechas distintas: su cociente no mide qué proporción de pacientes en diálisis está inscripta.</p>
 
         <h3>Tasas por millón de habitantes (PMH)</h3>
         <p>La tasa provincial se calcula como:</p>
         <p style={{fontFamily:'monospace',background:'#18232111',padding:'10px 14px',borderRadius:'4px'}}>
           PMH = (inscripciones de la selección en la provincia ÷ población provincial) × 1.000.000
         </p>
+        <p>La diferencia del comparador resta los valores que se muestran: tasas redondeadas a dos decimales y tiempos a un decimal. La vista de tiempo prioriza la mediana; donde no se publica, identifica la media y omite la banda. Si un territorio tiene mediana y el otro sólo media, no se calcula la diferencia entre estadísticas distintas; puede elegirse la media para ambos.</p>
         <ul>
           <li><strong>Denominadores del mapa:</strong> Proyecciones poblacionales INDEC al 01/07/2026, base Censo 2022, ambos sexos (total nacional: 46.466.688 habitantes), archivadas en la columna Población del reporte de situación actual del Registro Nacional de IRCT (SHA256: <code>f6ef954c8327673d...</code>).</li>
           <li><strong>Denominadores de la comparación anual:</strong> Proyecciones anuales provinciales INDEC 2005–2025 (archivo <code>poblacion_indec_2005_2025_por_provincia.csv</code>).</li>
@@ -236,8 +239,8 @@ export default function DataMethod({data,record,selection,open,onClose}:{data:Un
         <h3>Balance anual no conciliado (Ejemplo real Renal 2025)</h3>
         <p>La animación de Movimientos es ilustrativa: parte del cierre del año anterior, suma ingresos y resta egresos. Sin embargo, los reportes públicos de CRESI no constituyen una contabilidad por partida doble ni enlazan individuos:</p>
         <ul>
-          <li><strong>Renal Nacional 2025:</strong> Stock cierre 2024 = 5.166; Ingresos 2025 = 2.417 (en <code>Ing LE</code>) ó 2.559 (en reporte por fecha de inscripción); Egresos 2025 = 2.388 bajas permanentes (1.524 Tx fallecido, 225 Tx vivo, 429 defunciones, 210 otras). El cálculo ilustrativo da: 5.166 + 2.417 − 2.388 = 5.195 (coincidente con el stock publicado al 31/12/2025: 5.195).</li>
-          <li><strong>Buenos Aires Renal 2025:</strong> Stock inicial cierre 2024 = 2.042; Ingresos 2025 = 981 (<code>Ing LE</code>) ó 980 (por fecha de inscripción); Egresos 2025 = 941 (en tabla nacional) ó 982 (en consulta provincial filtrada); Stock publicado al cierre 2025 = 2.081. El saldo ilustrativo (2.042 + 981 − 982 = 2.041) difiere en 40 registros del stock publicado (2.081).</li>
+          <li><strong>Renal Nacional 2025:</strong> La lista publicada al cierre de 2024 tiene 5.110 inscripciones. La columna <code>Ing LE</code> del reporte utilizado registra 2.559 ingresos en 2025; los egresos son 2.388 bajas permanentes (1.524 trasplantes con donante fallecido, 225 con donante vivo, 429 defunciones y 210 por otros motivos). El cálculo ilustrativo da 5.110 + 2.559 − 2.388 = 5.281, frente a 5.195 publicados al cierre de 2025: una diferencia de 86 registros. No se reemplaza la cifra publicada por ese cálculo.</li>
+          <li><strong>Buenos Aires Renal 2025:</strong> La lista publicada al cierre de 2024 tiene 2.049 inscripciones; se registran 981 ingresos y 982 egresos en la consulta provincial filtrada de 2025. El cálculo ilustrativo da 2.049 + 981 − 982 = 2.048, frente a 2.081 publicados al cierre: una diferencia de 33 registros. El reporte de diagnósticos por fecha de inscripción cuenta 980 ingresos; se conserva como otra fuente y no se intercambia con <code>Ing LE</code>.</li>
         </ul>
         <p>Esta divergencia se debe a que las fuentes evalúan momentos y criterios dispares (fecha de exclusión frente a fecha de inscripción impresa en el encabezado) y no capturan traslados interprovinciales de residencia. No se fuerza una conciliación artificial.</p>
 
@@ -259,16 +262,16 @@ export default function DataMethod({data,record,selection,open,onClose}:{data:Un
         <summary><strong>4. Descargas y trazabilidad</strong> — Conjuntos de datos, códigos y fuentes con SHA256</summary>
         <p>Cada archivo publicado cuenta con su huella digital criptográfica SHA256 y referencias al reporte de origen. Los enlaces a continuación permiten descargar y auditar todos los datos utilizados:</p>
         
-        <h3>Fotografía actual y mapa (24/10/2026)</h3>
+        <h3>Fotografía actual y mapa ({mapSnapshot.date})</h3>
         <ul className="v2-method-downloads">
           <li><a href={`${base}/datos/mapa-demografia.json`} download>Cruces del mapa por lista, provincia, edad, sexo y antigüedad (mapa-demografia.json) ↗</a></li>
           <li><a href={`${base}/datos/auditoria-mapa-demografia.json`} download>Auditoría completa, controles de sumas y fuentes SHA256 del mapa ↗</a></li>
         </ul>
 
-        <h3>Diagnósticos de inscripción 2026 (corte 24/10/2026)</h3>
+        <h3>Diagnósticos de inscripciones activas ({mapSnapshot.date})</h3>
         <ul className="v2-method-downloads">
-          <li><a href={`${base}/datos/diagnosticos-inscripcion-2026.json`} download>Diagnósticos de inscripciones 01/01 al 24/10/2026 por lista, provincia, edad y sexo ↗</a></li>
-          <li><a href={`${base}/datos/fuentes-diagnosticos-inscripcion-2026.json`} download>Fuentes originales y SHA256 de diagnósticos 2026 (2.925 consultas) ↗</a></li>
+          <li><a href={`${base}/datos/diagnosticos-activos.json`} download>Diagnósticos de inscripciones activas por lista, provincia, edad y sexo ↗</a></li>
+          <li><a href={`${base}/datos/auditoria-diagnosticos-activos.json`} download>Auditoría, controles nacionales y SHA256 de diagnósticos activos (225 consultas) ↗</a></li>
         </ul>
 
         <h3>Movimientos y egresos anuales (2005–2025)</h3>

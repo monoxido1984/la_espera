@@ -8,7 +8,7 @@ import {introScrollLayout} from './intro-scroll-model';
 import type {PointRelay} from './temporal-journey';
 
 export type SandHandoff={points:Dot[];left:number;top:number};
-export default function SandQueue({count,forming,paused,relay,handoff}:{count:number;forming:boolean;paused:boolean;relay:MutableRefObject<PointRelay>;handoff?:MutableRefObject<SandHandoff|null>}) {
+export default function SandQueue({count,forming,paused,relay,handoff,snapshot}:{snapshot?:string;count:number;forming:boolean;paused:boolean;relay:MutableRefObject<PointRelay>;handoff?:MutableRefObject<SandHandoff|null>}) {
   const box=useRef<HTMLDivElement>(null),canvas=useRef<HTMLCanvasElement>(null);
   const drawn=useRef<number|null>(null);
   const [size,setSize]=useState({width:0,height:0});
@@ -72,5 +72,5 @@ export default function SandQueue({count,forming,paused,relay,handoff}:{count:nu
     window.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule);
     schedule();return()=>{cancelAnimationFrame(frame);window.removeEventListener('scroll',schedule);window.removeEventListener('resize',schedule);};
   },[size,count,forming,paused,relay,handoff]);
-  return <div ref={box} className="v2-sand-queue"><canvas ref={canvas} aria-hidden="true"/><p className="v2-sr-only">{integer(count)} inscripciones. Una puerta se abre en la base del reloj. Los puntos salen hacia lugares diferentes de la cifra y llegan en momentos distintos. La composición permanece fija mientras avanzan los textos.</p>{forming&&<p className="v2-sand-unit">Un punto · una inscripción en lista de espera</p>}</div>;
+  return <div ref={box} className="v2-sand-queue"><canvas ref={canvas} aria-hidden="true"/><p className="v2-sr-only">{integer(count)} inscripciones. Una puerta se abre en la base del reloj. Los puntos salen hacia lugares diferentes de la cifra y llegan en momentos distintos. La composición permanece fija mientras avanzan los textos.</p>{forming&&<p className="v2-sand-unit">Un punto, una persona en lista de espera.*<br/><span>*datos al {snapshot}</span></p>}</div>;
 }

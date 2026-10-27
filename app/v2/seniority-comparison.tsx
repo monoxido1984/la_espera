@@ -6,7 +6,7 @@ export default function SeniorityComparison({series,onSelect}:{series:SeniorityS
   const totals=series.map(s=>s.groups.reduce((n,g)=>n+g.value,0));
   const value=(s:SenioritySeries,id:string)=>{const g=s.groups.find(g=>g.id===id);return s.unavailable||!g?null:g.value;};
   const max=Math.max(1,...series.flatMap(s=>categories.map(g=>value(s,g.id)??0)));
-  return <div className="v2-seniority-comparison"><h3>Tiempo que ya llevan en lista</h3>
+  return <div className="v2-seniority-comparison">
     <div className="v2-seniority-legend">{series.map((s,i)=><span key={s.label} style={{color:s.color}}>{i?'●':'●'} {s.label} · {s.unavailable?'s/d':integer(totals[i])}</span>)}</div>
     <svg viewBox="0 0 600 650" role="group" aria-label="Antigüedad en lista: barras de puntos de mujeres y hombres, con escala común de inscripciones">
       {categories.map((g,j)=><g key={g.id}>
@@ -14,7 +14,7 @@ export default function SeniorityComparison({series,onSelect}:{series:SeniorityS
         {series.map((s,i)=>{
           const v=value(s,g.id),marks=v??0;
           const step=365/Math.max(1,Math.ceil(max/3));
-          return <g key={s.label} role="button" tabIndex={0} aria-label={`${s.label}, ${g.label}: ${v===null?'sin datos':integer(v)}. Explorar este tiempo.`} onClick={()=>{if(v!==null)onSelect(g.id,i===0?'FEMENINO':'MASCULINO');}} onKeyDown={e=>{if((e.key==='Enter'||e.key===' ')&&v!==null){e.preventDefault();onSelect(g.id,i===0?'FEMENINO':'MASCULINO');}}}>
+          return <g key={s.label} role="button" tabIndex={0} aria-label={`${s.label}, ${g.label}: ${v===null?'sin datos':integer(v)}. Explorar este tiempo.`} onClick={()=>{if(v!==null)onSelect(g.id,s.label==='Mujeres'?'FEMENINO':'MASCULINO');}} onKeyDown={e=>{if((e.key==='Enter'||e.key===' ')&&v!==null){e.preventDefault();onSelect(g.id,s.label==='Mujeres'?'FEMENINO':'MASCULINO');}}}>
             <title>{s.label} · {g.label} · {v===null?'s/d':integer(v)}</title>
             <rect x="140" y={15+j*68+i*23} width="450" height="21" fill="transparent"/>
             {v!==null&&<rect x="150" y={17+j*68+i*23} width={v/max*365} height="12" rx="2" fill={s.color} opacity=".13"/>}
