@@ -443,3 +443,5 @@
 .v2-activity-legend strong{font-size:17px;font-weight:500;margin-left:5px}
 .v2-activity-note{opacity:.75}.v2-activity-unavailable{color:var(--v2-accent)}
 @media(max-width:760px){.v2-waiting-activity{gap:7px}.v2-activity-lane svg{max-height:none}.v2-activity-heading{font-size:11px}.v2-activity-legend{gap:8px;font-size:10px}.v2-waiting-activity p{font-size:10px}}
+
+.v2-unified-compare{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;margin:1rem 0;font-size:.85rem}.v2-unified-compare select{max-width:100%;min-width:0;padding:.5rem;border:1px solid currentColor;border-radius:.3rem;background:var(--v2-paper);color:inherit;font:inherit}.v2-annual-story .v2-tabs{flex-wrap:wrap}

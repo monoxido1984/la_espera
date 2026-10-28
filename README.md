@@ -99,3 +99,6 @@ En antigüedad, «Superponer mujeres y hombres» muestra ambas distribuciones en
 Verificación: 69 tests aprobados, 2 omitidos; navegador de escritorio y 390×844: Riñón → Córdoba → antigüedad, superposición, porcentajes, cambio de edad y selección por teclado; sin desplegables en 02, sin errores de consola y sin desbordamiento horizontal móvil (scrollWidth 375, viewport 390). Metodología únicamente en Sobre los datos. Sin modificaciones a fuentes ni publicación.
 
 25/10/2026: la comparación de antigüedad se presenta directamente como pares de barras horizontales de puntos por tramo: mujeres violeta y hombres azul. Longitudes con escala común; cantidades o porcentajes y valores por sexo. Se conserva la vista total sin separar y la selección interactiva de bandas. Sin fuentes nuevas ni publicación.
+
+### Escena 03 — 28/10/2026
+Un único gráfico alterna tiempos, donación y cantidad, con comparación entre provincias o frente a Argentina y un mensaje calculado entre años disponibles del mismo estadístico. Los tiempos mantienen mediana/banda o media discontinua; la donación corresponde a todos los órganos. El cierre retoma la pregunta inicial.
