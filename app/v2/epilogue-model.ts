@@ -13,3 +13,16 @@ export function epiloguePosition(index:number,progress:number,from:Point,to:Poin
   const bend=Math.sin(t*Math.PI)*(fraction(index+53)-.5)*34;
   return {x:from.x+(to.x-from.x)*ease+bend,y:from.y+(to.y-from.y)*ease-bend*.45};
 }
+
+// Abstract open threshold. Every inscription retains one distinct graphic mark.
+export function thresholdPoints(count:number,width:number,height:number):Point[]{
+ const radius=Math.min(width*.29,height*.31),cx=width*.5,cy=height*.43,bottom=height*.84;
+ const vertical=Math.max(1,bottom-cy),length=vertical*2+Math.PI*radius;
+ const thickness=Math.max(5,radius*.13);
+ return Array.from({length:count},(_,i)=>{
+  const distance=(i+.5)/Math.max(1,count)*length,offset=(fraction(i+101)-.5)*thickness;
+  if(distance<vertical)return {x:cx-radius+offset,y:bottom-distance};
+  if(distance<vertical+Math.PI*radius){const angle=Math.PI+(distance-vertical)/radius;return {x:cx+(radius+offset)*Math.cos(angle),y:cy+(radius+offset)*Math.sin(angle)};}
+  return {x:cx+radius+offset,y:cy+distance-vertical-Math.PI*radius};
+ });
+}

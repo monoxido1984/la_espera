@@ -209,7 +209,7 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
       <section id="escena-3" data-scene="3" className="v2-scene v2-annual-scene"><div className="v2-copy">
         <p className="v2-kicker">03 / Año tras año</p>
         <h2>¿Cómo cambió la espera?</h2>
-        <p className="v2-interaction-hint" id="v2-year-help">Elegí tiempos, donación o cantidad. Compará provincias o mirá la distancia con el país.</p>
+        <p className="v2-interaction-hint" id="v2-year-help">¿Se espera lo mismo en todos los lugares? Compará tiempos y sumá contexto de donación o lista por millón de habitantes.</p>
         <label className="v2-year" htmlFor="v2-year">{year}</label><input id="v2-year" aria-label="Año del registro" className="v2-range" type="range" min={2005} max={2025} value={year} onChange={event=>setYear(Number(event.target.value))}/>
         <div className="v2-range-ends"><span>2005</span><span>2025</span></div>
         {scene===3&&<AnnualTimeExplorer year={year} provinceNames={provinceNames} selection={annualSelection} onSelection={selectAnnual} onSeries={setAnnualTimes} showFilters={true} renalNational={data.history} showSummary={false}/>}

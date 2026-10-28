@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {epiloguePoints,epiloguePosition} from '../app/v2/epilogue-model.ts';
+import {epiloguePoints,epiloguePosition,thresholdPoints} from '../app/v2/epilogue-model.ts';
 
 test('the epilogue reunites every mark at a distinct position inside desktop and mobile bounds',()=>{
   for(const [width,height] of [[720,560],[320,360]]){
@@ -21,4 +21,13 @@ test('closing choreography preserves supplied numeral and letter positions',()=>
 const origins=[{x:1,y:2},{x:3,y:4}],targets=[{x:10,y:20},{x:30,y:40}];
 const points=epiloguePoints(2,100,100,targets,origins);
 points.forEach((point,i)=>{assert.deepEqual(point.from,origins[i]);assert.deepEqual(epiloguePosition(i,1,point.from,point.to),targets[i]);});
+});
+
+test('the open threshold keeps every point inside desktop and mobile bounds without filling its opening',()=>{
+for(const [w,h] of [[720,560],[320,360]]){
+ const points=thresholdPoints(9641,w,h);assert.equal(points.length,9641);assert.equal(new Set(points.map(p=>p.x+','+p.y)).size,9641);
+ assert.ok(points.every(p=>p.x>=0&&p.x<=w&&p.y>=0&&p.y<=h));
+ assert.ok(points.every(p=>!(p.x>w*.42&&p.x<w*.58&&p.y>h*.5&&p.y<h*.8)));
+}
+assert.deepEqual(thresholdPoints(0,320,360),[]);
 });

@@ -8,8 +8,8 @@ Exploración visual de las listas de espera de órganos y tejidos en Argentina, 
 
 - Apertura y cifra de inscripciones activas.
 - Listas, provincias, antigüedad y diagnósticos, con filtros conjuntos de edad y sexo. Mapa en cantidades o por millón de habitantes. Contextos de donación actual y diálisis.
-- Un único gráfico anual 2005–2025 con selector de tiempos, donación o cantidad; comparación entre provincias o con Argentina.
-- Cierre que retoma «¿Cuánto tarda una segunda oportunidad?».
+- Una serie principal de tiempos 2005–2025, con comparación entre provincias o Argentina usando la misma estadística. Donación y lista al cierre son contextos opcionales en PMH sobre un eje auxiliar.
+- Cierre que retoma «¿Cuánto tarda una segunda oportunidad?»; los puntos forman un umbral abierto.
 
 «Sobre los datos» reúne las fuentes, períodos, criterios de lectura, límites y descargas de la versión vigente. Las inscripciones no equivalen a personas únicas deduplicadas. Los tiempos de receptores trasplantados no predicen una espera individual. El escenario de diálisis es ilustrativo.
 

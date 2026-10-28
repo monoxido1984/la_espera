@@ -5,8 +5,8 @@ const root=new URL('../',import.meta.url);
 const read=file=>readFileSync(new URL(file,root),'utf8');
 test('methodology downloads exist and contain no retired datasets',()=>{
  const source=read('app/v2/data-method.tsx');
- const files=[...source.matchAll(/\['[^']+','([^']+\.(?:json|md))'\]/g)].map(match=>match[1]);
- assert.equal(files.length,13);
+ const files=[...source.matchAll(/\['[^']+','([^']+\.(?:json|md|csv))'\]/g)].map(match=>match[1]);
+ assert.equal(files.length,14);
  for(const file of files)assert.ok(existsSync(new URL('public/datos/'+file,root)),file);
  assert.deepEqual(readdirSync(new URL('public/datos/',root)).sort(),files.sort());
  assert.doesNotMatch(source,/ExitBreakdown|Movimientos|Ing LE|parcial-2026|egresos-provinciales|trasplantes-registrados/);
