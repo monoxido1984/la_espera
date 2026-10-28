@@ -2,10 +2,8 @@
 import {useMemo,useState} from 'react';
 import raw from './annual-time.generated.json';
 import counts from './annual-list-counts.generated.json';
-import transplants from './annual-transplant-counts.generated.json';
 import donation from './donation-context.generated.json';
 import quantiles from './annual-national-quantiles.generated.json';
-import partial from './partial-2026.generated.json';
 import {annualTimeDetail,unpackAnnualTimes,type CompactAnnualTime,type AnnualTimeSelection} from './annual-time-model';
 import {comparisonHistory,type ComparisonYear} from './annual-comparison-model';
 import {activitySeries,type ActivityCounts} from './waiting-activity-model';
@@ -18,9 +16,9 @@ type Metric='time'|'donors'|'stock';
 export default function AnnualUnified({record,history,selection,onYear,provinceNames,renalNational,scope}:{record:ComparisonYear;history:ComparisonYear[];selection:AnnualTimeSelection;onYear:(year:number)=>void;provinceNames:Map<string,string>;renalNational:HistoryYear[];scope:string}){
  const [metric,setMetric]=useState<Metric>('time'),[compare,setCompare]=useState('none');
  const reference=compare==='ARGENTINA'?null:compare;
- const comparison=useMemo(()=>{const target={...selection,province:reference};return comparisonHistory(renalNational,target,raw.years.map(year=>annualTimeDetail(cells,year,target)),counts,partial,quantiles.rows);},[selection,reference,renalNational]);
- const activity=activitySeries(counts as ActivityCounts,transplants.rows,donation.rows,selection.list,selection.province,'all');
- const otherActivity=activitySeries(counts as ActivityCounts,transplants.rows,donation.rows,selection.list,reference,'all');
+ const comparison=useMemo(()=>{const target={...selection,province:reference};return comparisonHistory(renalNational,target,raw.years.map(year=>annualTimeDetail(cells,year,target)),counts,quantiles.rows);},[selection,reference,renalNational]);
+ const activity=activitySeries(counts as ActivityCounts,donation.rows,selection.list,selection.province,'all');
+ const otherActivity=activitySeries(counts as ActivityCounts,donation.rows,selection.list,reference,'all');
  const value=(row:ComparisonYear|undefined,other=false)=>!row?null:metric==='time'?historyTime(row).value:metric==='stock'?row.waitlist:(other?otherActivity:activity).find(p=>p.year===row.year)?.donors??null;
  const primary=history.filter(p=>!p.partial&&p.year<=2025),secondary=comparison.filter(p=>!p.partial&&p.year<=2025);
  const comparing=compare!=='none'&&reference!==selection.province;

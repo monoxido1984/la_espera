@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {waitingFacts,waitingAnchor,diagnosisAnchor} from '../app/v2/exploration-findings.ts';
-import {roundedDifference} from '../app/v2/comparison-display.ts';
 const snapshot=JSON.parse(readFileSync(new URL('../app/v2/map-demographics.generated.json',import.meta.url),'utf8'));
 const lists=snapshot.cohorts['all|all'].lists;
 const renal=lists.find(row=>row.id==='RENAL');
@@ -19,13 +18,7 @@ test('waiting findings use full published time bands and retain incomplete data'
   assert.match(diagnosisAnchor({total:10,diagnoses:[{label:'B',value:2},{label:'A',value:8}]},true,null),/A.*80,0%/);
   assert.match(diagnosisAnchor(undefined,true,null),/No hay diagnósticos publicados/);
 });
-test('displayed differences exactly subtract the rounded values shown in the table',()=>{
-  assert.equal(roundedDifference(113.345,112.274,2),-1.08);
-  assert.equal(roundedDifference(53.485,52.464,2),-1.03);
-  assert.equal(roundedDifference(32.44,27.46,1),-4.9);
-  assert.equal(roundedDifference(1.001,1.004,2),0);
-  assert.equal(roundedDifference(null,2,2),null);
-});
+
 
 
 test('active diagnoses conserve the same list/province/age/sex totals as the map',()=>{

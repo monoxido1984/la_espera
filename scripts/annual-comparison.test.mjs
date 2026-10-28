@@ -12,8 +12,8 @@ const {annualTimeDetail,unpackAnnualTimes}=await import(time);
 const model=transpile(readFileSync(url('annual-comparison-model.ts'),'utf8').replace("'./annual-time-model'",JSON.stringify(time)));
 const {comparisonHistory}=await import(model);
 const history=JSON.parse(readFileSync(new URL('../app/history.generated.json',import.meta.url),'utf8'));
-const counts=read('annual-list-counts.generated.json'),partial=read('partial-2026.generated.json'),cells=unpackAnnualTimes(read('annual-time.generated.json'));
-const make=selection=>comparisonHistory(history,selection,history.map(r=>annualTimeDetail(cells,r.year,selection)),counts,partial);
+const counts=read('annual-list-counts.generated.json'),cells=unpackAnnualTimes(read('annual-time.generated.json'));
+const make=selection=>comparisonHistory(history,selection,history.map(r=>annualTimeDetail(cells,r.year,selection)),counts);
 
 test('one list selection controls the waiting count and the mean without changing donor scope',()=>{
   const renal=make({list:'RENAL',province:null,age:'all'}),corneas=make({list:'CORNEAS',province:null,age:'all'});
@@ -32,18 +32,11 @@ test('province counts are observed and an age filter never fabricates a waiting 
   const pediatric=make({list:'RENAL',province:'CORDOBA',age:'menor_18'}).find(r=>r.year===2025);
   assert.equal(pediatric.waitlist,null);assert.ok(pediatric.countReason.includes('edad'));
 });
-test('July is the last year of the same history with no substitute August or full-year counts',()=>{
-  const renal=make({list:'RENAL',province:null,age:'all'}),last=renal.at(-1);
-  assert.equal(renal.length,22);assert.equal(last.year,2026);assert.equal(last.partial,true);
-  assert.equal(last.average,partial.renal.average);assert.equal(last.n,892);assert.equal(last.donors,1278);assert.equal(last.waitlist,null);
-  for(const selection of [{list:'CORNEAS',province:null,age:'all'},{list:'RENAL',province:'CORDOBA',age:'all'}]){
-    const last=make(selection).at(-1);assert.equal(last.average,null);assert.equal(last.waitlist,null);
-  }
-});
+test('annual history contains only complete years 2005–2025',()=>{const rows=make({list:'RENAL',province:null,age:'all'});assert.equal(rows.length,21);assert.equal(rows.at(-1).year,2025);assert.ok(rows.every(row=>!row.partial));});
 test('a freshly changed selection never reuses the previous list mean while its details load',()=>{
   const old={list:'RENAL',province:null,age:'all'};
   const oldDetails=history.map(r=>annualTimeDetail(cells,r.year,old));
-  const rows=comparisonHistory(history,{...old,list:'HEPATICA'},oldDetails,counts,partial);
+  const rows=comparisonHistory(history,{...old,list:'HEPATICA'},oldDetails,counts);
   assert.ok(rows.every(r=>r.average===null));assert.ok(rows.every(r=>r.unit==='días'));
 });
 
@@ -76,15 +69,14 @@ test('renal national medians and bands use the published national cohort, not pr
  const source=cells.find(row=>row.year===2025&&row.list==='CORNEAS'&&row.province==='BUENOS AIRES'&&row.age==='18_mas');
  assert.deepEqual([exact.median,exact.p25,exact.p75],[source.median,source.p25,source.p75]);
  const bothAges=make({list:'CORNEAS',province:'BUENOS AIRES',age:'all'}).find(row=>row.year===2025);assert.equal(bothAges.median,null);
- assert.equal(make({list:'RENAL',province:null,age:'all'}).at(-1).p25,null,'monthly partial means never become percentiles');
 });
 test('explicit hepatic list rows apply only to their exact national list and keep their own cohort',()=>{
  const rows=read('annual-national-quantiles.generated.json').rows;
- const build=selection=>comparisonHistory(history,selection,history.map(row=>annualTimeDetail(cells,row.year,selection)),counts,partial,rows);
+ const build=selection=>comparisonHistory(history,selection,history.map(row=>annualTimeDetail(cells,row.year,selection)),counts,rows);
  const row=build({list:'HEPATICA',province:null,age:'all'}).find(row=>row.year===2025);
  assert.deepEqual([row.median,row.p25,row.p75,row.quantileN,row.unit],[105.73,21.61,349.35,445,'días']);
  const filtered=build({list:'HEPATICA',province:'CORDOBA',age:'all'}).find(row=>row.year===2025);assert.equal(filtered.median,null);
  const oldDetails=history.map(row=>annualTimeDetail(cells,row.year,{list:'RENAL',province:null,age:'all'}));
- const stale=comparisonHistory(history,{list:'CORNEAS',province:null,age:'all'},oldDetails,counts,partial,rows);assert.ok(stale.every(row=>row.median===null));
+ const stale=comparisonHistory(history,{list:'CORNEAS',province:null,age:'all'},oldDetails,counts,rows);assert.ok(stale.every(row=>row.median===null));
  for(const source of rows){assert.ok(source.p25<=source.median&&source.median<=source.p75);const path=new URL('../../../../'+source.source,import.meta.url);if(existsSync(path))assert.equal(createHash('sha256').update(readFileSync(path)).digest('hex'),source.sha256);}
 });

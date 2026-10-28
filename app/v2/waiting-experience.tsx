@@ -11,7 +11,6 @@ import AnnualParallel from './annual-unified';
 import DialysisDialog from './dialysis-dialog';
 import DonationContext from './donation-context';
 
-import partial2026 from './partial-2026.generated.json';
 import annualCounts from './annual-list-counts.generated.json';
 import nationalQuantiles from './annual-national-quantiles.generated.json';
 import {comparisonHistory} from './annual-comparison-model';
@@ -128,7 +127,7 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
   },[data]);
   const canUsePmh = groups.some(g => g.pmh !== undefined);
   const metricText = (group: typeof groups[number]) => territoryMetric === 'count' ? integer(group.value) : group.pmh === undefined ? 's/d' : decimal(group.pmh);
-  const annualComparison=useMemo(()=>comparisonHistory(data.history,annualSelection,annualTimes,annualCounts,partial2026,nationalQuantiles.rows),[data.history,annualSelection,annualTimes]);
+  const annualComparison=useMemo(()=>comparisonHistory(data.history,annualSelection,annualTimes,annualCounts,nationalQuantiles.rows),[data.history,annualSelection,annualTimes]);
   const record=annualComparison.find(item=>item.year===year)!;
 
   const timeN = data.dialysisPopulation?.count ?? 0;
