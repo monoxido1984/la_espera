@@ -1,5 +1,8 @@
 'use client';
 import { useEffect, useRef } from 'react';
+import dialysis from '../dialysis-population-2025.generated.json';
+import {decimal,integer} from './universe-model';
+import {DAYS_PER_YEAR} from './time-scale-model';
 
 export default function DialysisDialog({
   open,
@@ -39,7 +42,7 @@ export default function DialysisDialog({
       }}
     >
       <div className="v2-dialysis-bar">
-        <span>Contexto renal · La espera durante la espera</span>
+        <span>El tiempo en diálisis</span>
         <button
           type="button"
           className="v2-dialysis-close-btn"
@@ -50,15 +53,15 @@ export default function DialysisDialog({
         </button>
       </div>
       <div className="v2-dialysis-body">
-        <h3 id="v2-dialysis-modal-title">31.431 personas en diálisis</h3>
+        <h3 id="v2-dialysis-modal-title">{integer(dialysis.count)} personas en diálisis</h3>
         <p className="v2-dialysis-lead">
-          Estar en lista de espera renal —o aguardar los estudios pre-trasplante para ingresar a ella— implica, en la enorme mayoría de los casos, sostener la vida mediante diálisis. Al cierre de 2025, 31.431 pacientes recibían tratamiento crónico en Argentina: más de cinco veces el tamaño de la lista de espera renal activa.
+          Al cierre de 2025, CRESI registraba {integer(dialysis.count)} pacientes en diálisis. Es otra población: no son las personas de la lista renal seleccionada. Este cálculo traduce un escenario anual de tratamiento a horas; no mide cuánto esperó cada paciente.
         </p>
 
         <div className="v2-dialysis-time-card">
           <h4>¿Cuánto tiempo de vida absorbe el tratamiento?</h4>
           <p>
-            En un esquema estándar de hemodiálisis (3 sesiones por semana de 4 horas cada una, durante las 52 semanas del año), una persona pasa 624 horas anuales conectada al equipo, sin contar los traslados ni el tiempo de recuperación física tras cada sesión. Equivalen a 26 días completos del año dedicados exclusivamente a filtrar la sangre.
+            En este escenario ilustrativo de hemodiálisis (3 sesiones por semana de 4 horas cada una, durante las 52 semanas del año), una persona pasa 624 horas anuales conectada al equipo, sin contar los traslados ni el tiempo de recuperación física tras cada sesión. Equivalen a 26 días completos del año dedicados exclusivamente a filtrar la sangre.
           </p>
           <div className="v2-dialysis-metrics-row">
             <div className="v2-dialysis-metric-box">
@@ -76,8 +79,9 @@ export default function DialysisDialog({
           </div>
         </div>
 
+        <p className="v2-dialysis-collective"><strong>Del tiempo de una persona al conjunto</strong><br/>624 horas × {integer(dialysis.count)} personas = {integer(624*dialysis.count)} horas-persona. Equivalen a unos <strong>{decimal(624*dialysis.count/24/DAYS_PER_YEAR/100)} siglos</strong> en sesiones dentro de un año ilustrativo; no son siglos de espera clínica observada.</p>
         <p className="v2-dialysis-footer">
-          Fuente: CRESI (SINTRA · INCUCAI), prevalencia en diálisis (Total IRCT) al 31/12/2025. Podés filtrar esta población por provincia.
+          Fuente: CRESI (SINTRA · INCUCAI), prevalencia en diálisis (Total IRCT) al 31/12/2025. Las 3 sesiones semanales de 4 horas son un supuesto del escenario, no una media estimada con estos registros.
         </p>
       </div>
     </dialog>

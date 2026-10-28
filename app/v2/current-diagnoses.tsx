@@ -171,6 +171,7 @@ export default function CurrentDiagnoses({
           </details>
         )}
         {seniority && <p className="v2-current-unavailable">El reporte de diagnósticos no incluye el cruce por antigüedad elegido.</p>}
+        {!seniority && <p className="v2-current-unavailable">Estos diagnósticos describen a quienes esperan. Este cruce no publica cuánto tiempo lleva cada diagnóstico en lista.</p>}
       </>
     )}
   </div>;

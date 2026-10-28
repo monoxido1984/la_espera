@@ -9,6 +9,7 @@ import WaitingEpilogue from './waiting-epilogue';
 import {organLabel} from './organ-labels';
 import AnnualParallel from './annual-flow-view';
 import DialysisDialog from './dialysis-dialog';
+import DonationContext from './donation-context';
 import type {AnnualMoment} from './annual-story-model';
 import partial2026 from './partial-2026.generated.json';
 import annualCounts from './annual-list-counts.generated.json';
@@ -20,7 +21,7 @@ import {causeMetric, territoryCauseOptions} from './territory-comparison-model';
 import DataMethod from './data-method';
 import SandQueue,{type SandHandoff} from './sand-queue';
 import dynamic from 'next/dynamic';
-import TemporalJourney,{JourneyControls,type PointRelay} from './temporal-journey';
+import type {PointRelay} from './temporal-journey';
 import {annualListLabels,type AnnualTimeDetail,type AnnualTimeSelection} from './annual-time-model';
 import { decimal, groupsFor, integer, territoryColors, type TerritoryMetric, type Dimension, type UniverseData, type UniverseMode } from './universe-model';
 import { allWaiting, explorationGroups, selectExploration, type ExplorationSelection } from './linked-exploration';
@@ -32,9 +33,9 @@ const mapSnapshot=mapSnapshotRaw as MapSnapshot;
 const AnnualTimeExplorer=dynamic(()=>import('./annual-time-explorer'),{ssr:false,loading:()=> <p className="v2-note">Cargando los cruces…</p>});
 
 const annualMoments: {id:AnnualMoment;label:string;title:string;hint:string}[]=[
-  {id:'movements',label:'Movimientos',title:'Un año de entradas y salidas.',hint:'Explorá cómo fue cambiando la lista año a año. Elegí una categoría o desplegá sus motivos.'},
-  {id:'history',label:'Evolución 2005–2025',title:'¿Cómo cambió la espera?',hint:'Explorá el tiempo de espera hasta el trasplante y la cantidad de personas en lista.'},
-  {id:'compare',label:'Comparar territorios',title:'Comparar territorios',hint:'Elegí dos territorios, una lista y una medida para comparar sus tendencias y diferencias exactas.'},
+  {id:'history',label:'Los tiempos',title:'¿Cómo cambió la espera?',hint:'La espera se acumula; los trasplantes son oportunidades de finalizarla. Explorá las cantidades y los tiempos observados de quienes recibieron un trasplante.'},
+  {id:'movements',label:'La lista en movimiento',title:'Mientras unos llegan, otros salen.',hint:'Los tiempos tienen un contexto: personas que ingresan, siguen en lista o egresan. Explorá qué pasó cada año.'},
+  {id:'compare',label:'Comparar territorios',title:'El lugar también cambia la espera.',hint:'Compará los tiempos de dos territorios. Después, profundizá en las cantidades y los motivos.'},
 ];
 const chapters = ['El silencio', 'La cifra', 'Qué se espera', 'Los años', 'Cada espera'];
 function NextScene({to,children}:{to:number;children:React.ReactNode}) {
@@ -62,17 +63,14 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
   const [reduced, setReduced] = useState(false);
   const [annualReplay,setAnnualReplay]=useState(0);
   const [epilogueFocus,setEpilogueFocus]=useState<number|null>(null);
-  const [annualMoment,setAnnualMoment]=useState<AnnualMoment>('movements');
+  const [annualMoment,setAnnualMoment]=useState<AnnualMoment>('history');
   const annualStep=annualMoments.findIndex(item=>item.id===annualMoment);
   const annualChapter=annualMoments[annualStep];
   const [year, setYear] = useState(data.history.at(-1)!.year);
-  const [journeyProgress,setJourneyProgress]=useState(0);
-  const [dialysisOpen,setDialysisOpen]=useState(false);
   const [dialysisModalOpen,setDialysisModalOpen]=useState(false);
   const [selectedDiagnosis,setSelectedDiagnosis]=useState<{code?:string;label:string;value:number}|null>(null);
   useEffect(()=>setSelectedDiagnosis(null),[selection.listId,selection.province,mapAge,mapSex]);
   const dialysisTrigger=useRef<HTMLButtonElement>(null);
-  const dialysisClose=useRef<HTMLButtonElement>(null);
   const pointRelay=useRef<PointRelay>({x:.84,y:.58});
   const sandHandoff=useRef<SandHandoff|null>(null);
   const [annualRefine,setAnnualRefine]=useState(false);
@@ -88,18 +86,6 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
     setSelection(current=>({...current,listId:value.list,province:value.province,smallLists:false}));
   }
   useEffect(()=>{if(location.hash==='#sobre-los-datos')setMethodOpen(true);},[]);
-  useEffect(()=>{
-    if(dialysisOpen)dialysisClose.current?.focus();
-  },[dialysisOpen]);
-  useEffect(()=>{
-    if(!dialysisOpen)return;
-    const onKeyDown=(event:KeyboardEvent)=>{
-      if(event.key==='Escape'){event.preventDefault();closeDialysis();}
-    };
-    window.addEventListener('keydown',onKeyDown);
-    return()=>window.removeEventListener('keydown',onKeyDown);
-  },[dialysisOpen]);
-  useEffect(()=>{if(scene!==2&&dialysisOpen)setDialysisOpen(false);},[scene,dialysisOpen]);
   useEffect(() => {
     const media = matchMedia('(prefers-reduced-motion: reduce)');
     const update = () => setReduced(media.matches);
@@ -171,14 +157,13 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
     : waitingAnchor({data:mapData,selection,dimension,mapAge,mapSex,provinceNames,defaultView:false,missing:!!selection.province&&mapCohort.missingProvinces.includes(selection.province),dialysis:timeN,sex:mapSex,mapSnapshot,count});
   const population = 'waiting';
   const unit = scene===2&&dimension==='territory'?'Inscripciones por provincia':'Un punto · una inscripción en lista de espera';
-  function closeDialysis(){setDialysisOpen(false);requestAnimationFrame(()=>dialysisTrigger.current?.focus());}
+  function closeDialysisModal(){setDialysisModalOpen(false);requestAnimationFrame(()=>dialysisTrigger.current?.focus({preventScroll:true}));}
   function toggleAnnualRefinement(){setAnnualRefine(!annualRefine);}
-  function changeDimension(next: Dimension) { if(next==='seniority')setMapSex('all'); setDiagnosisOpen(false); setSelectedDiagnosis(null); setDimension(next); setHover(null); setNotice(null); }
+  function changeDimension(next: Dimension) { setDiagnosisOpen(false); setSelectedDiagnosis(null); setDimension(next); setHover(null); setNotice(null); }
   function selectGroup(id: string) {
     const group=groups.find(g => g.id === id);
     if (!group) return;
     const next=selectExploration(selection,dimension,group);
-    if(dimension==='territory'&&next.dimension==='seniority')setMapSex('all');
     setSelection(next.selection); setDimension(next.dimension); setHover(null);
     setNotice(group.kind === 'unavailable' ? dimension === 'seniority' ? 'Esta lista no tiene antigüedad publicada. Podés explorar sus provincias.' : 'El total está disponible, pero su desglose por lista no está publicado para este cruce.' : null);
   }
@@ -190,27 +175,20 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
     <nav className="v2-progress" aria-label="Capítulos">{chapters.map((chapter, index) => <a href={`#escena-${index}`} key={chapter} aria-label={`${index + 1}. ${chapter}`} aria-current={scene === index ? 'step' : undefined}><span>{chapter}</span></a>)}</nav>
     <div className="v2-story">
       <div ref={stage} className="v2-stage" data-epilogue={scene===4} data-sand={scene<2} aria-hidden={scene === 0 ? true : undefined}>
-        <div className="v2-figure">{scene===4?<WaitingEpilogue count={originalData.total} snapshot={originalData.snapshot} paused={reduced} focused={epilogueFocus} onFocus={setEpilogueFocus}/>:scene<2?<SandQueue snapshot={data.snapshot} count={data.total} forming={scene===1} paused={reduced} relay={pointRelay} handoff={sandHandoff}/>:scene===2&&dialysisOpen?<TemporalJourney progress={journeyProgress} metric="dialysis" months={12} records={timeN} paused={reduced} relay={pointRelay}/>:scene===3?<AnnualParallel moment={annualMoment} onYear={setYear} paused={reduced} replay={annualReplay} record={record} history={annualComparison} selection={annualSelection} scope={`${annualSelection.province?provinceNames.get(annualSelection.province):'Argentina'} · ${annualSelection.age==='all'?'todas las edades':annualSelection.age==='menor_18'?'menores de 18':'18 años y más'}`} renalNational={originalData.history} provinceNames={provinceNames} comparisonState={comparisonState}/>:scene===2&&diagnosisOpen?<CurrentDiagnoses key={`${selection.listId}|${selection.province}|${mapAge}|${mapSex}`} list={selection.listId} province={selection.province} age={mapAge} sex={mapSex} seniority={selection.seniority} onChooseList={()=>changeDimension('organ')} selectedDiagnosisId={selectedDiagnosis?.code} onSelectDiagnosis={setSelectedDiagnosis}/>:scene===2&&dimension==='seniority'?<SeniorityComparison series={sexSeries} onSelect={(id,sex)=>{setMapSex(sex);selectGroup(id);}}/>:<WaitingUniverse entry={sandHandoff} mode={mode} groups={groups} count={count} total={data.total} focus={scene === 2 ? focus : null} hover={scene === 2 ? hover : null} paused={reduced} dark={dark} population={population} label={`${integer(count)} unidades. ${unit}.`} unit={unit} territoryMetric={territoryMetric} territoryContext={territoryReference} relay={pointRelay} onHover={setHover} onSelect={selectGroup} />}
-          {scene===2&&!dialysisOpen&&!diagnosisOpen&&dimension!=='seniority'&&<p className="v2-chart-invitation">{dimension==='territory'?'Elegí una provincia para explorar sus tiempos.':'Elegí una ilustración para explorar esa lista.'}</p>}
+        <div className="v2-figure">{scene===4?<WaitingEpilogue count={originalData.total} snapshot={originalData.snapshot} paused={reduced} focused={epilogueFocus} onFocus={setEpilogueFocus}/>:scene<2?<SandQueue snapshot={data.snapshot} count={data.total} forming={scene===1} paused={reduced} relay={pointRelay} handoff={sandHandoff}/>:scene===3?<AnnualParallel moment={annualMoment} onYear={setYear} paused={reduced} replay={annualReplay} record={record} history={annualComparison} selection={annualSelection} scope={`${annualSelection.province?provinceNames.get(annualSelection.province):'Argentina'} · ${annualSelection.age==='all'?'todas las edades':annualSelection.age==='menor_18'?'menores de 18':'18 años y más'}`} renalNational={originalData.history} provinceNames={provinceNames} comparisonState={comparisonState}/>:scene===2&&diagnosisOpen?<CurrentDiagnoses key={`${selection.listId}|${selection.province}|${mapAge}|${mapSex}`} list={selection.listId} province={selection.province} age={mapAge} sex={mapSex} seniority={selection.seniority} onChooseList={()=>changeDimension('organ')} selectedDiagnosisId={selectedDiagnosis?.code} onSelectDiagnosis={setSelectedDiagnosis}/>:scene===2&&dimension==='seniority'?<SeniorityComparison series={sexSeries} onSelect={(id,sex)=>{setMapSex(sex);selectGroup(id);}}/>:<WaitingUniverse entry={sandHandoff} mode={mode} groups={groups} count={count} total={data.total} focus={scene === 2 ? focus : null} hover={scene === 2 ? hover : null} paused={reduced} dark={dark} population={population} label={`${integer(count)} unidades. ${unit}.`} unit={unit} territoryMetric={territoryMetric} territoryContext={territoryReference} relay={pointRelay} onHover={setHover} onSelect={selectGroup} />}
+          {scene===2&&!diagnosisOpen&&dimension!=='seniority'&&<p className="v2-chart-invitation">{dimension==='territory'?'Elegí una provincia para explorar sus tiempos.':'Elegí una ilustración para explorar esa lista.'}</p>}
         </div>
       </div>
       <section id="escena-0" data-scene="0" className="v2-scene v2-opening"><div className="v2-opening-content"><p className="v2-kicker">¿Cuánto tarda una segunda posibilidad?</p><h1>LA<br /><span>ESPERA</span></h1><a className="v2-scroll" href="#escena-1">Una exploración visual sobre la lista de espera de órganos y tejidos en Argentina <span>↓</span></a></div></section>
-      <section id="escena-1" data-scene="1" className="v2-scene v2-number-scene"><div className="v2-copy"><p className="v2-kicker">01 / Una cifra</p><h2>La espera se cuenta.</h2><p><strong>personas esperando un órgano o tejido en Argentina.</strong></p><NextScene to={2}>Descubrí qué hay detrás de la cifra</NextScene></div></section>
+      <section id="escena-1" data-scene="1" className="v2-scene v2-number-scene"><div className="v2-copy"><p className="v2-kicker">01 / Una cifra</p><h2>La espera se cuenta.</h2><p><strong>personas esperando un órgano o tejido en Argentina.</strong></p><NextScene to={2}>Cada punto tiene su tiempo. Empezá por una lista</NextScene></div></section>
       <section id="escena-2" data-scene="2" className="v2-scene v2-explore"><div className="v2-copy">
-        {dialysisOpen?<div className="v2-dialysis-context" aria-labelledby="v2-dialysis-title">
-          <p className="v2-kicker">02 / Contexto renal · diálisis</p>
-          <button ref={dialysisClose} type="button" className="v2-back" onClick={closeDialysis}>← Volver a la exploración de Riñón</button>
-          <h2 id="v2-dialysis-title">El tiempo<br/>en diálisis</h2>
-          <JourneyControls progress={journeyProgress} onProgress={setJourneyProgress}/>
-          <p className="v2-note">Otra población: pacientes en diálisis al cierre de 2025, no personas de la lista seleccionada. El recorrido de 12 meses es un escenario ilustrativo, no una espera observada ni una predicción individual.</p>
-        </div>:<>
-        <p className="v2-kicker">02 / Desarmar la cifra</p>
+        <p className="v2-kicker">02 / Explorar la espera</p>
         <h2>Esperar…<br />{diagnosisOpen?'¿por qué?':dimension==='organ'?'¿qué?':dimension==='territory'?'¿dónde?':'¿hace cuánto?'}</h2>
-        <p className="v2-explore-context">Explorá cómo se distribuyen las {integer(originalData.total)} esperas activas según el órgano o tejido, el territorio, el tiempo acumulado y las causas médicas. Podés combinar cualquier vista con edad y sexo.</p>
+        <p className="v2-explore-context">¿Cuánto llevan esperando? Elegí una lista y una provincia para descubrir sus tiempos. Después, profundizá por edad, sexo y diagnósticos.</p>
         <nav className="v2-tabs" role="tablist" aria-label="Dimensiones de la espera">
           <button type="button" aria-pressed={!diagnosisOpen&&dimension === 'organ'} onClick={() => changeDimension('organ')}>Lista</button>
           <button type="button" aria-pressed={!diagnosisOpen&&dimension === 'territory'} onClick={() => changeDimension('territory')}>Provincia</button>
-          <button type="button" aria-pressed={!diagnosisOpen&&dimension === 'seniority'} onClick={() => changeDimension('seniority')}>Antigüedad</button>
+          <button type="button" aria-pressed={!diagnosisOpen&&dimension === 'seniority'} onClick={() => changeDimension('seniority')}>Tiempo en lista</button>
           <button type="button" aria-pressed={diagnosisOpen} onClick={()=>{setDiagnosisOpen(true);setSelectedDiagnosis(null);}}>¿Por qué?</button>
         </nav>
         <p className="v2-anchor-insight" aria-live="polite">{anchor}</p>
@@ -234,18 +212,19 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
             </div>
           </fieldset>
         </div>
-        {!diagnosisOpen&&selection.listId === 'RENAL' && <div className="v2-renal-invitation"><p>El riñón es la lista más numerosa. Antes del trasplante, la mayoría de los pacientes atraviesan años de diálisis.</p><button ref={dialysisTrigger} type="button" onClick={() => { setJourneyProgress(0); setDialysisOpen(true); }}>Mirar el tiempo en diálisis ↗</button><button type="button" onClick={()=>setDialysisModalOpen(true)}>¿Por qué este cálculo? ↗</button></div>}
+        {!diagnosisOpen&&selection.listId === 'RENAL' && <div className="v2-renal-invitation"><p>La espera renal puede empezar antes de la lista. ¿Cuánto tiempo representa la diálisis?</p><button ref={dialysisTrigger} type="button" onClick={()=>setDialysisModalOpen(true)}>Mirar el tiempo en diálisis ↗</button></div>}
         {notice && <p className="v2-notice">{notice}</p>}
         {!diagnosisOpen&&exploration.unavailable && <p className="v2-availability">Quitá una selección para volver a los datos disponibles.</p>}
         {!diagnosisOpen&&!exploration.unavailable && !count && scene === 2 && <p className="v2-availability">No hay inscripciones para esta selección.</p>}
+        {!diagnosisOpen&&selection.province&&<DonationContext province={selection.province} provinceLabel={provinceNames.get(selection.province)??selection.province} list={selection.listId}/>}
+        {diagnosisOpen&&selection.listId&&<button type="button" className="v2-small-switch" onClick={()=>changeDimension('seniority')}>Volver a los tiempos de esta espera ↗</button>}
         <div className="v2-explore-secondary">
         {(selection.listId || selection.province || selection.seniority || selection.smallLists || mapAge!=='all' || mapSex!=='all' || selectedDiagnosis) && <button className="v2-back" onClick={reset}>← Toda la espera</button>}
         {!diagnosisOpen&&dimension === 'organ' && groups.some(g => g.kind === 'collection') && <button className="v2-small-switch" onClick={() => selectGroup('OTHER_LISTS')}>Desglosar las listas menores ↗</button>}
         {!diagnosisOpen&&dimension === 'organ' && selection.smallLists && <button className="v2-small-switch" onClick={regroup}>← Reagrupar las listas menores</button>}
         {!diagnosisOpen&&<details className="v2-exact"><summary>🔍 Buscar en la tabla de valores o elegir por nombre</summary><div>{groups.map(group => <button key={group.id} disabled={group.value === 0&&!group.missing} onClick={() => selectGroup(group.id)} aria-pressed={focus === group.id}><span>{group.label}{group.kind === 'collection' ? ' · desglosar' : ''}</span><strong>{group.missing?'s/d':dimension === 'territory' ? metricText(group)+(territoryMetric === 'pmh' ? ' PMH' : '') : integer(group.value)}</strong></button>)}</div></details>}
         </div>
-        </>}
-      </div><div className="v2-explore-next"><NextScene to={3}>Hasta acá, la foto de hoy. ¿Cómo se mueve esta lista a lo largo del tiempo? ↓</NextScene></div></section>
+      </div><div className="v2-explore-next"><NextScene to={3}>Ya viste cuánto llevan esperando. ¿Cómo cambiaron los tiempos hasta el trasplante?</NextScene></div></section>
       <section id="escena-3" data-scene="3" className="v2-scene v2-annual-scene"><div className="v2-copy">
         <p className="v2-kicker">03 / Año tras año</p>
         <nav className="v2-annual-moments" aria-label="Momentos de Año tras año">{annualMoments.map((item,index)=><button type="button" key={item.id} aria-current={annualMoment===item.id?'step':undefined} onClick={()=>setAnnualMoment(item.id)}><span>{index+1}</span>{item.label}</button>)}</nav>
@@ -277,13 +256,14 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
       <section id="escena-4" data-scene="4" className="v2-scene v2-epilogue" aria-labelledby="v2-epilogue-title"><div className="v2-copy">
         <p className="v2-kicker">04 / Cada espera</p>
         <h2 id="v2-epilogue-title">Cada espera<br/>es única.</h2>
-        <p>Los puntos vuelven a reunirse.<br/>Las historias no se vuelven iguales.</p>
+        <p>Meses para algunas personas. Años para otras.<br/>La lista, el lugar y cada historia dibujan tiempos distintos.</p>
+        <p className="v2-epilogue-answer">No hay un único tiempo para una segunda posibilidad. Donar puede acortar ese tiempo: hace posible que una espera termine en un trasplante.</p>
         <p className="v2-epilogue-last">Detrás de cada punto,<br/>una vida que sigue.</p>
         <div className="v2-epilogue-actions"><button type="button" onClick={()=>setEpilogueFocus(current=>((current??0)+Math.max(1,Math.floor(originalData.total*.381966)))%originalData.total)}>{epilogueFocus===null?'Mirar una espera':'Mirar otra espera'} ↗</button>{epilogueFocus!==null&&<button type="button" onClick={()=>setEpilogueFocus(null)}>Volver al conjunto</button>}</div>
         <footer className="v2-epilogue-footer"><a href="#escena-0">Volver al comienzo ↑</a><button type="button" onClick={()=>setMethodOpen(true)}>Sobre los datos ↗</button></footer>
       </div></section>
     </div>
     <DataMethod data={originalData} record={record} selection={annualSelection} open={methodOpen} onClose={()=>setMethodOpen(false)}/>
-    <DialysisDialog open={dialysisModalOpen} onClose={()=>setDialysisModalOpen(false)}/>
+    <DialysisDialog open={dialysisModalOpen} onClose={closeDialysisModal}/>
   </main>;
 }

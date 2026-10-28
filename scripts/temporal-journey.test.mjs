@@ -39,6 +39,8 @@ test('annual dialysis uses the year-end stock and a one-year hypothetical regime
   const one=journeyState(.62,'dialysis',12,data.count),all=journeyState(1,'dialysis',12,data.count);
   assert.equal(one.duration.sessionCount,156);assert.equal(one.duration.hours,624);
   assert.equal(all.people,31431);assert.equal(all.duration.hours,624*31431);
+  assert.equal(all.duration.hours,19612944);
+  assert.equal((all.duration.fullYears/100).toFixed(1),'22.4');
   assert.notEqual(all.people,journeyState(1,'list',28.12,1542).people);
 });
 test('the ledger accumulates every session or day without resetting after weeks or during the zoom',()=>{

@@ -249,6 +249,11 @@ export default function DataMethod({data,record,selection,open,onClose}:{data:Un
           <ExitBreakdown key={`method-${year}-${selection.list}-${selection.province}-${selection.age}`} groups={flowGroups(flow.causes)} showCodes/>
         </div>}
 
+        <h3>Donación, lista al cierre y trasplantes anuales</h3>
+        <p>En la escena 02 se muestra únicamente el reporte de donantes reales de órganos y donantes de tejidos por fecha de clampeo/ablación entre el 01/01 y el 27/10/2026, consultado el 28/10. No reconstruye el estado de carga del sistema del día 27. Se conservan totales y tasas PMH publicados por CRESI. El control nacional incluye 4 donantes de establecimientos del exterior. La Pampa y Santa Cruz carecen de fila en esa consulta; se conservan como faltantes, no como cero.</p>
+        <p>«Lista, trasplantes y donantes» compara series temporales de años completos 2005–2025 sin correlacionarlas con los tiempos de quienes recibieron un trasplante en esos años. Las personas en lista al cierre son una cantidad al final del período (stock). Trasplantes y donantes son registros de eventos durante el año (flujos). Se muestran en paneles separados, con escalas independientes para cierre y flujos: no se suman entre sí, no se interpretan como equivalentes y no forman un balance conciliado.</p>
+        <p>Los trasplantes proceden del reporte general de pacientes trasplantados por fecha de desclampeo, por tipo de trasplante y residencia cuando el cruce está archivado. No se usan como sustitutos las exclusiones por trasplante ni el N de las estadísticas de tiempo. Hay conteos nacionales por tipo en años completos; el cruce tipo × residencia de esta base está disponible entre 2005 y 2015. Para 2016–2025 los desgloses provinciales que faltan se muestran como s/d. Una categoría ausente no se convierte en cero ni se reparte desde un total marginal.</p>
+        <p>Los donantes reales corresponden al conjunto de órganos, no al órgano seleccionado. Se agrupan por establecimiento de origen; lista y receptores, por residencia. El control nacional conserva los registros del exterior incluidos por la fuente. Los filtros de edad sólo se aplican donde existe el dato: esta comparación no tiene conteos de lista y trasplantes por edad, y no filtra donantes por edad o sexo. Las series no vinculan donantes con receptores individuales ni estiman efectos causales o un período de exposición a donantes. La media y la mediana hasta el trasplante se mantienen aparte como descripciones de quienes lo recibieron, no como pronósticos de quienes siguen esperando.</p>
         <h3>Escenario de diálisis</h3>
         <p>Los 31.431 pacientes en tratamiento al 31/12/2025 se exploran mediante un escenario ilustrativo: 52 semanas × 3 sesiones semanales × 4 horas = 624 horas/año por persona (19.612.944 horas-persona ≈ 22,4 siglos colectivos). Es una referencia de tratamiento de la Red de Diálisis y Nefrología del GCABA, no horas acumuladas individualmente en CRESI ni duración media de la diálisis.</p>
 
@@ -274,6 +279,12 @@ export default function DataMethod({data,record,selection,open,onClose}:{data:Un
           <li><a href={`${base}/datos/auditoria-diagnosticos-activos.json`} download>Auditoría, controles nacionales y SHA256 de diagnósticos activos (225 consultas) ↗</a></li>
         </ul>
 
+        <h3>Donantes con corte al 27/10/2026</h3>
+        <ul className="v2-method-downloads"><li><a href={`${base}/datos/donantes-corte-20261027.json`} download>Reporte acumulado hasta el 27/10/2026, filtros y fuentes SHA256 ↗</a></li></ul>
+        <h3>Contexto de donación por territorio (2005–2025)</h3>
+        <ul className="v2-method-downloads"><li><a href={`${base}/datos/contexto-donacion-espera.json`} download>Donantes de órganos y tejidos, tasas publicadas y fuentes SHA256 ↗</a></li></ul>
+        <h3>Trasplantes registrados por fecha de desclampeo (2005–2025)</h3>
+        <ul className="v2-method-downloads"><li><a href={`${base}/datos/trasplantes-registrados-anuales.json`} download>Conteos explícitos por tipo y residencia disponible, con fuentes SHA256 ↗</a></li></ul>
         <h3>Movimientos y egresos anuales (2005–2025)</h3>
         <ul className="v2-method-downloads">
           <li><a href={`${base}/datos/conteos-anuales-por-lista.json`} download>Conteos anuales de lista (Total LE) por provincia (2005–2025) ↗</a></li>

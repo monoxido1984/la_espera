@@ -4,6 +4,7 @@ import AnnualPointPile from './annual-point-pile';
 import IndependentFlow from './independent-flow';
 import {contextFinding} from './context-finding';
 import HistoryMarkers from './history-markers';
+import WaitingActivity from './waiting-activity';
 import {historyTime,type AnnualMoment,type HistoryMetric} from './annual-story-model';
 import {decimal,integer,type HistoryYear} from './universe-model';
 import type {ComparisonYear} from './annual-comparison-model';
@@ -55,6 +56,7 @@ export default function AnnualFlowView({
   comparisonState?:ComparisonState;
 }){
   const [metric,setMetric]=useState<HistoryMetric>('time');
+  const [showActivity,setShowActivity]=useState(false);
   const previous=history.find(row=>row.year===record.year-1)?.waitlist??null;
   const flow=useMemo(()=>selectFlow(flows,selection.list,record.year,selection.province,selection.age),[selection.list,record.year,selection.province,selection.age]);
   const groups=useMemo(()=>flowGroups(flow?.causes??[]),[flow?.causes]);
@@ -87,7 +89,7 @@ export default function AnnualFlowView({
     <header className="v2-story-scope">{record.label} · {scope}</header>
     {moment==='movements'&&<>
       <p className="v2-context-finding" aria-live="polite">{contextFinding(record.waitlist,previous,flow?.entries??null,flow?.exits??null)}</p>
-      <p className="v2-flow-clarification">El saldo anual al cierre contempla ingresos, bajas permanentes y también suspensiones médicas transitorias o reactivaciones en lista.</p>
+      <p className="v2-flow-clarification">El cierre y los movimientos provienen de reportes distintos. Sus diferencias no permiten reconstruir recorridos individuales.</p>
       <IndependentFlow key={selection.list+'|'+record.year+'|'+selection.province+'|'+selection.age} list={selection.list} year={record.year} province={selection.province} age={selection.age} groups={groups} exits={flow?.exits??null} flowEntries={flow?.entries??null} stock={record.waitlist}>
         <div className="v2-story-visual">
           <AnnualPointPile previous={previous} current={record.waitlist} moment="movements" metric={metric} entries={flow?.entries??null} exits={flow?.exits??null} groups={groups} maximum={maximum} history={history} paused={paused} replay={replay}/>
@@ -98,12 +100,14 @@ export default function AnnualFlowView({
     {moment==='history'&&<div className="v2-history-clean-stage">
       <div className="v2-history-header-actions">
         <div className="v2-tabs v2-history-metric" role="group" aria-label="Qué evolución explorar">
-          <button type="button" aria-pressed={metric==='time'} onClick={()=>setMetric('time')}>Tiempo de espera</button>
-          <button type="button" aria-pressed={metric==='stock'} onClick={()=>setMetric('stock')}>Ver cantidades</button>
+          <button type="button" aria-pressed={!showActivity&&metric==='time'} onClick={()=>{setShowActivity(false);setMetric('time');}}>Tiempo de espera</button>
+          <button type="button" aria-pressed={!showActivity&&metric==='stock'} onClick={()=>{setShowActivity(false);setMetric('stock');}}>Ver cantidades</button>
+          <button type="button" aria-pressed={showActivity} onClick={()=>setShowActivity(true)}>Lista, trasplantes y donantes</button>
         </div>
       </div>
+      {showActivity?<WaitingActivity selection={selection} year={record.year} onYear={onYear}/>:<>
       <div className="v2-story-visual v2-history-visual-full">
-        <svg viewBox="0 0 600 360" className="v2-story-history-full" role="group" aria-label={metric==='stock'?'Evolución de la cantidad de personas en lista':'Evolución del tiempo hasta el trasplante: mediana con rango intercuartílico P25 a P75'}>
+        <svg viewBox="0 0 600 360" className="v2-story-history-full" role="group" aria-label={metric==='stock'?'Evolución de la cantidad de personas en lista':'Tiempo observado hasta el trasplante: mediana y P25–P75 cuando se publican; media con trazo discontinuo cuando no hay mediana'}>
           <HistoryMarkers x={x} bottom={285} top={48} labelTop={24}/>
           {[0,ceiling/2,ceiling].map(n=><g key={n}><line x1="45" x2="555" y1={y(n)} y2={y(n)} stroke="currentColor" opacity=".12"/><text x="36" y={y(n)+4} textAnchor="end">{metric==='stock'?integer(Math.round(n)):decimal(n)}</text></g>)}
           {metric==='time'&&<path d={band} fill="var(--v2-accent)" fillOpacity=".16" stroke="none"/>}
@@ -114,7 +118,7 @@ export default function AnnualFlowView({
             const pt = historyTime(row);
             const tooltip = metric === 'stock'
               ? `${row.year}: ${integer(row.waitlist!)} personas en lista al cierre`
-              : `${row.year}: Mediana ${decimal(pt.value!)} ${row.unit}${hasQuantileBand(row) ? ` · P25–P75: ${decimal(row.p25!)}–${decimal(row.p75!)} ${row.unit}` : ''}${row.n != null ? ` · ${integer(row.n)} receptores` : ''}`;
+              : `${row.year}: ${pt.kind==='median'?'Mediana':'Media'} ${decimal(pt.value!)} ${row.unit}${hasQuantileBand(row) ? ` · P25–P75: ${decimal(row.p25!)}–${decimal(row.p75!)} ${row.unit}` : ''}${row.n != null ? ` · ${integer(row.n)} receptores` : ''}`;
             return (
               <circle
                 key={row.year}
@@ -141,6 +145,7 @@ export default function AnnualFlowView({
         </svg>
       </div>
       <div className="v2-story-reading" aria-live="polite">
+        {metric==='time'&&<p className="v2-quantile-legend">Tiempos observados de quienes recibieron un trasplante; no estiman cuánto esperará la población que sigue en lista.</p>}
         {metric==='time'&&record.median===null&&record.average!==null&&<p className="v2-quantile-legend">No hay mediana publicada para este cruce; se muestra la media, sin banda P25–P75.</p>}
         <p>
           {metric==='stock'?'Inscripciones al cierre':`${statistic} hasta el trasplante · ${record.unit}`} · {value(record)===null?'s/d':metric==='stock'?integer(value(record)!):decimal(value(record)!)} en {record.year}
@@ -150,6 +155,7 @@ export default function AnnualFlowView({
         {metric==='time'&&mixedTime&&<p className="v2-quantile-legend">— Mediana · ⋯ Media</p>}
         {!series.some(row=>value(row)!==null)&&<p>{metric==='time'?'Sin datos de tiempo para esta selección.':'Sin datos para esta selección.'}</p>}
       </div>
+      </>}
     </div>}
   </div>;
 }

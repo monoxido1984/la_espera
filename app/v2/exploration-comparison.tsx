@@ -8,6 +8,7 @@ import {roundedDifference} from './comparison-display';
 import HistoryMarkers from './history-markers';
 
 export const comparisonMeasures: {id: TerritoryMetric; label: string; group: string}[] = [
+  {id: 'time', label: 'Tiempo hasta el trasplante (mediana o media disponible)', group: 'Tiempos hasta el trasplante'},
   {id: 'waitlist', label: 'Personas en lista al cierre', group: 'Lista y movimientos'},
   {id: 'entries', label: 'Ingresos en el año', group: 'Lista y movimientos'},
   {id: 'exits', label: 'Egresos registrados', group: 'Lista y movimientos'},
@@ -15,14 +16,13 @@ export const comparisonMeasures: {id: TerritoryMetric; label: string; group: str
   {id: 'deaths', label: 'Fallecimientos en lista', group: 'Lista y movimientos'},
   {id: 'entryCause', label: 'Causas de ingreso', group: 'Causas'},
   {id: 'exitCause', label: 'Motivos de egreso', group: 'Causas'},
-  {id: 'time', label: 'Tiempo de espera hasta el trasplante (media)', group: 'Tiempos hasta el trasplante'},
 ];
 
 export function useComparisonState(initialProvince?: string | null) {
   const [choiceA, setChoiceA] = useState(initialProvince || 'BUENOS AIRES');
   const [choiceB, setChoiceB] = useState('ARGENTINA');
   const [listChoice, setListChoice] = useState('');
-  const [metric, setMetric] = useState<TerritoryMetric>('waitlist');
+  const [metric, setMetric] = useState<TerritoryMetric>('time');
   const [age, setAge] = useState('all');
   const [causeChoice, setCauseChoice] = useState('');
   return {
