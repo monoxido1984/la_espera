@@ -1,7 +1,6 @@
 export default function HistoryMarkers({x,bottom,top=40,labelTop=17}:{x:(year:number)=>number;bottom:number;top?:number;labelTop?:number}){
-  return <g className="v2-history-markers" aria-label="Hitos de contexto: Ley Justina en 2018 y pandemia COVID-19 en 2020">
-    <line x1={x(2018)} x2={x(2018)} y1={top} y2={bottom}/><line x1={x(2020)} x2={x(2020)} y1={top} y2={bottom}/>
-    <text x={x(2018)-5} y={labelTop} textAnchor="end">2018 · Ley Justina<title>Ley 27.447. Hito de contexto; el gráfico no estima su efecto causal.</title></text>
-    <text x={x(2020)+5} y={labelTop+14}>2020 · COVID-19<title>Pandemia de COVID-19. Hito de contexto de la serie.</title></text>
+  return <g className="v2-history-markers" aria-label="COVID-19: franja de contexto entre 2020 y 2022">
+    <rect x={x(2020)} y={top} width={Math.max(0,x(2022)-x(2020))} height={Math.max(0,bottom-top)} fill="currentColor" fillOpacity=".07"/>
+    <text x={(x(2020)+x(2022))/2} y={labelTop} textAnchor="middle">COVID-19</text>
   </g>;
 }

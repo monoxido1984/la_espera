@@ -25,14 +25,15 @@ type Props = {
   onHover: (id: string | null) => void; onSelect: (id: string) => void;
 };
 
-export function numberPoints(count: number, width: number, height: number, radius: number): Dot[] {
+export function numberPoints(count: number, width: number, height: number, radius: number, glyph?:string): Dot[] {
   const scratch = document.createElement('canvas');
   scratch.width = Math.ceil(width); scratch.height = Math.ceil(height);
   const context = scratch.getContext('2d', { willReadFrequently: true });
   if (!context) return discPoints(count, width / 2, height / 2, width * .38, 'total', '#b74d38', radius);
-  context.font = `600 ${Math.min(width * .275, height * .62)}px Arial, sans-serif`;
+  context.font = `600 ${glyph?Math.min(width*.34,height*.45):Math.min(width * .275, height * .62)}px Arial, sans-serif`;
   context.textAlign = 'center'; context.textBaseline = 'middle';
-  context.fillText(integer(count), width / 2, height / 2, width * .97);
+  if(glyph){const lines=glyph.split('\n');lines.forEach((line,i)=>context.fillText(line,width/2,height*(.27+i*.43),width*.97));}
+  else context.fillText(integer(count), width / 2, height / 2, width * .97);
   const pixels = context.getImageData(0, 0, scratch.width, scratch.height).data;
   const candidates: { x: number; y: number }[] = [];
   for (let y = 0; y < scratch.height; y += 2) {
@@ -218,6 +219,8 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
         buckets.get(key)!.dots.push(point);
       }
       for (const bucket of buckets.values()) {
+        // PMH is encoded by the province fill alone, without absolute-count density.
+        if(mode==='territory'&&territoryMetric==='pmh')continue;
         context.fillStyle = bucket.color; context.globalAlpha = bucket.alpha; context.beginPath();
         for (const point of bucket.dots) {
           if(mode==='territory'){
@@ -240,7 +243,7 @@ export default function WaitingUniverse({ mode, groups, count, total, focus, hov
     };
     frame = requestAnimationFrame(draw);
     return () => {cancelAnimationFrame(frame);element.removeAttribute('style');};
-  }, [layout, size, hover, paused, population, mode, relay, entry]);
+  }, [layout, size, hover, paused, population, mode, relay, entry, territoryMetric]);
 
   return (
     <div ref={container} className="v2-universe" data-mode={mode}>

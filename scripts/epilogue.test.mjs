@@ -16,3 +16,9 @@ test('the epilogue reunites every mark at a distinct position inside desktop and
   }
   assert.deepEqual(epiloguePoints(0,320,360),[]);
 });
+
+test('closing choreography preserves supplied numeral and letter positions',()=>{
+const origins=[{x:1,y:2},{x:3,y:4}],targets=[{x:10,y:20},{x:30,y:40}];
+const points=epiloguePoints(2,100,100,targets,origins);
+points.forEach((point,i)=>{assert.deepEqual(point.from,origins[i]);assert.deepEqual(epiloguePosition(i,1,point.from,point.to),targets[i]);});
+});

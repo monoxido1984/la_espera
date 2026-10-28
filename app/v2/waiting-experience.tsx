@@ -15,7 +15,6 @@ import partial2026 from './partial-2026.generated.json';
 import annualCounts from './annual-list-counts.generated.json';
 import nationalQuantiles from './annual-national-quantiles.generated.json';
 import {comparisonHistory} from './annual-comparison-model';
-import YearMilestone from './year-milestone';
 import {ComparisonControls, useComparisonState} from './exploration-comparison';
 import {causeMetric, territoryCauseOptions} from './territory-comparison-model';
 import DataMethod from './data-method';
@@ -156,7 +155,7 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
     ? diagnosisAnchor(currentDiagnosisFor(selection.listId,selection.province,mapAge,mapSex),!!selection.listId,selection.seniority,selectedDiagnosis,selection.listId,mapAge,mapSex,selection.province,provinceNames)
     : waitingAnchor({data:mapData,selection,dimension,mapAge,mapSex,provinceNames,defaultView:false,missing:!!selection.province&&mapCohort.missingProvinces.includes(selection.province),dialysis:timeN,sex:mapSex,mapSnapshot,count});
   const population = 'waiting';
-  const unit = scene===2&&dimension==='territory'?'Inscripciones por provincia':'Un punto · una inscripción en lista de espera';
+  const unit = scene===2&&dimension==='territory'?(territoryMetric==='pmh'?'Color: inscripciones por millón de habitantes':'Inscripciones por provincia'):'Un punto · una inscripción en lista de espera';
   function closeDialysisModal(){setDialysisModalOpen(false);requestAnimationFrame(()=>dialysisTrigger.current?.focus({preventScroll:true}));}
   function toggleAnnualRefinement(){setAnnualRefine(!annualRefine);}
   function changeDimension(next: Dimension) { setDiagnosisOpen(false); setSelectedDiagnosis(null); setDimension(next); setHover(null); setNotice(null); }
@@ -208,7 +207,6 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
               <button type="button" aria-pressed={mapSex==='all'} onClick={()=>setMapSex('all')}>Todos</button>
               <button type="button" aria-pressed={mapSex==='FEMENINO'} onClick={()=>setMapSex('FEMENINO')}>Mujeres</button>
               <button type="button" aria-pressed={mapSex==='MASCULINO'} onClick={()=>setMapSex('MASCULINO')}>Varones</button>
-              {dimension==='seniority'&&<button type="button" className="v2-sex-compare" aria-pressed={mapSex==='all'} onClick={()=>setMapSex('all')}>Comparar sexos ↗</button>}
             </div>
           </fieldset>
         </div>
@@ -237,7 +235,6 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
           {scene===3&&<AnnualTimeExplorer year={year} provinceNames={provinceNames} selection={annualSelection} onSelection={selectAnnual} onSeries={setAnnualTimes} showFilters={annualRefine||!!annualSelection.province} renalNational={data.history} showSummary={false}/>}
           {(mapAge!=='all'||mapSex!=='all'||selection.seniority)&&<p className="v2-note">El año conserva lista y provincia. Los movimientos son de todas las edades; no incluyen el cruce por sexo ni antigüedad de la escena 02.</p>}
           <button type="button" className="v2-small-switch" aria-expanded={annualRefine} onClick={toggleAnnualRefinement}>{annualRefine?'← Ocultar filtro de provincia':'Explorar por provincia ↗'}</button>
-          {annualMoment==='history'&&<details className="v2-year-context"><summary>Contexto de {year}</summary>{record.partial?<p>Mayo de 2026 · récord mensual de 109 procesos de donación de órganos.</p>:<YearMilestone year={year}/>}</details>}
         </> : <>
           <ComparisonControls
             state={comparisonState}
@@ -255,11 +252,11 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
       </div></section>
       <section id="escena-4" data-scene="4" className="v2-scene v2-epilogue" aria-labelledby="v2-epilogue-title"><div className="v2-copy">
         <p className="v2-kicker">04 / Cada espera</p>
-        <h2 id="v2-epilogue-title">Cada espera<br/>es única.</h2>
-        <p>Meses para algunas personas. Años para otras.<br/>La lista, el lugar y cada historia dibujan tiempos distintos.</p>
-        <p className="v2-epilogue-answer">No hay un único tiempo para una segunda posibilidad. Donar puede acortar ese tiempo: hace posible que una espera termine en un trasplante.</p>
-        <p className="v2-epilogue-last">Detrás de cada punto,<br/>una vida que sigue.</p>
-        <div className="v2-epilogue-actions"><button type="button" onClick={()=>setEpilogueFocus(current=>((current??0)+Math.max(1,Math.floor(originalData.total*.381966)))%originalData.total)}>{epilogueFocus===null?'Mirar una espera':'Mirar otra espera'} ↗</button>{epilogueFocus!==null&&<button type="button" onClick={()=>setEpilogueFocus(null)}>Volver al conjunto</button>}</div>
+        <h2 id="v2-epilogue-title">No hay una<br/>sola espera.</h2>
+        <p>Meses para algunas personas. Años para otras.<br/>Ningún promedio cuenta una vida entera.</p>
+        <p className="v2-epilogue-answer">Donar hace posible un trasplante. Y con él, la oportunidad de que una espera termine.</p>
+        <p className="v2-epilogue-last">Cada punto, una persona.<br/>Cada persona, su espera.</p>
+        <div className="v2-epilogue-actions"><button type="button" onClick={()=>setEpilogueFocus(current=>((current??0)+Math.max(1,Math.floor(originalData.total*.381966)))%originalData.total)}>{epilogueFocus===null?'Detenerse en una vida':'Mirar otra espera'} ↗</button>{epilogueFocus!==null&&<button type="button" onClick={()=>setEpilogueFocus(null)}>Volver al conjunto</button>}</div>
         <footer className="v2-epilogue-footer"><a href="#escena-0">Volver al comienzo ↑</a><button type="button" onClick={()=>setMethodOpen(true)}>Sobre los datos ↗</button></footer>
       </div></section>
     </div>

@@ -2,6 +2,7 @@
 import {useEffect,useRef,useState,type MouseEvent} from 'react';
 import {epiloguePoints,epiloguePosition} from './epilogue-model';
 import {integer} from './universe-model';
+import {numberPoints} from './waiting-universe';
 
 export default function WaitingEpilogue({count,snapshot,paused,focused,onFocus}:{count:number;snapshot:string;paused:boolean;focused:number|null;onFocus:(index:number|null)=>void}){
   const box=useRef<HTMLDivElement>(null),canvas=useRef<HTMLCanvasElement>(null);
@@ -11,7 +12,7 @@ export default function WaitingEpilogue({count,snapshot,paused,focused,onFocus}:
   useEffect(()=>{const observer=new ResizeObserver(rows=>{const {width,height}=rows[0].contentRect;setSize({width,height});});if(box.current)observer.observe(box.current);return()=>observer.disconnect();},[]);
   useEffect(()=>{
     const element=canvas.current,ctx=element?.getContext('2d');if(!element||!ctx||!size.width)return;
-    const {width,height}=size,dpr=Math.min(devicePixelRatio||1,2),points=epiloguePoints(count,width,height);
+    const {width,height}=size,dpr=Math.min(devicePixelRatio||1,2),points=epiloguePoints(count,width,height,numberPoints(count,width,height,1,'UNA\nVIDA'),numberPoints(count,width,height,1));
     element.width=Math.round(width*dpr);element.height=Math.round(height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);
     const radius=Math.max(.5,Math.min(1.2,Math.sqrt(width*height/Math.max(1,count))*.15));
     let frame=0,progress=paused?1:gathered.current,last=performance.now();
@@ -23,7 +24,7 @@ export default function WaitingEpilogue({count,snapshot,paused,focused,onFocus}:
       if(Math.abs(target-progress)<.0002)progress=target;
       gathered.current=progress;
       const selected=focused??hover.current;
-      ctx!.clearRect(0,0,width,height);ctx!.fillStyle='#b74d38';ctx!.globalAlpha=selected===null?.72:.28;ctx!.beginPath();
+      ctx!.clearRect(0,0,width,height);ctx!.fillStyle='#b74d38';ctx!.globalAlpha=selected===null?.85:.16;ctx!.beginPath();
       positions.current=points.map((point,i)=>{
         const p=epiloguePosition(i,progress,point.from,point.to);
         ctx!.moveTo(p.x+radius,p.y);ctx!.arc(p.x,p.y,radius,0,Math.PI*2);return p;
@@ -34,7 +35,7 @@ export default function WaitingEpilogue({count,snapshot,paused,focused,onFocus}:
         const pulse=paused?0:(Math.sin(now/800)+1)*.5;
         ctx!.strokeStyle='#b74d38';ctx!.lineWidth=1;ctx!.globalAlpha=.45;
         ctx!.beginPath();ctx!.arc(point.x,point.y,10+pulse*6,0,Math.PI*2);ctx!.stroke();
-        ctx!.globalAlpha=1;ctx!.beginPath();ctx!.arc(point.x,point.y,radius+1,0,Math.PI*2);ctx!.fill();
+        ctx!.globalAlpha=1;ctx!.beginPath();ctx!.arc(point.x,point.y,Math.max(3,radius+1),0,Math.PI*2);ctx!.fill();
       }
       frame=!paused?requestAnimationFrame(draw):0;
     }
@@ -49,7 +50,7 @@ export default function WaitingEpilogue({count,snapshot,paused,focused,onFocus}:
   }
   function next(){onFocus(((focused??0)+Math.max(1,Math.floor(count*.381966)))%Math.max(1,count));}
   return <div ref={box} className="v2-epilogue-visual">
-    <button type="button" className="v2-epilogue-points" aria-label="Mirar una espera entre todas. Usá las flechas para detenerte en otro punto." onPointerMove={event=>{hover.current=nearest(event);}} onPointerLeave={()=>{hover.current=null;}} onClick={event=>{const index=nearest(event);if(index===null)next();else onFocus(focused===index?null:index);}} onKeyDown={event=>{if(event.key.startsWith('Arrow')){event.preventDefault();next();}if(event.key==='Escape')onFocus(null);}}><canvas ref={canvas} aria-hidden="true"/></button>
-    <div className="v2-epilogue-reading" aria-live="polite"><p>{focused===null?'Juntas en una cifra.':'Una espera. Una vida.'}</p><span>{integer(count)} inscripciones · {snapshot}</span></div>
+    <button type="button" className="v2-epilogue-points" aria-label="Detenerse en una vida entre todas. Usá las flechas para detenerte en otro punto." onPointerMove={event=>{hover.current=nearest(event);}} onPointerLeave={()=>{hover.current=null;}} onClick={event=>{const index=nearest(event);if(index===null)next();else onFocus(focused===index?null:index);}} onKeyDown={event=>{if(event.key.startsWith('Arrow')){event.preventDefault();next();}if(event.key==='Escape')onFocus(null);}}><canvas ref={canvas} aria-hidden="true"/></button>
+    <div className="v2-epilogue-reading" aria-live="polite"><p>{focused===null?'Cada punto, una vida.':'Una vida. Una espera irrepetible.'}</p><span>{integer(count)} inscripciones · {snapshot}</span></div>
   </div>;
 }
