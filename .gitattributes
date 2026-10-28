@@ -1,0 +1,2 @@
+# Preserve the archived population CSV bytes: its SHA256 is part of provenance.
+public/datos/poblacion_indec_2005_2025_por_provincia.csv -text
