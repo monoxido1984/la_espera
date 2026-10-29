@@ -215,7 +215,7 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
                 <span className="v2-slide-eyebrow">Paso 2 de 3 · El camino previo</span>
                 <h3>Entrar en lista<br/><strong>también lleva tiempo.</strong></h3>
                 <p>
-                  Antes de entrar hacen falta evaluaciones médicas, estudios y autorizaciones. En {registrationContext.year}, las {integer(registrationContext.total.n)} inscripciones por método normal promediaron <strong>{decimal(registrationContext.total.months)} meses</strong> desde la indicación hasta el registro en lista. El tiempo cambia según la lista.
+                  Antes de entrar hacen falta evaluaciones médicas, estudios y autorizaciones. En {registrationContext.year}, las {integer(registrationContext.total.n)} inscripciones relevadas promediaron <strong>{decimal(registrationContext.total.months)} meses</strong> desde la indicación hasta el registro en lista. El tiempo cambia según la lista.
                 </p>
                 <label className="v2-registration-select">Ver el tiempo de inscripción <select aria-label="Lista del trámite de inscripción de 2025" value={registrationList} onChange={event=>setRegistrationList(event.target.value)}><option value="TOTAL">Todas las listas · promedio general</option>{registrationContext.rows.map(row=><option key={row.id} value={row.id}>{organLabel(row.id,row.id)}</option>)}</select></label>
                 <div className="v2-slide-footer">
