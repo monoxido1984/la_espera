@@ -1,0 +1,1027 @@
+{
+  "from": 2021,
+  "to": 2025,
+  "unit": "inscripciones",
+  "listsCount": 13,
+  "meanDocumented": 6254.8,
+  "displayFloor": 6200,
+  "years": [
+    {
+      "year": 2021,
+      "documentedEntries": 5064,
+      "observed": [
+        {
+          "list": "CARDIACA",
+          "n": 171
+        },
+        {
+          "list": "CARDIOPULMONAR",
+          "n": 4
+        },
+        {
+          "list": "CARDIORRENAL",
+          "n": 4
+        },
+        {
+          "list": "CORNEAS",
+          "n": 2096
+        },
+        {
+          "list": "ESCLERAS",
+          "n": 116
+        },
+        {
+          "list": "HEPATICA",
+          "n": 772
+        },
+        {
+          "list": "HEPATOINTESTINAL",
+          "n": 3
+        },
+        {
+          "list": "HEPATOPANCREATICA",
+          "n": 1
+        },
+        {
+          "list": "HEPATORRENAL",
+          "n": 30
+        },
+        {
+          "list": "PULMONAR",
+          "n": 86
+        },
+        {
+          "list": "RENAL",
+          "n": 1706
+        },
+        {
+          "list": "RENOPANCREATICA",
+          "n": 75
+        }
+      ],
+      "missing": [
+        "CARDIOHEPATICA"
+      ]
+    },
+    {
+      "year": 2022,
+      "documentedEntries": 6364,
+      "observed": [
+        {
+          "list": "CARDIACA",
+          "n": 187
+        },
+        {
+          "list": "CARDIOPULMONAR",
+          "n": 3
+        },
+        {
+          "list": "CARDIORRENAL",
+          "n": 5
+        },
+        {
+          "list": "CORNEAS",
+          "n": 2491
+        },
+        {
+          "list": "ESCLERAS",
+          "n": 117
+        },
+        {
+          "list": "HEPATICA",
+          "n": 864
+        },
+        {
+          "list": "HEPATOINTESTINAL",
+          "n": 4
+        },
+        {
+          "list": "HEPATORRENAL",
+          "n": 32
+        },
+        {
+          "list": "PULMONAR",
+          "n": 101
+        },
+        {
+          "list": "RENAL",
+          "n": 2477
+        },
+        {
+          "list": "RENOPANCREATICA",
+          "n": 83
+        }
+      ],
+      "missing": [
+        "CARDIOHEPATICA",
+        "HEPATOPANCREATICA"
+      ]
+    },
+    {
+      "year": 2023,
+      "documentedEntries": 6682,
+      "observed": [
+        {
+          "list": "CARDIACA",
+          "n": 208
+        },
+        {
+          "list": "CARDIOPULMONAR",
+          "n": 5
+        },
+        {
+          "list": "CARDIORRENAL",
+          "n": 6
+        },
+        {
+          "list": "CORNEAS",
+          "n": 2716
+        },
+        {
+          "list": "ESCLERAS",
+          "n": 126
+        },
+        {
+          "list": "HEPATICA",
+          "n": 1001
+        },
+        {
+          "list": "HEPATOINTESTINAL",
+          "n": 2
+        },
+        {
+          "list": "HEPATORRENAL",
+          "n": 25
+        },
+        {
+          "list": "PULMONAR",
+          "n": 117
+        },
+        {
+          "list": "RENAL",
+          "n": 2387
+        },
+        {
+          "list": "RENOPANCREATICA",
+          "n": 89
+        }
+      ],
+      "missing": [
+        "CARDIOHEPATICA",
+        "HEPATOPANCREATICA"
+      ]
+    },
+    {
+      "year": 2024,
+      "documentedEntries": 6413,
+      "observed": [
+        {
+          "list": "CARDIACA",
+          "n": 152
+        },
+        {
+          "list": "CARDIOPULMONAR",
+          "n": 2
+        },
+        {
+          "list": "CARDIORRENAL",
+          "n": 11
+        },
+        {
+          "list": "CORNEAS",
+          "n": 2450
+        },
+        {
+          "list": "ESCLERAS",
+          "n": 132
+        },
+        {
+          "list": "HEPATICA",
+          "n": 1049
+        },
+        {
+          "list": "HEPATOINTESTINAL",
+          "n": 5
+        },
+        {
+          "list": "HEPATORRENAL",
+          "n": 24
+        },
+        {
+          "list": "PULMONAR",
+          "n": 117
+        },
+        {
+          "list": "RENAL",
+          "n": 2383
+        },
+        {
+          "list": "RENOPANCREATICA",
+          "n": 88
+        }
+      ],
+      "missing": [
+        "CARDIOHEPATICA",
+        "HEPATOPANCREATICA"
+      ]
+    },
+    {
+      "year": 2025,
+      "documentedEntries": 6751,
+      "observed": [
+        {
+          "list": "CARDIACA",
+          "n": 209
+        },
+        {
+          "list": "CARDIOPULMONAR",
+          "n": 1
+        },
+        {
+          "list": "CARDIORRENAL",
+          "n": 5
+        },
+        {
+          "list": "CORNEAS",
+          "n": 2579
+        },
+        {
+          "list": "ESCLERAS",
+          "n": 176
+        },
+        {
+          "list": "HEPATICA",
+          "n": 1003
+        },
+        {
+          "list": "HEPATORRENAL",
+          "n": 36
+        },
+        {
+          "list": "PULMONAR",
+          "n": 98
+        },
+        {
+          "list": "RENAL",
+          "n": 2559
+        },
+        {
+          "list": "RENOPANCREATICA",
+          "n": 85
+        }
+      ],
+      "missing": [
+        "CARDIOHEPATICA",
+        "HEPATOINTESTINAL",
+        "HEPATOPANCREATICA"
+      ]
+    }
+  ],
+  "note": "Mínimo documentado de inscripciones por fecha de ingreso, cualquier situación posterior. Trece listas relevadas, sin deduplicar personas entre listas. Las ausencias de reporte no se convierten en cero; se excluyen de cada subtotal observado. La media de estos subtotales es un límite inferior, no un total nacional completo.",
+  "parent": {
+    "path": "visualizacion/app/v2/annual-entries.generated.json",
+    "sha256": "6ae920ab6258bd5d7f1b168953437e70809ae877a60ce63ffc852cb69902c131"
+  },
+  "sources": [
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2021_nacional_todas/resultado.html",
+      "sha256": "e265d44fc9a434f1671f524c20cabd88617a37058f3a5eb13f0a7b29468e3ce8"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2021_nacional_todas/tabla_01.csv",
+      "sha256": "1eb863241405597f2bef97a377e8379a21e8922ed402662971ed90476dd1c1d6"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2021_nacional_todas/tabla_03.csv",
+      "sha256": "8b758d957c6db25011fba9ca56202bea08b258be006258212df502a96b5d4dae"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiohepatica_2021_nacional_todas/resultado.html",
+      "sha256": "a8936bda8ea20ad832a4cd1fa3449082505898e5062e317b7cfcd496f0f183f5"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiohepatica_2021_nacional_todas/tabla_01.csv",
+      "sha256": "06de1a402c78c696963031b688d748306bfd4414ee76975971d40bb93e036d2c"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2021_nacional_todas/resultado.html",
+      "sha256": "c5d6ffe91d383949fa12f5a16bfa622ce9384b807614c77333e017faf76b9ab5"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2021_nacional_todas/tabla_01.csv",
+      "sha256": "cd4cb9a9f174fb61de6a1ac9ec5223a946ed272944c7a7fdc48fe3684632339f"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2021_nacional_todas/tabla_03.csv",
+      "sha256": "5999c0a22eefda88c81e55c53f43349763c1c20aec22c17b092e8475457b0c9d"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2021_nacional_todas/resultado.html",
+      "sha256": "d04395bd6cf569728ad12b817d64b131f13b3b8791ada658001d88ffa33d746f"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2021_nacional_todas/tabla_01.csv",
+      "sha256": "406b355bb3856d23a610bf56b45c2af2d54b3f4954f3e5d4df0396a3b05a5800"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2021_nacional_todas/tabla_03.csv",
+      "sha256": "a878e1c9186faf6c87102c5b12d6d5d9e256540159bf6a299b701e32a779672d"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2021_nacional_todas/resultado.html",
+      "sha256": "4ca26f39ec95f6b2e077fb64de45f3cd541925ec97209c5a63fd14219bd96a53"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2021_nacional_todas/tabla_01.csv",
+      "sha256": "46d6d1bbb4335b689e1b734b6d7ff5d9096b884921037de521c783a6e3af8382"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2021_nacional_todas/tabla_03.csv",
+      "sha256": "7c7b599262c48ac027ec18b1b00548680a27b7a916389eacd50bdd53b91d41a5"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2021_nacional_todas/resultado.html",
+      "sha256": "ff75d29eae69f228d5da55a6698cbc8900799c4f67943f320f7a28f7171a69bd"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2021_nacional_todas/tabla_01.csv",
+      "sha256": "40b85318c20fda9f59335c9597e2f3ad6b8aa1d9ff7cc028da8cbb491f5514d2"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2021_nacional_todas/tabla_03.csv",
+      "sha256": "41d30b938652e1dbd19561325489ae351bba29aff63ad0a28dec2be6ce4480f5"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2021_nacional_todas/resultado.html",
+      "sha256": "f44fd5cd78cf9d638829a45962505c4d71459f3555aae975b4edb5a72250275e"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2021_nacional_todas/tabla_01.csv",
+      "sha256": "571dfcdae8ccbeff38e4410e34d41287b3be4aa005db44116b39dbc94c6019b0"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2021_nacional_todas/tabla_03.csv",
+      "sha256": "3fd77657998b086f29414bfe8d04be9011bf946601ba7154562a1c67fc15986b"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatointestinal_2021_nacional_todas/resultado.html",
+      "sha256": "70161271af7465a33e661c4fa39e4d98eeba9b6cf898c040411a37e9dc3e7f0a"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatointestinal_2021_nacional_todas/tabla_01.csv",
+      "sha256": "b3225b31123b642b99a96f23b96e13e14297465b4d49925a334cb04d7225a19a"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatointestinal_2021_nacional_todas/tabla_03.csv",
+      "sha256": "f978521a23bbf9c4d6ca15476ec0393a8986f1fbca1457274473d29648fd73ca"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatopancreatica_2021_nacional_todas/resultado.html",
+      "sha256": "d6c3b60de00db19496960d8624eb978b73442fb28cf21be0475892ce84621b3a"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatopancreatica_2021_nacional_todas/tabla_01.csv",
+      "sha256": "59fe7281577c38c08546cf2f64614e425f0bc4d02438cc1526f7400735bc4ec3"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatopancreatica_2021_nacional_todas/tabla_03.csv",
+      "sha256": "0baaa75eb555564b9b231160437614f373c74fe13ebdf268e714455cfea12b58"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2021_nacional_todas/resultado.html",
+      "sha256": "4b5e3719d218e6f6cef56554553031919c544e790349d3a0a40c161e4be2a559"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2021_nacional_todas/tabla_01.csv",
+      "sha256": "714560ff220733a6ed8941813b892ed8270854ce25a2a3dc8b2f5fb684a9b70b"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2021_nacional_todas/tabla_03.csv",
+      "sha256": "436440e02576f113fe43b7a5a5c9402a1c9483945f4f773dfc9dd6cce2bdbd8f"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2021_nacional_todas/resultado.html",
+      "sha256": "36937a3eced66fedca4a8cc1bad239b40d4a6171b0e39cd766fbd144c2132526"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2021_nacional_todas/tabla_01.csv",
+      "sha256": "4c62e25d9ed2ff85ea6c9521f54958ea7c209d63be5500940e84c6edc217902b"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2021_nacional_todas/tabla_03.csv",
+      "sha256": "03f4d8143d6193ccfae43fec5c5da8ba2bbb951ecd614610ea42f79adc2fd88b"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2021_nacional_todas/resultado.html",
+      "sha256": "2d1cb53888c5440fe65ceffe4ac35e9ccb283ac69ac285d8b0ab86e4cca1e703"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2021_nacional_todas/tabla_01.csv",
+      "sha256": "4ef09a0fb9132d7cc4718ea2aac4dec8d79811c94ea37468f0b73b1d149490ad"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2021_nacional_todas/tabla_03.csv",
+      "sha256": "7304ce6ab7f7011f1f7b4899a69482885f9a3d2883e7a0037b2a48c92a05b231"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2021_nacional_todas/resultado.html",
+      "sha256": "77386fcbc517fa55945f8258f2c53db67b18f957ac7d4591e70391205893fac1"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2021_nacional_todas/tabla_01.csv",
+      "sha256": "9fed16d91b7b9dfc82cdbe88eebddd42c8adf3825df0e4d7cd3aa660a9e1fc2b"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2021_nacional_todas/tabla_03.csv",
+      "sha256": "b85e42d647098fae57dc9444a53cf1a1142b01afdc6cadec4559152254804a08"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2022_nacional_todas/resultado.html",
+      "sha256": "151588cf7c25da9fc438632e73bfa2fc0c81b8b753720e1596a4b7af4b062a25"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2022_nacional_todas/tabla_01.csv",
+      "sha256": "dbaa1b8fceab1e0e7ec8f8cafd1424d5978fd00612ea16539338313f516d19ce"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2022_nacional_todas/tabla_03.csv",
+      "sha256": "e3634cd6a5542140a3989d36ce547687608e09a845e2d948aeeba55124a96896"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiohepatica_2022_nacional_todas/resultado.html",
+      "sha256": "0941a9262add05e12d5425ebab9517ceb883e1479546fad68c55b42125f0a7c5"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiohepatica_2022_nacional_todas/tabla_01.csv",
+      "sha256": "2939d0d70c0d2cf7238affe96f0e6c3fd5a69dd293fce84d3c8d76265629278e"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2022_nacional_todas/resultado.html",
+      "sha256": "8401533f80b986ec1bdc3b695c5b04ececc87054478517c0c3fbd8f83cd8f3de"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2022_nacional_todas/tabla_01.csv",
+      "sha256": "bb4aca91e4ab1d1ec9c5534379cecfe6d34c89d1373239761ae1c9cecbf36a7b"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2022_nacional_todas/tabla_03.csv",
+      "sha256": "5789a59e7ac526c07e50001e446e1b53d0ee4ac1bfcf0cadaa32e2f7f16deb13"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2022_nacional_todas/resultado.html",
+      "sha256": "b865a97d6fdafe545c96ce79523270b4637dd42a68e24c95fba0b093481234c4"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2022_nacional_todas/tabla_01.csv",
+      "sha256": "82e2e8a71a10e43a17b9e03508a73dfb2fac628cb4edd622737517c01abf163d"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2022_nacional_todas/tabla_03.csv",
+      "sha256": "1045465a58f7c0e80e2005f89fb99f982bea21e106b3db39a928e0205367d10f"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2022_nacional_todas/resultado.html",
+      "sha256": "71675e26939c5552cae231d7048c42a657376bf4049a76a19573c15e669c2563"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2022_nacional_todas/tabla_01.csv",
+      "sha256": "43b287bc6fb6394909c295702c6d30ec63b83e99c5d1d72bf3813a6e481dd31c"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2022_nacional_todas/tabla_03.csv",
+      "sha256": "622eb9cfa77124ff4bd270eab626703b2da6d78373bf5314296cf7a62abb5b64"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2022_nacional_todas/resultado.html",
+      "sha256": "81dcfa4335c93f896ad54eecb4cbd043af802696eece5e6f655f647f9619cdcf"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2022_nacional_todas/tabla_01.csv",
+      "sha256": "15db277231d9ecdedd3defdcdf3ddd6c8e058fd8e25e61e84edb615262416992"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2022_nacional_todas/tabla_03.csv",
+      "sha256": "ec87e58fed49dd3e2bec79c7dcf6ab56b019dcd7a234118493a4e5f9618d8b3e"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2022_nacional_todas/resultado.html",
+      "sha256": "84e1569cba2294f9ec3140df4a3a4f8206d6192a8d8af7aae6f90ba846016b01"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2022_nacional_todas/tabla_01.csv",
+      "sha256": "fab34fd8768a9cfe717b05f70fe08a6f19e3259826567089592e821a72fef506"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2022_nacional_todas/tabla_03.csv",
+      "sha256": "f83b07a0aa6464506889247bc74a648d693742f5695400d4d3272b2854931269"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatointestinal_2022_nacional_todas/resultado.html",
+      "sha256": "3e1ad33fb7c6819e2aad333f107cfee2ff821fee6780ee94ce3b65d2316972a3"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatointestinal_2022_nacional_todas/tabla_01.csv",
+      "sha256": "45fdef6712e2b727735230538cc686e5f49b172597f4a96f08c6357ff8605a62"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatointestinal_2022_nacional_todas/tabla_03.csv",
+      "sha256": "94eb634c30aa75562127cb74a1a6bb19e87dd76cb6acc95d316e492b5b21c6f5"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatopancreatica_2022_nacional_todas/resultado.html",
+      "sha256": "d2f1d98c0ff6571c38c9b00c4dc50aa8f7513fc1cdfc75bafecca4b62cf5ce21"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatopancreatica_2022_nacional_todas/tabla_01.csv",
+      "sha256": "0feee657c7ba265608493bd21a6b5e7f1375718a1cdd9e6c75f167ed3b654717"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2022_nacional_todas/resultado.html",
+      "sha256": "e94a78825d887817eaabfa06d6d77e829c58a6b0c2781c0588a828d8f259ed19"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2022_nacional_todas/tabla_01.csv",
+      "sha256": "160870416ae71f6d4b003fce389464c16960adde9c8404cbc54108212bb61d02"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2022_nacional_todas/tabla_03.csv",
+      "sha256": "bf51d89f8a5752ecfd3ec92d947b8c6d840c4cf5fd2454567dacd6daf9337b95"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2022_nacional_todas/resultado.html",
+      "sha256": "f3f69d9d52959ae585bf39d235dadaa0b0fe224c230304f42e71b84e58ace11a"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2022_nacional_todas/tabla_01.csv",
+      "sha256": "ed65bf9774b1ea7dd9c32eaa1b86a6b350af5afc53a1fc1617597d5dbf8ef925"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2022_nacional_todas/tabla_03.csv",
+      "sha256": "b3d0aafa81a49d32c34e64f0c322b6f31f7609bf04701d58311f102f17146b7c"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2022_nacional_todas/resultado.html",
+      "sha256": "41b1d3b2e8b6eb231e52c77e2a99ce36930e3836160b2174a2909bb33b442544"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2022_nacional_todas/tabla_01.csv",
+      "sha256": "acad5bea10bdef826f5be8d8e6db2ea360043c68dcceb220c8e5e3179af354a5"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2022_nacional_todas/tabla_03.csv",
+      "sha256": "28bed3940518b15c8b6bfb1dff9482cb45c8f4430cbde5c491b0ce2f09d80683"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2022_nacional_todas/resultado.html",
+      "sha256": "c0523684fa5188bb00a3747fadaa7e9fc5da4a3a5f1ab9dd3f06bf3d9c21b81b"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2022_nacional_todas/tabla_01.csv",
+      "sha256": "ccc39c3ebe724891c81eb6386e24ebd6ac5a7ffefea296c0f71f12c98dca114d"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2022_nacional_todas/tabla_03.csv",
+      "sha256": "6da9661727157491ea3fc2409d759e487d78ca7dc61e7ab9b876a3ba2b31930d"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2023_nacional_todas/resultado.html",
+      "sha256": "b19ec915fd446add7fa5cdaa00d419fba699b21693b60d34ed18c32fdd2de792"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2023_nacional_todas/tabla_01.csv",
+      "sha256": "6883ffc905ee76b1dce958387b686e78be37dc093b2ddc8d7cbf477e7431aa1f"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2023_nacional_todas/tabla_03.csv",
+      "sha256": "a9d697e9f94678cbaf5d5ec5bbb264f50610e0764e89b22b6f8e843ce1783735"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiohepatica_2023_nacional_todas/resultado.html",
+      "sha256": "0754a065c2d51a820aadacc3a62c57e5d946f4ca1ba432fa4f602b17742f9597"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiohepatica_2023_nacional_todas/tabla_01.csv",
+      "sha256": "28ea420f6fddfc8bdfd5b6098726ebebd915731921ef8b0efa8311bfa2b1f7ff"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2023_nacional_todas/resultado.html",
+      "sha256": "1d0247c7d5750d0b9c9befddc42493ff29ccc36a89a6d450dc5b3189b3d55da5"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2023_nacional_todas/tabla_01.csv",
+      "sha256": "c80a3ac340716b588cc49836d5f0b1fea998a8a597e063032a46bbbb0c8485bc"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2023_nacional_todas/tabla_03.csv",
+      "sha256": "c497c924dba2a2ea137c91f2e3b03d4292db80434fc69f1d290a4660882ab5d0"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2023_nacional_todas/resultado.html",
+      "sha256": "eb78758473402274944465a20c99cfe1466913c63fcea75755cb53c828c1a0a7"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2023_nacional_todas/tabla_01.csv",
+      "sha256": "b40f74c46173b5a0dfd7f73f70252037520374ee1e86c80b7aa2bfd5ffbdbe65"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2023_nacional_todas/tabla_03.csv",
+      "sha256": "83e1b3c0a34a1be00fc4556234f8d85d29791c268c0ddce6d04b71a1906073e9"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2023_nacional_todas/resultado.html",
+      "sha256": "0e5d1dd480d4bf9591a3d146a4c4f7779aa991512624eb30fb65ba4c1498d2bb"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2023_nacional_todas/tabla_01.csv",
+      "sha256": "28e19af1049ede4797a87c8768d01b4da50f8494ef54c1d3ba025f077115e485"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2023_nacional_todas/tabla_03.csv",
+      "sha256": "ee168c0b93879338472f838b274cb9bd7b2b68aca986aefa1563f3ba52f7b49a"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2023_nacional_todas/resultado.html",
+      "sha256": "19b1913c80ba3a7f9fc4dface809cefc122b13476894d0d8abd0998594db022b"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2023_nacional_todas/tabla_01.csv",
+      "sha256": "48313ac58d47212d75cfad7cff283d5da31dfd827c4e3c173434474cae4b928a"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2023_nacional_todas/tabla_03.csv",
+      "sha256": "97a472037064b9e0e7ec21f50429adbfce7b0ace0d3259d7ede31dd026de0917"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2023_nacional_todas/resultado.html",
+      "sha256": "4201354c0916179dca77f639ece6446bb9b5ec6f66d0ec7227cd4b72eb466dc3"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2023_nacional_todas/tabla_01.csv",
+      "sha256": "f7000d6e091ebea7755a1b65041d1b6ca6076c7d100bba0351e4b3d6e230cafc"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2023_nacional_todas/tabla_03.csv",
+      "sha256": "1f51edb7db8a4a07b29276fd8c09971e282bbcf0c5056a73253aa4477f754c64"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatointestinal_2023_nacional_todas/resultado.html",
+      "sha256": "44a4177f1bc9e24a47d0c5d0d2dba477ee050b1821028d3d649b0a6bde6a754b"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatointestinal_2023_nacional_todas/tabla_01.csv",
+      "sha256": "fa73f3617533efbf8499ef877c827eb6d8e984d92c119039a129b2965d08336c"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatointestinal_2023_nacional_todas/tabla_03.csv",
+      "sha256": "90c2c176878d5328002a3eab777357176965e16800f7d0152563bb2fb926983a"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatopancreatica_2023_nacional_todas/resultado.html",
+      "sha256": "1de2ae332387576b526bf96ffa65594b1a59e7436ea94e5a758a2a9cc220d666"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatopancreatica_2023_nacional_todas/tabla_01.csv",
+      "sha256": "325c349bb6cedc4c41bf32f811d9def94bbc35e5f7fe9ceb4a24405dc7b2ee18"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2023_nacional_todas/resultado.html",
+      "sha256": "6f437242f6ff1a68f95143656f8cd0c2f0f968f513ea4b43df27511376f403d6"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2023_nacional_todas/tabla_01.csv",
+      "sha256": "2a73d4c3a46ed23e8a55c238e2272eb2758e5ca67877a16e823c8bd4f1be3b9e"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2023_nacional_todas/tabla_03.csv",
+      "sha256": "478f9d73c260603477289013a6285fc6d7757c7390053c405215b73e4cdd16fc"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2023_nacional_todas/resultado.html",
+      "sha256": "e7a496d1b307bd813e939126a5b16b39ff0fc84b5694d4564b646c1ab0100e70"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2023_nacional_todas/tabla_01.csv",
+      "sha256": "a9f0ec04f7e5a42f9d69d0ec03f6452ae78933c9bfffb3b70bfb524caddd784d"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2023_nacional_todas/tabla_03.csv",
+      "sha256": "3102b83edf563a51ffca209724cb2b7c594f8bc04225c1727b220a157df0b25c"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2023_nacional_todas/resultado.html",
+      "sha256": "26b311590c36b63f2e15c4d2723ff39f63ff14161145d9e3a73967017bba9c15"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2023_nacional_todas/tabla_01.csv",
+      "sha256": "19b0af8297c3582771695fa3215f6f321c3be7d9369fe2ddddbc7c69312db7e3"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2023_nacional_todas/tabla_03.csv",
+      "sha256": "50779930c7e04f8e05f725fd2974e2bfa233ad58d280acce7a08ebfe5ae639f6"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2023_nacional_todas/resultado.html",
+      "sha256": "e137f72ebf148dba10e1a69a707f8b8d503d0888bfa0ff4ba165cec5e1b4c151"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2023_nacional_todas/tabla_01.csv",
+      "sha256": "f14ae91988a7b832d74deaed6d01079fb7bd9c10c0cce90c05ae9354e24b18ed"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2023_nacional_todas/tabla_03.csv",
+      "sha256": "ed509b330c4d965e906a5c6108f37355f48487d820b0631144dfa8fd2202c9e1"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2024_nacional_todas/resultado.html",
+      "sha256": "d26f6463afb67b2f5e2194c3271388e64b4c77e81163e545015514e147f7107a"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2024_nacional_todas/tabla_01.csv",
+      "sha256": "fbca715ff9e92803e22fa1e3efd20556cb00332fefb757b6dafadd601e2dc970"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2024_nacional_todas/tabla_03.csv",
+      "sha256": "a88fd061cbcf80d6313d2545409195b804553ae8eae437aaba0a5b16c0dab3ca"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiohepatica_2024_nacional_todas/resultado.html",
+      "sha256": "2411b7487ae743c9f0fe2d01bf2d608289b9e1440933205f79068f83778af8e3"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiohepatica_2024_nacional_todas/tabla_01.csv",
+      "sha256": "9768b61903cb886fbebf754902da94072c1b4cca34f177a329a9aeb97a9b4bfe"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2024_nacional_todas/resultado.html",
+      "sha256": "a6e91db882acada23afcd2c32a0f1e11c0376267001a3941996aba0a5a2dd741"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2024_nacional_todas/tabla_01.csv",
+      "sha256": "a5ad1b82cf65d1e26cbd41608a1249b5e6a1457815ddc07cf9a9c5661227766a"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2024_nacional_todas/tabla_03.csv",
+      "sha256": "d35822b978ff7b9b1642c40e62f5836acbfd934fc477550dad4ad6f61b1be7dd"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2024_nacional_todas/resultado.html",
+      "sha256": "75762a5207f07447657d42dc4a34e6c5a2c19d55a407df879c6fafb403313f4d"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2024_nacional_todas/tabla_01.csv",
+      "sha256": "a3d96f66d5896397dd8c15695e7f1e596ad2049fdeb0e86cd5ea0270abd87992"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2024_nacional_todas/tabla_03.csv",
+      "sha256": "b13cfa393d495a83e3bbf3431fc6fa6c6aa630954f6769d0f751a935ff5d23e8"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2024_nacional_todas/resultado.html",
+      "sha256": "1fc4d48c0b482b0e0293d300637c6189e67376ce9d8b82622b44a545e3ab95dd"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2024_nacional_todas/tabla_01.csv",
+      "sha256": "4dc3772afe2113769e8c25155eae30cfadbd61b1c549d07cd2ecfbe28565ab2f"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2024_nacional_todas/tabla_03.csv",
+      "sha256": "2785eff1fbabb23d4ce6db31ed2d528e9a4c2dd4a116c664906e79da4162b458"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2024_nacional_todas/resultado.html",
+      "sha256": "b3771351906302b6669987179c4e77a42841c09b213b590cd590d04f7201dd49"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2024_nacional_todas/tabla_01.csv",
+      "sha256": "4dccd5321ffa013504a2fdf7f684649b37619939f540329ee3e4d0c744afa77c"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2024_nacional_todas/tabla_03.csv",
+      "sha256": "74b604b3d6ca84516288476dbf09b818297271ebed01757948f2a2ededd67dbc"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2024_nacional_todas/resultado.html",
+      "sha256": "05fb960e3934970db98c5337f3a00fcaca2ebd97dcbe194b080bb399b7acc810"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2024_nacional_todas/tabla_01.csv",
+      "sha256": "33ba6264adfc2cff2a92ff6cd54d44900281e11161bbe2c7cf0ba547cfc004b6"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2024_nacional_todas/tabla_03.csv",
+      "sha256": "8bdf1bf65c5facec4f666079aa42c47daeddd429c5c7485bcc084bd88f1bd117"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatointestinal_2024_nacional_todas/resultado.html",
+      "sha256": "6f0b08cd03c8dffd924fa333c780482190f56438ee9a0c0e4a76ce1acf6a3207"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatointestinal_2024_nacional_todas/tabla_01.csv",
+      "sha256": "b61b004233244d8de90f38994fc357d315e00513f03a30017efe886480fc639b"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatointestinal_2024_nacional_todas/tabla_03.csv",
+      "sha256": "1fbf471674b48ebae3714692f1048eab1ed04adb5086a156314c5dc61712436d"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatopancreatica_2024_nacional_todas/resultado.html",
+      "sha256": "a9436afb6cf144c357aef7f1048e909875984197a7383ed69f8e00e7c6ee024d"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatopancreatica_2024_nacional_todas/tabla_01.csv",
+      "sha256": "44491ad9e96d7a78296917bbd7bd33ba863b2ba740ce69fa3f823c46254f5c34"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2024_nacional_todas/resultado.html",
+      "sha256": "4a1b373851da5c37c47b7c9dd0aa5dbf658b2d4e6204c0caec3667e31afd4fc9"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2024_nacional_todas/tabla_01.csv",
+      "sha256": "9258483e5e37500459bbe3327caec009cd9314d0e9d0b2f1572d81649b89b0ea"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2024_nacional_todas/tabla_03.csv",
+      "sha256": "6377811cd676c282efce07dbb1bc384ce218f269fa27132d95081458a6c454a1"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2024_nacional_todas/resultado.html",
+      "sha256": "ad2bba815178b9fd6d427a782ab3a4062fcb55c1b34f6aa4746ee53348bcb215"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2024_nacional_todas/tabla_01.csv",
+      "sha256": "906bf9901c34b27a91a409c2e336a17b7c165d21d9b1ad601faf7290c9a5959d"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2024_nacional_todas/tabla_03.csv",
+      "sha256": "eddaa0a90ff3797ec2aacdfb40ef4b274045f63f08db7489b29e109418b40d3f"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2024_nacional_todas/resultado.html",
+      "sha256": "65fa6f914570062b4fa2809afc0e99263985f4411d16386061549f867b8c5349"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2024_nacional_todas/tabla_01.csv",
+      "sha256": "33450ced0d6315af96c1015046db1971867aabd423c7bfb8c1ccf138041397a2"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2024_nacional_todas/tabla_03.csv",
+      "sha256": "05c335c7599a3ba081079bc84a58c441deaadd241f688a6165cbc28a5db99918"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2024_nacional_todas/resultado.html",
+      "sha256": "12229f162c658a63c633e6626354d080f46fcc5a708516f8daa979f2197a1c57"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2024_nacional_todas/tabla_01.csv",
+      "sha256": "79eb1922246803dc326e096cdaa25ad7070367c1fa5bb0922a8721fc5af38704"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2024_nacional_todas/tabla_03.csv",
+      "sha256": "7543db6f6e51647d186ec5ffb2f86b62c9eaeec0e9530824f0cbb50c5b7771f9"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2025_nacional_todas/resultado.html",
+      "sha256": "d98842095028bc87960e3fb722b77f3343c5c1fe61127e2ee20fd14e2bda2c57"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2025_nacional_todas/tabla_01.csv",
+      "sha256": "f8cb8203b50534000685ad901c96897d66ac4ab407fd16a3db90bfe7d07c57cb"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiaca_2025_nacional_todas/tabla_03.csv",
+      "sha256": "1e635bb1da769ad18d911c450cec1baf7f505fcb726fec9e231f132f1f44a770"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiohepatica_2025_nacional_todas/resultado.html",
+      "sha256": "d9d6cc0353235a48b356de0c0fadb65b48cec12eb07518dc0a4d4251e612c25e"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiohepatica_2025_nacional_todas/tabla_01.csv",
+      "sha256": "eadf16854d31e1d45ae8416de27b576e6584f6f2ac3746bdc630f1839a9eb3ac"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2025_nacional_todas/resultado.html",
+      "sha256": "29fa9de33732bc25d0ee7b134b12515a738e593a07ada1b10ee560c392d90714"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2025_nacional_todas/tabla_01.csv",
+      "sha256": "99bf12aea8ba34d88958e38eaf78b0d43aa69dd621f1a80573ad0e22c2f57017"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiopulmonar_2025_nacional_todas/tabla_03.csv",
+      "sha256": "a2dc6b615ddcd013a1c26d5f8167cd22bbdfa2c81895813076967ac958856be0"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2025_nacional_todas/resultado.html",
+      "sha256": "37b222373be4949ad135afd75490ba0593d3454fc38be17eb4dde7369ea4c4f3"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2025_nacional_todas/tabla_01.csv",
+      "sha256": "0768eaea4cd0b12ff877cdfc374e949a9f6293e486d9d241f4654078908ca52d"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_cardiorrenal_2025_nacional_todas/tabla_03.csv",
+      "sha256": "04112b9a30cafc8c38f424bd9e3c98e87a49219df00b25c6d6698e60f8c8ca60"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2025_nacional_todas/resultado.html",
+      "sha256": "2ce9f8f34096e342f54cec1550891475700f713a9b82ef404b07332dd6f69769"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2025_nacional_todas/tabla_01.csv",
+      "sha256": "003237d208b4f981d5ba41cebbe417dcbc3abcbda1753db95dc62a06355e6b05"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_corneas_2025_nacional_todas/tabla_03.csv",
+      "sha256": "e84cca0d76c8379142c660dd4b56a00531b08c83cc995e1304b12c0d59cef55f"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2025_nacional_todas/resultado.html",
+      "sha256": "684ba45f0e87e7f3b0a3750848b6e00f4751bfb38fe84cd564540c865f6f3457"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2025_nacional_todas/tabla_01.csv",
+      "sha256": "6f2f85a6cad2a463cb7590c1f2b8262fe8147745bb07f0809d6828993128ad7d"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_escleras_2025_nacional_todas/tabla_03.csv",
+      "sha256": "d15de977341d75729060bae0e0ed5b6e96706b019a91b9db46cc0dffa9e7f9e5"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2025_nacional_todas/resultado.html",
+      "sha256": "107a8f78fc113ec06c22843429dabf862525816df1df8fa4b9d0516efe53e5ab"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2025_nacional_todas/tabla_01.csv",
+      "sha256": "ab1f20226a5b3f7c932078a81ba2bf9e9d4e3c93a74794a153f33f6e3f8fe20b"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatica_2025_nacional_todas/tabla_03.csv",
+      "sha256": "e4ad291598070fbd43fa25b1d6fd1adfe8195487a95628f73b06c9b525e3b1c1"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatointestinal_2025_nacional_todas/resultado.html",
+      "sha256": "ad3727b21cfd218fe0026d5664b3473aa8f20c4520c4a0fa471a329989b1c84f"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatointestinal_2025_nacional_todas/tabla_01.csv",
+      "sha256": "c4f3a10235009cb679af3eb93788979d995b46891ba30b7c5598769934c81de7"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatopancreatica_2025_nacional_todas/resultado.html",
+      "sha256": "48317daa341574694952ec9641d4fb430f6e030b2b6130bd72b32207cb5c1228"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatopancreatica_2025_nacional_todas/tabla_01.csv",
+      "sha256": "8116a8d20d668b9d39345d0949ab15a895b61d9eae6515b996f8658c9be3d16e"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2025_nacional_todas/resultado.html",
+      "sha256": "b754de758ad79e23d944f62e54be4f8842afc2fcba84b4eeae160adc0d59c7ed"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2025_nacional_todas/tabla_01.csv",
+      "sha256": "e88430ff811aec539076d0adfe0e8ee28b01bc129d9c3aad60a56780ace3bab3"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_hepatorrenal_2025_nacional_todas/tabla_03.csv",
+      "sha256": "dea22172ae20f7d37cd875d78485a47b87734394e9262953ab18a7255c4230e8"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2025_nacional_todas/resultado.html",
+      "sha256": "d4e2aac2aa36d48ef40be7752785fe55d15282f345082ea568b8b84853b77685"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2025_nacional_todas/tabla_01.csv",
+      "sha256": "003a4e48b62dc35334dbc5c52c6c23f081d0d8eb4e823220878479f5defb12ea"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_pulmonar_2025_nacional_todas/tabla_03.csv",
+      "sha256": "c2afcc2160d7672f2f6d70cfbe86ce902c0674aa54b652048116d68df50de543"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2025_nacional_todas/resultado.html",
+      "sha256": "300455ad8fac1ee6bcb46b4f6cbedae425a9da902d7997fa4242dfd82026c148"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2025_nacional_todas/tabla_01.csv",
+      "sha256": "8cd3b2b7e3b47130f97b5edfda75cb5962480933b6aee1f9a3fb678bc541653f"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renal_2025_nacional_todas/tabla_03.csv",
+      "sha256": "70693831a1643d5ab372545b69496e947c09a6690fd4f3387c3c06e47618d403"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2025_nacional_todas/resultado.html",
+      "sha256": "60bc40896bb866c20cea243a0bdd072c7be8a76abacad72349ab1f02d31edb6d"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2025_nacional_todas/tabla_01.csv",
+      "sha256": "6ba0dc1a73b779e6984e63f58537dbc135fe57b161bdcfcde3559845c7eea305"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/ingresos_cruzados_20261023/ingresos_renopancreatica_2025_nacional_todas/tabla_03.csv",
+      "sha256": "ef8a8f30c03bf366775d48a43dbd4bac03a3fab2d7bf13f0ac0088c08793452b"
+    }
+  ]
+}

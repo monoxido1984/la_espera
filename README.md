@@ -45,3 +45,7 @@ La fotografía actual corresponde al 27/10/2026; las series anuales cubren 2005�
 Al actualizar `main`, GitHub Actions ejecuta instalación, lint, pruebas y exportación estática, y publica `out/` en GitHub Pages. `/`, `/espera/` y `/espera-v2/` abren el mismo recorrido bajo `/la_espera/`.
 
 El árbol publicado contiene la versión vigente. Las implementaciones y los conjuntos retirados siguen recuperables en el historial de Git. Dependencias, compilaciones y archivos de entorno están excluidos de Git.
+
+## Introducción y cierre · revisión local
+
+Se conserva la versión GitHub origin/main f1755d7, incluidas las escenas 02 y 03. Sólo se incorporan tres bloques introductorios (necesidad de órganos, trámite renal y asignación) y el cierre con el reloj. El trámite puede explorarse por organismo jurisdiccional, no por residencia ni por tipo de lista. Los nuevos contextos conservan fuentes y descargas en Sobre los datos. Versión preparada para publicación en GitHub Pages.

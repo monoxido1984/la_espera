@@ -6,6 +6,9 @@ import SeniorityComparison from './seniority-comparison';
 import CurrentDiagnoses,{currentDiagnosisFor} from './current-diagnoses';
 import {diagnosisAnchor,waitingAnchor} from './exploration-findings';
 import WaitingEpilogue from './waiting-epilogue';
+import entryContext from './annual-entry-context.generated.json';
+import dialysisContext from './dialysis-context.generated.json';
+import {numberStoryFacts,numberStepTargets} from './number-story-model';
 import {organLabel} from './organ-labels';
 import AnnualParallel from './annual-unified';
 import DialysisDialog from './dialysis-dialog';
@@ -41,6 +44,12 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
   const originalData=useMemo(()=>mapUniverseData(previousData,mapSnapshot,'all','all'),[previousData]);
   const stage = useRef<HTMLDivElement>(null);
   const [scene, setScene] = useState(0);
+  const [numberStep,setNumberStep]=useState(0);
+  const [registrationProvince,setRegistrationProvince]=useState('');
+  const renalCount=originalData.lists.find(row=>row.id==='RENAL')?.total??0;
+  const numberFacts=numberStoryFacts(originalData.total,renalCount);
+  const registrationJurisdictions=dialysisContext.timing.jurisdictions as Record<string,{organism:string;n:number;months:number;days:number}>;
+  const registrationRegion=registrationJurisdictions[registrationProvince];
   const [mapAge,setMapAge]=useState<MapAge>('all');
   const [mapSex,setMapSex]=useState<MapSex>('all');
   const mapData=useMemo(()=>mapUniverseData(originalData,mapSnapshot,mapAge,mapSex),[originalData,mapAge,mapSex]);
@@ -149,6 +158,14 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
     setSelection(next.selection); setDimension(next.dimension); setHover(null);
     setNotice(group.kind === 'unavailable' ? dimension === 'seniority' ? 'Esta lista no tiene antigüedad publicada. Podés explorar sus provincias.' : 'El total está disponible, pero su desglose por lista no está publicado para este cruce.' : null);
   }
+  function scrollToNumberStep(stepIndex: number) {
+    const numberSection = document.getElementById('escena-1');
+    if (!numberSection) return;
+    const span = Math.max(1, numberSection.offsetHeight - window.innerHeight);
+    const ratios = numberStepTargets;
+    const targetTop = numberSection.offsetTop + span * (ratios[stepIndex] ?? 0);
+    window.scrollTo({ top: targetTop, behavior: reduced ? 'auto' : 'smooth' });
+  }
   function reset() { setSelection(allWaiting); setMapAge('all');setMapSex('all');setSelectedDiagnosis(null);setDimension('organ'); setHover(null); setNotice(null); setTerritoryMetric('count'); }
   function regroup() { setSelection({...selection,smallLists:false,listId:null}); setDimension('organ'); setHover(null); setNotice(null); }
   return <main className="waiting-v2" data-dark={dark} data-paused={reduced} data-intro={scene<2}>
@@ -157,12 +174,78 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
     <nav className="v2-progress" aria-label="Capítulos">{chapters.map((chapter, index) => <a href={`#escena-${index}`} key={chapter} aria-label={`${index + 1}. ${chapter}`} aria-current={scene === index ? 'step' : undefined}><span>{chapter}</span></a>)}</nav>
     <div className="v2-story">
       <div ref={stage} className="v2-stage" data-epilogue={scene===4} data-sand={scene<2} aria-hidden={scene === 0 ? true : undefined}>
-        <div className="v2-figure">{scene===4?<WaitingEpilogue count={originalData.total} snapshot={originalData.snapshot} paused={reduced} focused={epilogueFocus} onFocus={setEpilogueFocus}/>:scene<2?<SandQueue snapshot={data.snapshot} count={data.total} forming={scene===1} paused={reduced} relay={pointRelay} handoff={sandHandoff}/>:scene===3?<AnnualParallel onYear={setYear} record={record} history={annualComparison} selection={annualSelection} scope={`${annualSelection.province?provinceNames.get(annualSelection.province):'Argentina'} · ${annualSelection.age==='all'?'todas las edades':annualSelection.age==='menor_18'?'menores de 18':'18 años y más'}`} renalNational={originalData.history} provinceNames={provinceNames}/>:scene===2&&diagnosisOpen?<CurrentDiagnoses key={`${selection.listId}|${selection.province}|${mapAge}|${mapSex}`} list={selection.listId} province={selection.province} age={mapAge} sex={mapSex} seniority={selection.seniority} onChooseList={()=>changeDimension('organ')} selectedDiagnosisId={selectedDiagnosis?.code} onSelectDiagnosis={setSelectedDiagnosis}/>:scene===2&&dimension==='seniority'?<SeniorityComparison series={sexSeries} onSelect={(id,sex)=>{setMapSex(sex);selectGroup(id);}}/>:<WaitingUniverse entry={sandHandoff} mode={mode} groups={groups} count={count} total={data.total} focus={scene === 2 ? focus : null} hover={scene === 2 ? hover : null} paused={reduced} dark={dark} population={population} label={`${integer(count)} unidades. ${unit}.`} unit={unit} territoryMetric={territoryMetric} territoryContext={territoryReference} relay={pointRelay} onHover={setHover} onSelect={selectGroup} />}
+        <div className="v2-figure">{scene===4?<WaitingEpilogue count={originalData.total} snapshot={originalData.snapshot} paused={reduced} focused={epilogueFocus} onFocus={setEpilogueFocus}/>:scene<2?<SandQueue snapshot={data.snapshot} count={data.total} renalCount={renalCount} step={numberStep} onStepChange={setNumberStep} forming={scene===1} paused={reduced} relay={pointRelay} handoff={sandHandoff}/>:scene===3?<AnnualParallel onYear={setYear} record={record} history={annualComparison} selection={annualSelection} scope={`${annualSelection.province?provinceNames.get(annualSelection.province):'Argentina'} · ${annualSelection.age==='all'?'todas las edades':annualSelection.age==='menor_18'?'menores de 18':'18 años y más'}`} renalNational={originalData.history} provinceNames={provinceNames}/>:scene===2&&diagnosisOpen?<CurrentDiagnoses key={`${selection.listId}|${selection.province}|${mapAge}|${mapSex}`} list={selection.listId} province={selection.province} age={mapAge} sex={mapSex} seniority={selection.seniority} onChooseList={()=>changeDimension('organ')} selectedDiagnosisId={selectedDiagnosis?.code} onSelectDiagnosis={setSelectedDiagnosis}/>:scene===2&&dimension==='seniority'?<SeniorityComparison series={sexSeries} onSelect={(id,sex)=>{setMapSex(sex);selectGroup(id);}}/>:<WaitingUniverse entry={sandHandoff} mode={mode} groups={groups} count={count} total={data.total} focus={scene === 2 ? focus : null} hover={scene === 2 ? hover : null} paused={reduced} dark={dark} population={population} label={`${integer(count)} unidades. ${unit}.`} unit={unit} territoryMetric={territoryMetric} territoryContext={territoryReference} relay={pointRelay} onHover={setHover} onSelect={selectGroup} />}
           {scene===2&&!diagnosisOpen&&dimension!=='seniority'&&<p className="v2-chart-invitation">{dimension==='territory'?'Elegí una provincia para explorar sus tiempos.':'Elegí una ilustración para explorar esa lista.'}</p>}
         </div>
       </div>
       <section id="escena-0" data-scene="0" className="v2-scene v2-opening"><div className="v2-opening-content"><p className="v2-kicker">¿Cuánto tarda una segunda oportunidad?</p><h1>LA<br /><span>ESPERA</span></h1><a className="v2-scroll" href="#escena-1">Una exploración visual sobre la lista de espera de órganos y tejidos en Argentina <span>↓</span></a></div></section>
-      <section id="escena-1" data-scene="1" className="v2-scene v2-number-scene"><div className="v2-copy"><p className="v2-kicker">01 / Una cifra</p><h2>La espera se cuenta.</h2><p><strong>personas esperando un órgano o tejido en Argentina.</strong></p><NextScene to={2}>Cada punto tiene su tiempo. Empezá por una lista</NextScene></div></section>
+      <section id="escena-1" data-scene="1" className="v2-scene v2-number-scene">
+        <div className="v2-copy">
+          <p className="v2-kicker">01 / La cifra y el recorrido hacia el trasplante</p>
+          <div className="v2-scrolly-box" role="region" aria-live="polite">
+            <nav className="v2-scrolly-steps" aria-label="Pasos de la escena 1">
+              {[
+                '1. Qué se espera',
+                '2. Antes de la lista',
+                '3. La asignación',
+              ].map((label, idx) => (
+                <button
+                  key={label}
+                  type="button"
+                  aria-pressed={numberStep === idx}
+                  onClick={() => scrollToNumberStep(idx)}
+                >
+                  {label}
+                </button>
+              ))}
+            </nav>
+
+            <div className="v2-scrolly-Slides">
+              <article className="v2-scrolly-slide" data-active={numberStep === 0}>
+                <span className="v2-slide-eyebrow">Paso 1 de 3 · La necesidad de un trasplante</span>
+                <h3>La necesidad de órganos<br/><strong>supera su disponibilidad.</strong></h3>
+                <p>
+                  No hay un órgano compatible disponible para cada persona que lo necesita. Por eso hay listas de espera. Entre {entryContext.from} y {entryContext.to}, las listas relevadas registraron, en promedio, <strong>más de {integer(entryContext.displayFloor)} nuevas inscripciones por año</strong>. Hay listas para distintos órganos y tejidos; casi seis de cada diez inscripciones activas son renales ({decimal(numberFacts.renalPercent)}%).
+                </p>
+                <div className="v2-slide-footer">
+                  <span className="v2-scroll-hint">Seguí bajando: qué pasa antes de entrar en lista ↓</span>
+                  <button type="button" className="v2-step-next-btn" onClick={() => scrollToNumberStep(1)}>Siguiente paso →</button>
+                </div>
+              </article>
+
+              <article className="v2-scrolly-slide" data-active={numberStep === 1}>
+                <span className="v2-slide-eyebrow">Paso 2 de 3 · El camino previo</span>
+                <h3>Entrar en lista<br/><strong>también lleva tiempo.</strong></h3>
+                <p>
+                  Antes de entrar hacen falta evaluaciones médicas, estudios y autorizaciones. No es un trámite simple. En el <strong>foco renal de {dialysisContext.timing.year}</strong>, las {integer(dialysisContext.timing.n)} inscripciones relevadas promediaron {decimal(dialysisContext.timing.months)} meses desde la indicación hasta el registro en lista.
+                </p>
+                <details className="v2-registration-region"><summary>¿Cambia según la jurisdicción?</summary><label>Organismo jurisdiccional <select aria-label="Jurisdicción del trámite renal" value={registrationProvince} onChange={event=>setRegistrationProvince(event.target.value)}><option value="">Elegí una jurisdicción</option>{Object.keys(registrationJurisdictions).sort().map(id=><option key={id} value={id}>{provinceNames.get(id)??id}</option>)}</select></label>{registrationRegion&&<p>{decimal(registrationRegion.months)} meses de promedio · {integer(registrationRegion.n)} inscripciones renales en 2025.</p>}<small>Según organismo fiscalizador; no equivale a provincia de residencia. No compara tipos de lista.</small></details>
+                <div className="v2-slide-footer">
+                  <span className="v2-scroll-hint">Seguí bajando: cómo se asigna cada órgano ↓</span>
+                  <button type="button" className="v2-step-next-btn" onClick={() => scrollToNumberStep(2)}>Siguiente paso →</button>
+                </div>
+              </article>
+
+              <article className="v2-scrolly-slide" data-active={numberStep === 2}>
+                <span className="v2-slide-eyebrow">Paso 3 de 3 · Una vez en lista</span>
+                <h3>Estar en lista<br/><strong>no es suficiente.</strong></h3>
+                <p>
+                  Tiene que haber un donante y, además, compatibilidad con quien espera. Para asignar el órgano deben cumplirse criterios clínicos, de prioridad y de distribución estrictos y específicos para cada lista.
+                </p>
+                <div className="v2-narrative-cta-box">
+                  <p className="v2-narrative-cta-prompt">Explorá qué se espera y cómo cambia entre provincias.</p>
+                  <div className="v2-narrative-cta-buttons">
+                    <a className="v2-next-scene v2-cta-primary" href="#escena-2">
+                      <span>Explorar listas y provincias</span>
+                      <span aria-hidden="true">↓</span>
+                    </a>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
       <section id="escena-2" data-scene="2" className="v2-scene v2-explore"><div className="v2-copy">
         <p className="v2-kicker">02 / Explorar la espera</p>
         <h2>Esperar…<br />{diagnosisOpen?'¿por qué?':dimension==='organ'?'¿qué?':dimension==='territory'?'¿dónde?':'¿hace cuánto?'}</h2>
@@ -217,12 +300,16 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
         <div className="v2-journey-end"><button type="button" onClick={()=>setMethodOpen(true)}>Sobre los datos ↗</button></div>
       </div></section>
       <section id="escena-4" data-scene="4" className="v2-scene v2-epilogue" aria-labelledby="v2-epilogue-title"><div className="v2-copy">
-        <p className="v2-kicker">04 / Cada espera</p>
-        <h2 id="v2-epilogue-title">¿Cuánto tarda una<br/>segunda oportunidad?</h2>
-        <p>No hay una respuesta única.<br/>Cada espera tiene sus propios tiempos.</p>
-        <p className="v2-epilogue-answer">Donar puede salvar vidas. Hace posible que una espera se convierta en un trasplante.</p>
-        <p className="v2-epilogue-last">Detrás de cada cifra hay alguien que sigue esperando.</p>
-        <div className="v2-epilogue-actions"><button type="button" onClick={()=>setEpilogueFocus(current=>((current??0)+Math.max(1,Math.floor(originalData.total*.381966)))%originalData.total)}>{epilogueFocus===null?'Acercarse a una espera':'Mirar otra espera'} ↗</button>{epilogueFocus!==null&&<button type="button" onClick={()=>setEpilogueFocus(null)}>Volver al conjunto</button>}</div>
+        <p className="v2-kicker">04 / Epílogo · A contrarreloj</p>
+        <h2 id="v2-epilogue-title">Una espera a<br/>contrarreloj.</h2>
+        <p>¿Cuánto tarda una segunda oportunidad? No hay una respuesta única: cada espera tiene sus propios tiempos. Y para quien espera, el tiempo es crítico.</p>
+        <p className="v2-epilogue-answer">Este reloj reúne {integer(originalData.total)} inscripciones activas. Una persona puede estar inscripta en más de una lista. Detrás de cada punto hay una necesidad que sigue esperando respuesta.</p>
+        <p className="v2-epilogue-last">La espera sigue. Para que haya más oportunidades de trasplante, necesitamos más donaciones.</p>
+        <div className="v2-epilogue-actions">
+          <button type="button" onClick={()=>setEpilogueFocus(current=>((current??0)+Math.max(1,Math.floor(originalData.total*.381966)))%originalData.total)}>{epilogueFocus===null?'Acercarse a una espera en el reloj':'Mirar otra espera'} ↗</button>
+          {epilogueFocus!==null&&<button type="button" onClick={()=>setEpilogueFocus(null)}>Volver al reloj completo</button>}
+          <a href="https://www.argentina.gob.ar/salud/incucai" target="_blank" rel="noopener noreferrer" className="v2-epilogue-donate-link">Informate sobre la donación de órganos en el INCUCAI ↗</a>
+        </div>
         <footer className="v2-epilogue-footer"><a href="#escena-0">Volver al comienzo ↑</a><button type="button" onClick={()=>setMethodOpen(true)}>Sobre los datos ↗</button></footer>
       </div></section>
     </div>

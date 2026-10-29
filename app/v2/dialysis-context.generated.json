@@ -1,0 +1,260 @@
+{
+  "timing": {
+    "year": 2025,
+    "consulted": "14/08/2026 17:42",
+    "n": 2396,
+    "months": 11.2,
+    "days": 336,
+    "rawStageDays": {
+      "1AUT": 69,
+      "EVA": 235,
+      "EST": 16,
+      "2AUT": 9,
+      "INS": 7
+    },
+    "population": "Inscripciones por método normal con indicación posterior al 12-07-2005; año de inscripción 2025",
+    "stages": [
+      {
+        "id": "authorization",
+        "label": "1ª autorización del financiador",
+        "days": 69,
+        "color": "#1768ac"
+      },
+      {
+        "id": "evaluation",
+        "label": "Evaluación médica pretrasplante",
+        "days": 235,
+        "color": "#b74d38"
+      },
+      {
+        "id": "final",
+        "label": "Estudios HLA, 2ª autorización y registro final",
+        "days": 32,
+        "color": "#727b4d"
+      }
+    ],
+    "jurisdictions": {
+      "BUENOS AIRES": {
+        "organism": "3*CUCAIBA",
+        "n": 925,
+        "months": 11.2,
+        "days": 336
+      },
+      "SANTA FE": {
+        "organism": "22*CUDAIO",
+        "n": 206,
+        "months": 10.2,
+        "days": 306
+      },
+      "CORDOBA": {
+        "organism": "7*ECODAIC",
+        "n": 184,
+        "months": 9.2,
+        "days": 275
+      },
+      "CAPITAL FEDERAL": {
+        "organism": "2*EAIT",
+        "n": 184,
+        "months": 12.5,
+        "days": 374
+      },
+      "MENDOZA": {
+        "organism": "14*INCAIMEN",
+        "n": 100,
+        "months": 9.7,
+        "days": 291
+      },
+      "TUCUMAN": {
+        "organism": "25*CUCAITUC",
+        "n": 99,
+        "months": 11.1,
+        "days": 333
+      },
+      "SALTA": {
+        "organism": "18*CUCAI - SALTA",
+        "n": 83,
+        "months": 11.4,
+        "days": 341
+      },
+      "MISIONES": {
+        "organism": "15*CUCAIMIS",
+        "n": 73,
+        "months": 11.7,
+        "days": 350
+      },
+      "SAN LUIS": {
+        "organism": "20*CUCAI SAN LUIS",
+        "n": 60,
+        "months": 6.3,
+        "days": 189
+      },
+      "ENTRE RIOS": {
+        "organism": "9*CUCAIER",
+        "n": 57,
+        "months": 13.7,
+        "days": 411
+      },
+      "JUJUY": {
+        "organism": "11*CUCAI - JUJUY",
+        "n": 56,
+        "months": 10,
+        "days": 299
+      },
+      "RIO NEGRO": {
+        "organism": "17*CUCAI - RIO NEGRO",
+        "n": 42,
+        "months": 20,
+        "days": 601
+      },
+      "CHACO": {
+        "organism": "5*CUCAI - CHACO",
+        "n": 42,
+        "months": 13.4,
+        "days": 401
+      },
+      "SAN JUAN": {
+        "organism": "19*INAISA",
+        "n": 41,
+        "months": 14.8,
+        "days": 443
+      },
+      "SANTIAGO DEL ESTERO": {
+        "organism": "23*CAISE",
+        "n": 36,
+        "months": 10,
+        "days": 300
+      },
+      "CORRIENTES": {
+        "organism": "8*CUCAICOR",
+        "n": 33,
+        "months": 11.9,
+        "days": 356
+      },
+      "FORMOSA": {
+        "organism": "10*C.U.C.A.I.FOR",
+        "n": 33,
+        "months": 15.5,
+        "days": 466
+      },
+      "CHUBUT": {
+        "organism": "6*CUCAI CHUBUT",
+        "n": 29,
+        "months": 14.4,
+        "days": 432
+      },
+      "NEUQUEN": {
+        "organism": "16*CUCAI - NEUQUEN",
+        "n": 21,
+        "months": 12,
+        "days": 360
+      },
+      "LA RIOJA": {
+        "organism": "13*CUCAILAR",
+        "n": 20,
+        "months": 10.6,
+        "days": 319
+      },
+      "CATAMARCA": {
+        "organism": "4*DAICA",
+        "n": 19,
+        "months": 9.6,
+        "days": 288
+      },
+      "SANTA CRUZ": {
+        "organism": "21*CUCAI - SANTA CRUZ",
+        "n": 19,
+        "months": 9.3,
+        "days": 278
+      },
+      "LA PAMPA": {
+        "organism": "12*CUCAI - LA PAMPA",
+        "n": 14,
+        "months": 9.1,
+        "days": 272
+      },
+      "TIERRA DEL FUEGO": {
+        "organism": "24*CUCAI - TIERRA DEL FUEGO",
+        "n": 11,
+        "months": 9.3,
+        "days": 280
+      }
+    }
+  },
+  "coverage": {
+    "consulted": "14/08/2026 17:27",
+    "scope": "Argentina · todas las coberturas",
+    "total": 30970,
+    "indDefinition": "Indicación de evaluación pretrasplante",
+    "leDefinition": "Paciente inscripto en lista de espera",
+    "rows": [
+      {
+        "code": "3*PREPAGA",
+        "label": "Prepaga",
+        "ind": 541,
+        "le": 583,
+        "total": 1854
+      },
+      {
+        "code": "1*OBRA SOCIAL PROVINCIAL",
+        "label": "Obra Social Provincial",
+        "ind": 1685,
+        "le": 1120,
+        "total": 5160
+      },
+      {
+        "code": "16*SSS (APE)",
+        "label": "SSS/APE",
+        "ind": 1117,
+        "le": 689,
+        "total": 2802
+      },
+      {
+        "code": "15*INCLUIR SALUD(Ex PROFE)",
+        "label": "Incluir Salud",
+        "ind": 1491,
+        "le": 844,
+        "total": 4105
+      },
+      {
+        "code": "14*PAMI",
+        "label": "PAMI",
+        "ind": 3156,
+        "le": 1264,
+        "total": 10805
+      },
+      {
+        "code": "5*SUBSIDIO PROVINCIAL",
+        "label": "Subsidio Provincial",
+        "ind": 2498,
+        "le": 942,
+        "total": 5145
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "datos/extraidos/reportes_dinamicos/historia_2015_2026/tiempos_inscripcion_lista_renal_2025/tabla_02.csv",
+      "sha256": "23c052112496243cb80c2c5b8bca725f4bff10d1cba472fc82c2f699437647b4"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/historia_2015_2026/tiempos_inscripcion_lista_renal_2025/tabla_01.csv",
+      "sha256": "6d03f2df5aaa25f0f20145036622862e8665d39121edec0fd778d5f15677641f"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/historia_2015_2026/tiempos_inscripcion_lista_renal_2025/resultado.html",
+      "sha256": "1fd660ec9cea0c98ce44615eb05bb7fd4ce88fe2a58469d9f39374af098e3449"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/historia_2015_2026/situacion_lista_espera_pacientes_dialisis_actual/tabla_05.csv",
+      "sha256": "19084dd2e3eaa690d5cbc8932fb8d4e2e986a43f8afe2ddc26113368ad918609"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/historia_2015_2026/situacion_lista_espera_pacientes_dialisis_actual/tabla_01.csv",
+      "sha256": "d5a591b5eab1b8d7f86d5f989ac4ae170aece0a09418834d2a8968aca32432c3"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/historia_2015_2026/situacion_lista_espera_pacientes_dialisis_actual/resultado.html",
+      "sha256": "1eb65962fedd7843a1ccd034c21e80d9f6d4c9b722d2d78eae317c3f62e86262"
+    }
+  ]
+}
