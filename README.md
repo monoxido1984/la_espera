@@ -48,6 +48,9 @@ El árbol publicado contiene la versión vigente. Las implementaciones y los con
 
 ## Introducción y cierre · revisión local
 
-Se conserva la versión GitHub origin/main f1755d7, incluidas las escenas 02 y 03. Sólo se incorporan tres bloques introductorios (necesidad de órganos, trámite renal y asignación) y el cierre con el reloj. El trámite puede explorarse por organismo jurisdiccional, no por residencia ni por tipo de lista. Los nuevos contextos conservan fuentes y descargas en Sobre los datos. Versión preparada para publicación en GitHub Pages.
+Se conserva la versión GitHub origin/main f1755d7, incluidas las escenas 02 y 03. Sólo se incorporan tres bloques introductorios (necesidad de órganos, trámite de inscripción y asignación) y el cierre con el reloj. El trámite de inscripción de 2025 permite comparar las diez listas con datos contra el total nacional publicado. Los nuevos contextos conservan fuentes y descargas en Sobre los datos. Versión preparada para publicación en GitHub Pages.
 
 Corrección de apertura: pregunta y título en flujo normal y número formado por puntos en el primer bloque de la escena 01. Se retira el desplegable jurisdiccional del trámite renal. Escena 03 exclusivamente con medias, sin deslizador de años; los puntos conservan el detalle anual.
+
+## Antes de la lista · todas las listas de 2025
+La vista inicial usa la media TOTAL publicada: 6,1 meses, 184 días, 5.823 inscripciones completadas por método normal. El selector compara con una de las diez listas con datos y muestra su cantidad; no se convierte en cero una lista sin fila. `node scripts/prepare-registration-context.mjs` genera el contexto desde la consulta nacional archivada en `inscripcion_listas_2025`, sin consultas adicionales. La descarga y los criterios están en Sobre los datos.

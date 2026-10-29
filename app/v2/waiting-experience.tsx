@@ -7,7 +7,7 @@ import CurrentDiagnoses,{currentDiagnosisFor} from './current-diagnoses';
 import {diagnosisAnchor,waitingAnchor} from './exploration-findings';
 import WaitingEpilogue from './waiting-epilogue';
 import entryContext from './annual-entry-context.generated.json';
-import dialysisContext from './dialysis-context.generated.json';
+import registrationContext from './registration-context.generated.json';
 import {numberStoryFacts,numberStepTargets} from './number-story-model';
 import {organLabel} from './organ-labels';
 import AnnualParallel from './annual-unified';
@@ -45,6 +45,7 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
   const stage = useRef<HTMLDivElement>(null);
   const [scene, setScene] = useState(0);
   const [numberStep,setNumberStep]=useState(0);
+  const [registrationList,setRegistrationList]=useState('TOTAL');
   const renalCount=originalData.lists.find(row=>row.id==='RENAL')?.total??0;
   const numberFacts=numberStoryFacts(originalData.total,renalCount);
   const [mapAge,setMapAge]=useState<MapAge>('all');
@@ -171,7 +172,7 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
     <nav className="v2-progress" aria-label="Capítulos">{chapters.map((chapter, index) => <a href={`#escena-${index}`} key={chapter} aria-label={`${index + 1}. ${chapter}`} aria-current={scene === index ? 'step' : undefined}><span>{chapter}</span></a>)}</nav>
     <div className="v2-story">
       <div ref={stage} className="v2-stage" data-epilogue={scene===4} data-sand={scene<2} aria-hidden={scene === 0 ? true : undefined}>
-        <div className="v2-figure">{scene===4?<WaitingEpilogue count={originalData.total} snapshot={originalData.snapshot} paused={reduced} focused={epilogueFocus} onFocus={setEpilogueFocus}/>:scene<2?<SandQueue snapshot={data.snapshot} count={data.total} renalCount={renalCount} step={numberStep} onStepChange={setNumberStep} forming={scene===1} paused={reduced} relay={pointRelay} handoff={sandHandoff}/>:scene===3?<AnnualParallel onYear={setYear} record={record} history={annualComparison} selection={annualSelection} scope={`${annualSelection.province?provinceNames.get(annualSelection.province):'Argentina'} · ${annualSelection.age==='all'?'todas las edades':annualSelection.age==='menor_18'?'menores de 18':'18 años y más'}`} renalNational={originalData.history} provinceNames={provinceNames}/>:scene===2&&diagnosisOpen?<CurrentDiagnoses key={`${selection.listId}|${selection.province}|${mapAge}|${mapSex}`} list={selection.listId} province={selection.province} age={mapAge} sex={mapSex} seniority={selection.seniority} onChooseList={()=>changeDimension('organ')} selectedDiagnosisId={selectedDiagnosis?.code} onSelectDiagnosis={setSelectedDiagnosis}/>:scene===2&&dimension==='seniority'?<SeniorityComparison series={sexSeries} onSelect={(id,sex)=>{setMapSex(sex);selectGroup(id);}}/>:<WaitingUniverse entry={sandHandoff} mode={mode} groups={groups} count={count} total={data.total} focus={scene === 2 ? focus : null} hover={scene === 2 ? hover : null} paused={reduced} dark={dark} population={population} label={`${integer(count)} unidades. ${unit}.`} unit={unit} territoryMetric={territoryMetric} territoryContext={territoryReference} relay={pointRelay} onHover={setHover} onSelect={selectGroup} />}
+        <div className="v2-figure">{scene===4?<WaitingEpilogue count={originalData.total} snapshot={originalData.snapshot} paused={reduced} focused={epilogueFocus} onFocus={setEpilogueFocus}/>:scene<2?<SandQueue snapshot={data.snapshot} count={data.total} renalCount={renalCount} step={numberStep} registrationList={registrationList} onStepChange={setNumberStep} forming={scene===1} paused={reduced} relay={pointRelay} handoff={sandHandoff}/>:scene===3?<AnnualParallel onYear={setYear} record={record} history={annualComparison} selection={annualSelection} scope={`${annualSelection.province?provinceNames.get(annualSelection.province):'Argentina'} · ${annualSelection.age==='all'?'todas las edades':annualSelection.age==='menor_18'?'menores de 18':'18 años y más'}`} renalNational={originalData.history} provinceNames={provinceNames}/>:scene===2&&diagnosisOpen?<CurrentDiagnoses key={`${selection.listId}|${selection.province}|${mapAge}|${mapSex}`} list={selection.listId} province={selection.province} age={mapAge} sex={mapSex} seniority={selection.seniority} onChooseList={()=>changeDimension('organ')} selectedDiagnosisId={selectedDiagnosis?.code} onSelectDiagnosis={setSelectedDiagnosis}/>:scene===2&&dimension==='seniority'?<SeniorityComparison series={sexSeries} onSelect={(id,sex)=>{setMapSex(sex);selectGroup(id);}}/>:<WaitingUniverse entry={sandHandoff} mode={mode} groups={groups} count={count} total={data.total} focus={scene === 2 ? focus : null} hover={scene === 2 ? hover : null} paused={reduced} dark={dark} population={population} label={`${integer(count)} unidades. ${unit}.`} unit={unit} territoryMetric={territoryMetric} territoryContext={territoryReference} relay={pointRelay} onHover={setHover} onSelect={selectGroup} />}
           {scene===2&&!diagnosisOpen&&dimension!=='seniority'&&<p className="v2-chart-invitation">{dimension==='territory'?'Elegí una provincia para explorar sus tiempos.':'Elegí una ilustración para explorar esa lista.'}</p>}
         </div>
       </div>
@@ -214,8 +215,9 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
                 <span className="v2-slide-eyebrow">Paso 2 de 3 · El camino previo</span>
                 <h3>Entrar en lista<br/><strong>también lleva tiempo.</strong></h3>
                 <p>
-                  Antes de entrar hacen falta evaluaciones médicas, estudios y autorizaciones. No es un trámite simple. En el <strong>foco renal de {dialysisContext.timing.year}</strong>, las {integer(dialysisContext.timing.n)} inscripciones relevadas promediaron {decimal(dialysisContext.timing.months)} meses desde la indicación hasta el registro en lista. Este dato corresponde sólo a la lista renal.
+                  Antes de entrar hacen falta evaluaciones médicas, estudios y autorizaciones. En {registrationContext.year}, las {integer(registrationContext.total.n)} inscripciones por método normal promediaron <strong>{decimal(registrationContext.total.months)} meses</strong> desde la indicación hasta el registro en lista. El tiempo cambia según la lista.
                 </p>
+                <label className="v2-registration-select">Ver el tiempo de inscripción <select aria-label="Lista del trámite de inscripción de 2025" value={registrationList} onChange={event=>setRegistrationList(event.target.value)}><option value="TOTAL">Todas las listas · promedio general</option>{registrationContext.rows.map(row=><option key={row.id} value={row.id}>{organLabel(row.id,row.id)}</option>)}</select></label>
                 <div className="v2-slide-footer">
                   <span className="v2-scroll-hint">Seguí bajando: cómo se asigna cada órgano ↓</span>
                   <button type="button" className="v2-step-next-btn" onClick={() => scrollToNumberStep(2)}>Siguiente paso →</button>

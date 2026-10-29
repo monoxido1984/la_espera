@@ -23,7 +23,7 @@ function centerGlyph(points:Dot[],targetX:number,targetY:number){
   };
 }
 
-export default function SandQueue({count,renalCount,step=0,forming,paused,relay,handoff,onStepChange}:{snapshot?:string;count:number;renalCount:number;step?:number;forming:boolean;paused:boolean;relay:MutableRefObject<PointRelay>;handoff?:MutableRefObject<SandHandoff|null>;onStepChange?:(step:number)=>void}) {
+export default function SandQueue({count,renalCount,step=0,registrationList='TOTAL',forming,paused,relay,handoff,onStepChange}:{snapshot?:string;count:number;renalCount:number;step?:number;registrationList?:string;forming:boolean;paused:boolean;relay:MutableRefObject<PointRelay>;handoff?:MutableRefObject<SandHandoff|null>;onStepChange?:(step:number)=>void}) {
   const box=useRef<HTMLDivElement>(null),canvas=useRef<HTMLCanvasElement>(null);
   const drawn=useRef<number|null>(null);
   const lastStep=useRef<number>(0);
@@ -109,7 +109,7 @@ ctx.strokeStyle='#b74d38';ctx.lineWidth=mobile?1.5:2;ctx.lineCap='round';
   },[size,count,forming,paused,relay,handoff]);
   return <div ref={box} className="v2-sand-queue" data-story-step={forming?step+1:0}>
     <canvas ref={canvas} aria-hidden="true"/>
-    {forming&&<NumberStoryGraphic step={step+1} count={count} renalCount={renalCount}/>}
+    {forming&&<NumberStoryGraphic registrationList={registrationList} step={step+1} count={count} renalCount={renalCount}/>}
     <p className="v2-sr-only">{integer(count)} inscripciones forman el reloj de arena. Los bloques siguientes muestran proporciones, tiempos de trámite y criterios de asignación.</p>
   </div>;
 }

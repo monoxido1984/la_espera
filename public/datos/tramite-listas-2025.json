@@ -1,0 +1,198 @@
+{
+  "year": 2025,
+  "consulted": "Fecha de ejecución de la consulta: 29/10/2026 14:50",
+  "population": "Inscripciones completadas en 2025 por método normal, con indicación posterior al 12-07-2005; sin filtros por lista ni jurisdicción",
+  "unit": "meses",
+  "total": {
+    "id": "TOTAL",
+    "n": 5823,
+    "months": 6.1,
+    "days": 184,
+    "stageDays": {
+      "firstAuthorization": 34,
+      "evaluation": 113,
+      "immunology": 7,
+      "secondAuthorization": 21,
+      "registration": 8
+    }
+  },
+  "rows": [
+    {
+      "id": "RENAL",
+      "n": 2396,
+      "months": 11.2,
+      "days": 336,
+      "stageDays": {
+        "firstAuthorization": 69,
+        "evaluation": 235,
+        "immunology": 16,
+        "secondAuthorization": 9,
+        "registration": 7
+      }
+    },
+    {
+      "id": "CORNEAS",
+      "n": 2377,
+      "months": 2,
+      "days": 60,
+      "stageDays": {
+        "firstAuthorization": 0,
+        "evaluation": 9,
+        "immunology": 0,
+        "secondAuthorization": 40,
+        "registration": 11
+      }
+    },
+    {
+      "id": "HEPATICA",
+      "n": 681,
+      "months": 3.2,
+      "days": 96,
+      "stageDays": {
+        "firstAuthorization": 25,
+        "evaluation": 59,
+        "immunology": 0,
+        "secondAuthorization": 7,
+        "registration": 5
+      }
+    },
+    {
+      "id": "ESCLERAS",
+      "n": 96,
+      "months": 0.2,
+      "days": 5,
+      "stageDays": {
+        "firstAuthorization": 0,
+        "evaluation": 0,
+        "immunology": 0,
+        "secondAuthorization": 2,
+        "registration": 3
+      }
+    },
+    {
+      "id": "PULMONAR",
+      "n": 94,
+      "months": 7,
+      "days": 210,
+      "stageDays": {
+        "firstAuthorization": 51,
+        "evaluation": 122,
+        "immunology": 19,
+        "secondAuthorization": 9,
+        "registration": 9
+      }
+    },
+    {
+      "id": "CARDIACA",
+      "n": 86,
+      "months": 4.4,
+      "days": 132,
+      "stageDays": {
+        "firstAuthorization": 21,
+        "evaluation": 79,
+        "immunology": 13,
+        "secondAuthorization": 9,
+        "registration": 10
+      }
+    },
+    {
+      "id": "RENOPANCREATICA",
+      "n": 84,
+      "months": 11.1,
+      "days": 334,
+      "stageDays": {
+        "firstAuthorization": 92,
+        "evaluation": 211,
+        "immunology": 11,
+        "secondAuthorization": 15,
+        "registration": 6
+      }
+    },
+    {
+      "id": "HEPATORRENAL",
+      "n": 6,
+      "months": 1.4,
+      "days": 42,
+      "stageDays": {
+        "firstAuthorization": 16,
+        "evaluation": 17,
+        "immunology": 5,
+        "secondAuthorization": 0,
+        "registration": 5
+      }
+    },
+    {
+      "id": "PANCREATICA",
+      "n": 2,
+      "months": 9.5,
+      "days": 284,
+      "stageDays": {
+        "firstAuthorization": 2,
+        "evaluation": 198,
+        "immunology": 0,
+        "secondAuthorization": 63,
+        "registration": 21
+      }
+    },
+    {
+      "id": "CARDIORRENAL",
+      "n": 1,
+      "months": 8.2,
+      "days": 245,
+      "stageDays": {
+        "firstAuthorization": 225,
+        "evaluation": 13,
+        "immunology": 1,
+        "secondAuthorization": 1,
+        "registration": 5
+      }
+    }
+  ],
+  "offeredLists": [
+    "ESCLERAS",
+    "RENAL",
+    "RENOPANCREATICA",
+    "HEPATICA",
+    "HEPATORRENAL",
+    "HEPATOPANCREATICA",
+    "HEPATOINTESTINAL",
+    "CARDIOHEPATICA",
+    "CARDIACA",
+    "CARDIOPULMONAR",
+    "CARDIORRENAL",
+    "PULMONAR",
+    "PANCREATICA",
+    "PANCREOINTESTINAL",
+    "INTESTINAL",
+    "CORNEAS",
+    "MEDULA OSEA"
+  ],
+  "missingLists": [
+    "HEPATOPANCREATICA",
+    "HEPATOINTESTINAL",
+    "CARDIOHEPATICA",
+    "CARDIOPULMONAR",
+    "PANCREOINTESTINAL",
+    "INTESTINAL",
+    "MEDULA OSEA"
+  ],
+  "note": "El total es la fila TOTAL publicada, no un promedio de los promedios. Las listas sin fila permanecen sin dato. Los tiempos y las etapas tienen redondeos independientes; su suma puede diferir del total.",
+  "sources": [
+    {
+      "path": "datos/originales/reportes_dinamicos/inscripcion_listas_2025/tiempos_inscripcion_todas_listas_2025/resultado.html",
+      "sha256": "4e13f8b4ca950e91e7e7bca66cb5651d5782bac9f701ce63265f5919024e6a6f"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/inscripcion_listas_2025/tiempos_inscripcion_todas_listas_2025/tabla_01.csv",
+      "sha256": "46650e7cb589499df399f3e6145acb828b06cb60943763d2d90e31baf7fdeee0"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/inscripcion_listas_2025/tiempos_inscripcion_todas_listas_2025/tabla_02.csv",
+      "sha256": "d66a636b047e28db0c12bde5376952d64728f60ac6e4a7f7e003adcc1ff7a396"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/inscripcion_listas_2025/preflight_20261029_145015/tiempos_inscripcion_todas_listas_2025_formulario.html",
+      "sha256": "8044455dd5021d32d5483eea0405e99e901a6aff9ed2862396ead8605c316829"
+    }
+  ]
+}
