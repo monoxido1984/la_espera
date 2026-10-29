@@ -1,17 +1,10 @@
 'use client';
 import timingData from './dialysis-context.generated.json';
-import {numberStoryFacts} from './number-story-model';
-import {decimal,integer} from './universe-model';
-export default function NumberStoryGraphic({step,count,renalCount}:{step:number;count:number;renalCount:number}){
- const facts=numberStoryFacts(count,renalCount),timing=timingData.timing;
- if(step===0)return null;
+import {decimal} from './universe-model';
+export default function NumberStoryGraphic({step,count:_count,renalCount:_renalCount}:{step:number;count:number;renalCount:number}){
+ const timing=timingData.timing;
+ if(step<=1)return null;
  return <div className="v2-number-story-graphic" data-block={step}>
-  {step===1&&<figure className="v2-number-composition"><figcaption>Qué se espera · {integer(count)} inscripciones</figcaption>
-   {[{label:'Riñón',n:facts.renal,p: facts.renalPercent,other:false},{label:'Otros órganos y tejidos',n:facts.other,p:facts.otherPercent,other:true}].map(row=><div className="v2-number-bar-row" key={row.label}>
-    <div><span>{row.label}</span><strong>{integer(row.n)} <small>{decimal(row.p)}%</small></strong></div>
-    <div className="v2-number-bar-track" role="img" aria-label={`${row.label}: ${integer(row.n)} de ${integer(count)} inscripciones (${decimal(row.p)}%)`}><i data-other={row.other} style={{width:`${row.p}%`}}/></div>
-   </div>)}<p>La longitud representa la proporción del total.</p>
-  </figure>}
   {step===2&&<figure className="v2-number-registration"><figcaption>Antes de la lista · foco renal de {timing.year}</figcaption>
    <p className="v2-number-time"><strong>{decimal(timing.months)}</strong> meses <span>de promedio · {timing.days} días</span></p>
    <div className="v2-number-timebar" role="img" aria-label={timing.stages.map(row=>`${row.label}: ${row.days} días`).join('; ')}>{timing.stages.map(row=><i key={row.id} style={{width:`${row.days/timing.days*100}%`,background:row.color}}/>)}</div>

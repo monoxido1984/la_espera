@@ -49,3 +49,5 @@ El árbol publicado contiene la versión vigente. Las implementaciones y los con
 ## Introducción y cierre · revisión local
 
 Se conserva la versión GitHub origin/main f1755d7, incluidas las escenas 02 y 03. Sólo se incorporan tres bloques introductorios (necesidad de órganos, trámite renal y asignación) y el cierre con el reloj. El trámite puede explorarse por organismo jurisdiccional, no por residencia ni por tipo de lista. Los nuevos contextos conservan fuentes y descargas en Sobre los datos. Versión preparada para publicación en GitHub Pages.
+
+Corrección de apertura: pregunta y título en flujo normal y número formado por puntos en el primer bloque de la escena 01. Se retira el desplegable jurisdiccional del trámite renal. Escena 03 exclusivamente con medias, sin deslizador de años; los puntos conservan el detalle anual.

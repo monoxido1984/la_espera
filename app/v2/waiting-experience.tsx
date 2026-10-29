@@ -45,11 +45,8 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
   const stage = useRef<HTMLDivElement>(null);
   const [scene, setScene] = useState(0);
   const [numberStep,setNumberStep]=useState(0);
-  const [registrationProvince,setRegistrationProvince]=useState('');
   const renalCount=originalData.lists.find(row=>row.id==='RENAL')?.total??0;
   const numberFacts=numberStoryFacts(originalData.total,renalCount);
-  const registrationJurisdictions=dialysisContext.timing.jurisdictions as Record<string,{organism:string;n:number;months:number;days:number}>;
-  const registrationRegion=registrationJurisdictions[registrationProvince];
   const [mapAge,setMapAge]=useState<MapAge>('all');
   const [mapSex,setMapSex]=useState<MapSex>('all');
   const mapData=useMemo(()=>mapUniverseData(originalData,mapSnapshot,mapAge,mapSex),[originalData,mapAge,mapSex]);
@@ -64,7 +61,7 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
   const [methodOpen,setMethodOpen]=useState(false);
   const [reduced, setReduced] = useState(false);
   const [epilogueFocus,setEpilogueFocus]=useState<number|null>(null);
-  const [year, setYear] = useState(data.history.at(-1)!.year);
+  const [year, setYear] = useState(2025);
   const [dialysisModalOpen,setDialysisModalOpen]=useState(false);
   const [selectedDiagnosis,setSelectedDiagnosis]=useState<{code?:string;label:string;value:number}|null>(null);
   useEffect(()=>setSelectedDiagnosis(null),[selection.listId,selection.province,mapAge,mapSex]);
@@ -217,9 +214,8 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
                 <span className="v2-slide-eyebrow">Paso 2 de 3 · El camino previo</span>
                 <h3>Entrar en lista<br/><strong>también lleva tiempo.</strong></h3>
                 <p>
-                  Antes de entrar hacen falta evaluaciones médicas, estudios y autorizaciones. No es un trámite simple. En el <strong>foco renal de {dialysisContext.timing.year}</strong>, las {integer(dialysisContext.timing.n)} inscripciones relevadas promediaron {decimal(dialysisContext.timing.months)} meses desde la indicación hasta el registro en lista.
+                  Antes de entrar hacen falta evaluaciones médicas, estudios y autorizaciones. No es un trámite simple. En el <strong>foco renal de {dialysisContext.timing.year}</strong>, las {integer(dialysisContext.timing.n)} inscripciones relevadas promediaron {decimal(dialysisContext.timing.months)} meses desde la indicación hasta el registro en lista. Este dato corresponde sólo a la lista renal.
                 </p>
-                <details className="v2-registration-region"><summary>¿Cambia según la jurisdicción?</summary><label>Organismo jurisdiccional <select aria-label="Jurisdicción del trámite renal" value={registrationProvince} onChange={event=>setRegistrationProvince(event.target.value)}><option value="">Elegí una jurisdicción</option>{Object.keys(registrationJurisdictions).sort().map(id=><option key={id} value={id}>{provinceNames.get(id)??id}</option>)}</select></label>{registrationRegion&&<p>{decimal(registrationRegion.months)} meses de promedio · {integer(registrationRegion.n)} inscripciones renales en 2025.</p>}<small>Según organismo fiscalizador; no equivale a provincia de residencia. No compara tipos de lista.</small></details>
                 <div className="v2-slide-footer">
                   <span className="v2-scroll-hint">Seguí bajando: cómo se asigna cada órgano ↓</span>
                   <button type="button" className="v2-step-next-btn" onClick={() => scrollToNumberStep(2)}>Siguiente paso →</button>
@@ -292,9 +288,7 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
       <section id="escena-3" data-scene="3" className="v2-scene v2-annual-scene"><div className="v2-copy">
         <p className="v2-kicker">03 / Año tras año</p>
         <h2>¿Cómo cambió la espera?</h2>
-        <p className="v2-interaction-hint" id="v2-year-help">¿Se espera lo mismo en todos los lugares? Compará tiempos y sumá contexto de donación o lista por millón de habitantes.</p>
-        <label className="v2-year" htmlFor="v2-year">{year}</label><input id="v2-year" aria-label="Año del registro" className="v2-range" type="range" min={2005} max={2025} value={year} onChange={event=>setYear(Number(event.target.value))}/>
-        <div className="v2-range-ends"><span>2005</span><span>2025</span></div>
+        <p className="v2-interaction-hint" id="v2-year-help">¿Se espera lo mismo en todos los lugares? Compará el tiempo medio hasta el trasplante. La curva recorre 2005–2025; tocá un punto para ver su año.</p>
         {scene===3&&<AnnualTimeExplorer year={year} provinceNames={provinceNames} selection={annualSelection} onSelection={selectAnnual} onSeries={setAnnualTimes} showFilters={true} renalNational={data.history} showSummary={false}/>}
         <NextScene to={4}>Volver a la pregunta inicial</NextScene>
         <div className="v2-journey-end"><button type="button" onClick={()=>setMethodOpen(true)}>Sobre los datos ↗</button></div>
