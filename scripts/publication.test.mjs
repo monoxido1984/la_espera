@@ -6,7 +6,7 @@ const read=file=>readFileSync(new URL(file,root),'utf8');
 test('methodology downloads exist and contain no retired datasets',()=>{
  const source=read('app/v2/data-method.tsx');
  const files=[...source.matchAll(/\['[^']+','([^']+\.(?:json|md|csv))'\]/g)].map(match=>match[1]);
- assert.equal(files.length,17);
+ assert.equal(files.length,18);
  for(const file of files)assert.ok(existsSync(new URL('public/datos/'+file,root)),file);
  assert.deepEqual(readdirSync(new URL('public/datos/',root)).sort(),files.sort());
  assert.doesNotMatch(source,/ExitBreakdown|Movimientos|Ing LE|parcial-2026|egresos-provinciales|trasplantes-registrados/);
@@ -14,6 +14,7 @@ test('methodology downloads exist and contain no retired datasets',()=>{
 test('published downloads match the actual application aggregates',()=>{
  for(const [download,source] of [
  ['contexto-inscripciones-2021-2025.json','v2/annual-entry-context.generated.json'],
+ ['asignacion-organos-2025.json','v2/allocation-context.generated.json'],
  ['tramite-listas-2025.json','v2/registration-context.generated.json'],
  ['tramite-renal-2025.json','v2/dialysis-context.generated.json'],
  ['mapa-demografia.json','v2/map-demographics.generated.json'],

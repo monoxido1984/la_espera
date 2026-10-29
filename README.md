@@ -54,3 +54,5 @@ Corrección de apertura: pregunta y título en flujo normal y número formado po
 
 ## Antes de la lista · todas las listas de 2025
 La vista inicial usa la media TOTAL publicada: 6,1 meses, 184 días, 5.823 inscripciones completadas por método normal. El selector compara con una de las diez listas con datos y muestra su cantidad; no se convierte en cero una lista sin fila. `node scripts/prepare-registration-context.mjs` genera el contexto desde la consulta nacional archivada en `inscripcion_listas_2025`, sin consultas adicionales. La descarga y los criterios están en Sobre los datos.
+
+La asignación incorpora dos agregados de órganos de 2025: al menos 3.350 inscripciones y 2.488 trasplantes. No son una cohorte vinculada ni se resta para estimar el crecimiento de la lista. Datos y SHA256 en allocation-context.generated.json y su descarga; reproducción local con `python scripts/prepare-allocation-context.py <raíz_adquisición>`, que sólo lee fuentes archivadas.

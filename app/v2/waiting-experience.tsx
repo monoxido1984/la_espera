@@ -226,9 +226,9 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
 
               <article className="v2-scrolly-slide" data-active={numberStep === 2}>
                 <span className="v2-slide-eyebrow">Paso 3 de 3 · Una vez en lista</span>
-                <h3>Estar en lista<br/><strong>no es suficiente.</strong></h3>
+                <h3>La necesidad supera<br/><strong>las oportunidades de trasplante.</strong></h3>
                 <p>
-                  Tiene que haber un donante y, además, compatibilidad con quien espera. Para asignar el órgano deben cumplirse criterios clínicos, de prioridad y de distribución estrictos y específicos para cada lista.
+                  Estar en lista no garantiza recibir un órgano. Hace falta un órgano disponible, compatibilidad y cumplir criterios estrictos de prioridad y asignación. El tiempo esperando no es el único criterio.
                 </p>
                 <div className="v2-narrative-cta-box">
                   <p className="v2-narrative-cta-prompt">Explorá qué se espera y cómo cambia entre provincias.</p>

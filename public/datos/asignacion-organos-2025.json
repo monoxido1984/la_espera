@@ -1,0 +1,112 @@
+{
+  "year": 2025,
+  "scope": "Órganos exclusivamente; excluye córneas, escleras y otros tejidos",
+  "inscriptions": {
+    "total": 3350,
+    "lowerBound": true,
+    "rows": [
+      {
+        "id": "RENAL",
+        "n": 2396
+      },
+      {
+        "id": "HEPATICA",
+        "n": 681
+      },
+      {
+        "id": "PULMONAR",
+        "n": 94
+      },
+      {
+        "id": "CARDIACA",
+        "n": 86
+      },
+      {
+        "id": "RENOPANCREATICA",
+        "n": 84
+      },
+      {
+        "id": "HEPATORRENAL",
+        "n": 6
+      },
+      {
+        "id": "PANCREATICA",
+        "n": 2
+      },
+      {
+        "id": "CARDIORRENAL",
+        "n": 1
+      }
+    ],
+    "population": "Inscripciones por método normal con indicación posterior al 12-07-2005, completadas en 2025"
+  },
+  "transplants": {
+    "total": 2488,
+    "rows": [
+      {
+        "id": "RENAL",
+        "n": 1766
+      },
+      {
+        "id": "HEPATICA",
+        "n": 497
+      },
+      {
+        "id": "CARDIACA",
+        "n": 130
+      },
+      {
+        "id": "RENOPANCREATICA",
+        "n": 40
+      },
+      {
+        "id": "PULMONAR",
+        "n": 25
+      },
+      {
+        "id": "HEPATORRENAL",
+        "n": 24
+      },
+      {
+        "id": "CARDIORRENAL",
+        "n": 3
+      },
+      {
+        "id": "PANCREATICA",
+        "n": 2
+      },
+      {
+        "id": "CARDIOPULMONAR",
+        "n": 1
+      }
+    ],
+    "population": "Pacientes trasplantados; fecha de desclampeo del receptor en 2025; todos los tipos de donante"
+  },
+  "note": "Dos agregados del mismo año, no las mismas personas ni un seguimiento de cohorte. No restar para estimar crecimiento de la lista ni convertir en probabilidad de trasplante. Las listas sin fila de inscripción no se consideran cero. No vincula donantes individuales con trasplantes.",
+  "sources": [
+    {
+      "path": "datos/extraidos/reportes_dinamicos/inscripcion_listas_2025/tiempos_inscripcion_todas_listas_2025/tabla_01.csv",
+      "sha256": "46650e7cb589499df399f3e6145acb828b06cb60943763d2d90e31baf7fdeee0"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/inscripcion_listas_2025/tiempos_inscripcion_todas_listas_2025/tabla_02.csv",
+      "sha256": "d66a636b047e28db0c12bde5376952d64728f60ac6e4a7f7e003adcc1ff7a396"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/historia_2015_2026/trasplantes_todos_anio_completo_2025/tabla_01.csv",
+      "sha256": "b19a7d333f099eeb29132a8bbf1e5377a98692fee8250a01ac86dc7afb712ce0"
+    },
+    {
+      "path": "datos/extraidos/reportes_dinamicos/historia_2015_2026/trasplantes_todos_anio_completo_2025/tabla_02.csv",
+      "sha256": "8304a16c5c686e30245f5e32aaa98492ac7b27d2bf017ba747093454e2a388cf"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/inscripcion_listas_2025/tiempos_inscripcion_todas_listas_2025/resultado.html",
+      "sha256": "4e13f8b4ca950e91e7e7bca66cb5651d5782bac9f701ce63265f5919024e6a6f"
+    },
+    {
+      "path": "datos/originales/reportes_dinamicos/historia_2015_2026/trasplantes_todos_anio_completo_2025/resultado.html",
+      "sha256": "d9afba3cf2ab4b88c0067d0c282fd4c32100638f432a4dac74d476c50507166c"
+    }
+  ]
+}
