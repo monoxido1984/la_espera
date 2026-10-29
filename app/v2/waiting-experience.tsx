@@ -306,8 +306,7 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
           {epilogueFocus!==null&&<button type="button" onClick={()=>setEpilogueFocus(null)}>Volver al reloj completo</button>}
           <a href="https://www.argentina.gob.ar/salud/incucai" target="_blank" rel="noopener noreferrer" className="v2-epilogue-donate-link">Informate sobre la donación de órganos en el INCUCAI ↗</a>
         </div>
-        <footer className="v2-epilogue-footer"><a href="#escena-0">Volver al comienzo ↑</a><button type="button" onClick={()=>setMethodOpen(true)}>Sobre los datos ↗</button></footer>
-      </div></section>
+      </div><footer className="v2-epilogue-footer"><a href="#escena-0">Volver al comienzo ↑</a><button type="button" onClick={()=>setMethodOpen(true)}>Sobre los datos ↗</button></footer></section>
     </div>
     <DataMethod data={originalData} record={record} selection={annualSelection} open={methodOpen} onClose={()=>setMethodOpen(false)}/>
     <DialysisDialog open={dialysisModalOpen} onClose={closeDialysisModal}/>
