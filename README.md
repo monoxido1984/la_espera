@@ -59,3 +59,6 @@ La asignación incorpora dos agregados de órganos de 2025: al menos 3.350 inscr
 
 ## Jerarquía visual y comparación temporal
 Se unifican tamaños de títulos, resultados y lectura. La serie anual ocupa su propia sección completa y tiene leyenda por territorio y tipo de trazo. El contexto alterna cantidades y PMH, sin normalizar los tiempos por población. Antes de la lista permite alternar el total y las cinco etapas ya publicadas para cada lista de 2025, conservando redondeos y faltantes. El diálogo renal se titula Esperar, antes de esperar.
+
+## Comparación y perfiles simulados
+La escena 03 compara por provincia o por lista de forma excluyente. La opción Todas pondera las 13 listas con tiempos publicados; los tiempos se convierten a una unidad común. El reloj genera perfiles ficticios reproducibles a partir de celdas conjuntas publicadas de lista, residencia, sexo, edad agrupada y antigüedad. Edad y duración exactas son ilustrativas; reglas y límites en Sobre los datos. Validación: scripts/simulated-waiting-profile.test.mjs.

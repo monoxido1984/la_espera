@@ -1,16 +1,20 @@
 'use client';
 import {integer,type Group} from './universe-model';
 export type SenioritySeries={label:string;color:string;groups:Group[];unavailable:boolean};
-export default function SeniorityComparison({series,onSelect}:{series:SenioritySeries[];onSelect:(id:string,sex:'FEMENINO'|'MASCULINO')=>void}){
+export default function SeniorityComparison({series,onSelect}:{series:SenioritySeries[];onSelect:(id:string,sex?:'FEMENINO'|'MASCULINO')=>void}){
   const categories=[...new Map(series.flatMap(s=>s.groups).filter(g=>g.kind!=='unavailable').map(g=>[g.id,g])).values()];
   const totals=series.map(s=>s.groups.reduce((n,g)=>n+g.value,0));
   const value=(s:SenioritySeries,id:string)=>{const g=s.groups.find(g=>g.id===id);return s.unavailable||!g?null:g.value;};
   const max=Math.max(1,...series.flatMap(s=>categories.map(g=>value(s,g.id)??0)));
   return <div className="v2-seniority-comparison">
+    <h3 className="v2-seniority-chart-title">Tiempo acumulado en lista de las inscripciones activas (quienes siguen esperando hoy)</h3>
     <div className="v2-seniority-legend">{series.map((s,i)=><span key={s.label} style={{color:s.color}}>{i?'●':'●'} {s.label} · {s.unavailable?'s/d':integer(totals[i])}</span>)}</div>
-    <svg viewBox="0 0 600 650" role="group" aria-label="Antigüedad en lista: barras de puntos de mujeres y hombres, con escala común de inscripciones">
+    <svg viewBox="0 0 600 650" role="group" aria-label="Antigüedad acumulada de inscripciones activas en lista: barras de puntos de mujeres y hombres, con escala común de inscripciones">
       {categories.map((g,j)=><g key={g.id}>
-        <text x="4" y={30+j*68}>{g.label}</text>
+        <g role="button" tabIndex={0} aria-label={`${g.label}: explorar esta franja en todas las provincias`} style={{cursor:'pointer'}} onClick={()=>onSelect(g.id)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onSelect(g.id);}}}>
+          <rect x="0" y={8+j*68} width="138" height="60" fill="transparent"/>
+          <text x="4" y={30+j*68}>{g.label}</text>
+        </g>
         {series.map((s,i)=>{
           const v=value(s,g.id),marks=v??0;
           const step=365/Math.max(1,Math.ceil(max/3));
@@ -25,6 +29,6 @@ export default function SeniorityComparison({series,onSelect}:{series:SeniorityS
       </g>)}
     </svg>
     {series.filter(s=>s.unavailable).map(s=><p key={s.label}>{s.label}: sin desglose publicado para esta selección.</p>)}
-    <details className="v2-exact"><summary>Ver valores por tiempo</summary><table><thead><tr><th>Antigüedad</th>{series.map(s=><th key={s.label}>{s.label}</th>)}</tr></thead><tbody>{categories.map(g=><tr key={g.id}><th>{g.label}</th>{series.map(s=><td key={s.label}>{value(s,g.id)===null?'s/d':integer(value(s,g.id)!)}</td>)}</tr>)}</tbody></table></details>
+    <details className="v2-exact"><summary>Ver valores por tiempo</summary><table><thead><tr><th>Antigüedad</th>{series.map(s=><th key={s.label}>{s.label}</th>)}</tr></thead><tbody>{categories.map(g=><tr key={g.id}><th><button type="button" onClick={()=>onSelect(g.id)}>{g.label}</button></th>{series.map(s=><td key={s.label}>{value(s,g.id)===null?'s/d':integer(value(s,g.id)!)}</td>)}</tr>)}</tbody></table></details>
   </div>;
 }

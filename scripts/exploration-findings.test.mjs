@@ -50,3 +50,12 @@ test('diagnosis and province findings describe active people in their selected s
   assert.ok(scoped.includes(baValue()));
   function baValue(){return renal.province.find(row=>row.label==='BUENOS AIRES').value.toLocaleString('es-AR');}
 });
+
+test('demographic summaries count the selected population and territory text ranks its own denominators',()=>{
+ const pediatric=snapshot.cohorts['menor18|all'].lists;
+ const data={total:195,lists:pediatric};
+ const text=waitingAnchor({data,selection:{listId:null,province:null,seniority:null,smallLists:false},dimension:'organ',mapAge:'menor18'});
+ assert.match(text,/Hay 195 niñas, niños y adolescentes/);
+ assert.doesNotMatch(text,/Hay \d+ listas/);
+ assert.match(waitingAnchor({data,selection,dimension:'seniority',provinceNames:new Map()}),/Así se distribuyen los tiempos de espera en el país/);
+});

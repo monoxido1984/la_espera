@@ -120,3 +120,13 @@ test('organ to map to provincial waiting times keeps the selected list',()=>{
  const times=explorationGroups(data,'seniority',next.selection);
  for(const row of published)assert.equal(times.groups.find(g=>g.sourceKey===row.label).value,row.value);
 });
+
+test('choosing a waiting-time band clears the province and opens its national provincial distribution',()=>{
+ const scoped={...allWaiting,listId:'RENAL',province:'BUENOS AIRES'};
+ const chosen=group(scoped,'seniority',band);
+ const next=selectExploration(scoped,'seniority',chosen);
+ assert.equal(next.selection.province,null);
+ assert.equal(next.selection.seniority,band);
+ assert.equal(next.selection.listId,'RENAL');
+ assert.equal(next.dimension,'territory');
+});

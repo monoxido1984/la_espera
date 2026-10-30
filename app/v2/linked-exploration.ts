@@ -117,7 +117,7 @@ export function selectExploration(selection: ExplorationSelection, dimension: Di
   const field = dimension === 'organ' ? 'listId' : dimension === 'seniority' ? 'seniority' : 'province';
   const value = group.sourceKey ?? group.id;
   const removing = selection[field] === value;
-  return {selection:{...selection,[field]:removing ? null : value},dimension:removing ? dimension : dimension === 'organ' ? 'territory' : dimension === 'territory' ? 'seniority' : 'territory'};
+  return {selection:{...selection,[field]:removing ? null : value,...(dimension==='seniority'?{province:null}:{})},dimension:removing ? dimension : dimension === 'organ' ? 'territory' : dimension === 'territory' ? 'seniority' : 'territory'};
 }
 
 export function identifyDots(points: Dot[], groups: Group[]): Dot[] {

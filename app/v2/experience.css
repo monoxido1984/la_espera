@@ -537,7 +537,7 @@
 .v2-opening .v2-opening-content>h1{display:block;position:absolute;left:7vw;top:31svh;font-family:'Newsreader',Georgia,serif;font-size:clamp(90px,12vw,180px);line-height:.85;margin:0;font-weight:400;letter-spacing:-.05em}
 .v2-opening .v2-opening-content>.v2-scroll{position:absolute;left:7vw;bottom:10svh;max-width:430px;border:0;background:none;padding:0;margin:0;font-size:13px;pointer-events:auto}
 
- .v2-number-scene{min-height:290svh}
+ .v2-number-scene{min-height:118svh}
 @media(min-width:761px) and (max-height:850px){
 .waiting-v2 #escena-4{scroll-margin-top:0;align-items:flex-start;padding-top:88px;padding-bottom:40px}
 .v2-epilogue .v2-kicker{margin-bottom:18px}.v2-epilogue .v2-copy h2{font-size:clamp(36px,4vw,52px);margin-bottom:20px}
@@ -642,3 +642,58 @@
 .v2-registration-view{min-height:28px}.v2-series-controls select,.v2-annual-also-options button,.v2-annual-also-unit button{min-height:34px}
 
 @media(max-width:760px){.waiting-v2 .v2-explore .v2-copy{width:100%;max-width:none}}
+.v2-opening-links{display:flex;flex-direction:column;align-items:flex-start;gap:12px;margin:34px 0 0;pointer-events:auto}
+.v2-opening .v2-opening-content .v2-opening-links>.v2-scroll{position:static;margin:0;padding:0;border:0;background:none;font-size:13.5px}
+.v2-opening .v2-opening-content .v2-opening-links>.v2-scroll-direct{color:var(--v2-ink);opacity:.82;font-size:12.5px;border-bottom:1px solid #18232140;padding-bottom:2px}
+.v2-opening .v2-opening-content .v2-opening-links>.v2-scroll-direct:hover{color:var(--v2-accent);border-color:var(--v2-accent);opacity:1}
+.v2-number-scene .v2-slide-footer .v2-next-scene{position:static;display:inline-flex;align-items:center;gap:10px;width:auto;max-width:none;margin:0;padding:6px 12px;background:var(--v2-accent);color:#fbf9f4!important;border:0;border-radius:3px;font-size:12.5px;font-weight:500;text-decoration:none}
+.v2-number-scene .v2-slide-footer .v2-next-scene:hover{opacity:.92}
+.v2-time-definition-badge{margin:8px 0 18px!important;padding:10px 13px;background:#18232109;border-left:3px solid var(--v2-accent);border-radius:0 4px 4px 0;font-size:13px!important;line-height:1.45!important;max-width:440px}
+.v2-time-definition-badge strong{display:block;font-weight:600;color:var(--v2-ink);margin-bottom:2px}
+.v2-seniority-comparison .v2-seniority-chart-title{font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:600;text-align:center;margin:0 0 8px;color:var(--v2-ink)}
+.v2-annual-also-drawer{margin-top:16px;max-width:360px;border-top:1px solid #18232125;padding-top:12px}
+.v2-annual-also-summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;font-weight:500;color:var(--v2-accent);padding:4px 0}
+.v2-annual-also-summary::-webkit-details-marker{display:none}
+.v2-annual-also-summary small{font-size:11px;padding:2px 6px;border-radius:10px;background:#b74d3818;color:var(--v2-accent)}
+.v2-annual-also-drawer[open] .v2-annual-also{margin-top:10px}
+.v2-annual-also-options .v2-context-clear{border-style:dashed;opacity:.75;font-size:12px}
+.v2-series-header-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 18px;margin:0 0 6px}
+.v2-series-header-row .v2-series-legend{margin:0;justify-content:flex-start}
+.v2-series-header-row .v2-series-controls{margin:0;font-size:12px;opacity:.85}
+.v2-legend-aux-item,.v2-inline-annual .v2-story-history-full .v2-axis-title-aux{opacity:.68}
+@media(max-width:760px){.v2-opening-links{position:absolute;left:25px;bottom:4svh;margin:0;gap:8px;max-width:calc(100% - 50px)}.v2-time-definition-badge{font-size:12px!important;padding:8px 11px}.v2-series-header-row{flex-direction:column;align-items:flex-start}}
+
+
+/* Escena 01: tres pasos por scroll, título alineado a la izquierda y tres cifras en el paso 3. */
+.waiting-v2 .v2-number-scene{min-height:290svh}
+.waiting-v2 .v2-number-scene .v2-kicker{left:5.5vw;right:auto;width:auto;text-align:left}
+.v2-allocation-counts{grid-template-columns:repeat(3,minmax(0,1fr))}
+.v2-allocation-counts>div:nth-child(3) strong{color:#087e8b}
+@media(max-width:760px){.waiting-v2 .v2-number-scene .v2-kicker{left:25px}.v2-allocation-counts{gap:10px}.v2-allocation-counts strong{font-size:28px!important}}
+
+/* Escena 02: los órganos quedan anclados a la derecha, sin invadir la columna de texto. */
+@media(min-width:761px){
+ .waiting-v2 .v2-explore .v2-copy{width:31vw;max-width:400px}
+ .waiting-v2 .v2-explore .v2-copy>*{max-width:100%}
+ .v2-stage:has(.v2-universe[data-mode=organ],.v2-universe[data-mode=territory]) .v2-figure{right:3vw;width:55vw}
+}
+@media(max-width:760px){
+ .waiting-v2 .v2-stage:has(.v2-universe[data-mode=organ],.v2-universe[data-mode=territory]){position:absolute;left:0;right:0;top:var(--v2-scene-top,0px);height:var(--v2-scene-height,100svh);margin-bottom:0}
+ .waiting-v2 .v2-stage:has(.v2-universe[data-mode=organ],.v2-universe[data-mode=territory]) .v2-figure{top:calc(var(--v2-copy-bottom,480px) + 40px)}
+ .waiting-v2 .v2-explore{padding-bottom:520px}
+}
+
+/* Ancla de exploración limitada a su sección: no invade la serie anual. */
+@media(min-width:761px){
+ .waiting-v2 .v2-stage[data-scene="2"]{position:fixed;inset:0;height:100svh;margin-bottom:0;clip-path:inset(var(--v2-explore-clip-top,0px) 0 var(--v2-explore-clip-bottom,0px) 0)}
+}
+
+.v2-epilogue-profile{position:absolute;top:12%;left:8%;width:84%;box-sizing:border-box;padding:20px;background:var(--v2-paper);border-left:2px solid var(--v2-accent);pointer-events:none;box-shadow:0 8px 30px #18232115}
+.v2-epilogue-profile>span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--v2-accent)}
+.v2-epilogue-profile p{font-family:Newsreader,Georgia,serif;font-size:clamp(22px,2.2vw,30px);line-height:1.25;margin:14px 0}
+.v2-epilogue-profile small{font-size:12px;line-height:1.5;display:block}
+@media(max-width:760px){.v2-epilogue-profile{top:4%;left:3%;width:94%;padding:16px}.v2-epilogue-profile p{font-size:23px}}
+
+/* La columna de controles conserva su espacio y termina antes del enlace de salida. */
+.waiting-v2 #escena-3>.v2-copy{position:relative;top:auto;align-self:start;padding-bottom:12px}
+.waiting-v2 #escena-3>.v2-annual-outro{position:relative;clear:both;margin-top:12px}

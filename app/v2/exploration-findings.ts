@@ -83,7 +83,14 @@ function getDemographicNoun(age: string, sex: string): string {
   return 'personas';
 }
 
-export function waitingAnchor({data,selection,dimension='organ',mapAge='all',mapSex='all',provinceNames,defaultView,missing,dialysis=31431,sex='all',mapSnapshot}: {
+const listAdjectives: Record<string,string> = {
+  RENAL:'renal', HEPATICA:'hepática', CARDIACA:'cardíaca', PULMONAR:'pulmonar', RENOPANCREATICA:'renopancreática',
+  HEPATORRENAL:'hepatorrenal', HEPATORENAL:'hepatorrenal', CARDIORRENAL:'cardiorrenal', CARDIORENAL:'cardiorrenal',
+  CARDIOPULMONAR:'cardiopulmonar', PANCREATICA:'pancreática', INTESTINAL:'intestinal', CORNEAS:'de córneas', ESCLERAS:'de escleras',
+};
+const listAdjective=(id:string)=>listAdjectives[id]??`de ${organLabel(id).toLowerCase()}`;
+
+export function waitingAnchor({data,selection,dimension='organ',mapAge='all',mapSex='all',provinceNames,defaultView,missing,dialysis=31431,sex='all',mapSnapshot:_mapSnapshot}: {
   data: UniverseData; selection: ExplorationSelection;
   dimension?: 'organ'|'territory'|'seniority'; mapAge?: string; mapSex?: string;
   provinceNames?: Map<string,string>; defaultView?: boolean; missing?: boolean;
@@ -100,6 +107,18 @@ export function waitingAnchor({data,selection,dimension='organ',mapAge='all',map
   if(facts.total===null)return 'Este cruce no tiene resultado publicado.';
   const location=selection.province?provinceNames?.get(selection.province)??selection.province:'Argentina';
   const scope=[selection.listId?organLabel(selection.listId):selection.smallLists?'Listas menores':'Todas las listas',location,getDemographicNoun(mapAge,selectedSex)].join(' · ');
+  if(dimension==='seniority')return `Así se distribuyen los tiempos de espera ${selection.province?'en '+location:'en el país'}. Elegí una franja o una barra para ver cómo se distribuyen por provincia quienes llevan ese tiempo esperando.`;
+  if(dimension==='territory'&&!selection.province){
+    const territories=(data.lists.find(l=>l.id==='TOTAL')?.province??[]).map(row=>{
+      const own=waitingFacts(lists,row.label),value=selection.seniority?own.bands.get(selection.seniority)??0:own.total??0;
+      const denominator=data.populationByProvince?.[row.label];
+      return {label:provinceNames?.get(row.label)??row.label,value,pmh:denominator?value/denominator*1_000_000:undefined};
+    });
+    const most=territories.filter(g=>g.value>0).sort((a,b)=>b.value-a.value)[0];
+    const rate=territories.filter(g=>g.pmh!==undefined&&g.value>0).sort((a,b)=>b.pmh!-a.pmh!)[0];
+    const intro=selection.seniority?`Así se distribuyen por provincia de residencia quienes llevan ${bandLabel(selection.seniority)} esperando.`:'Explorá cómo varían los tiempos según la provincia de residencia.';
+    return intro+(most?` ${most.label} reúne la mayor cantidad: ${number(most.value)} ${getDemographicNoun(mapAge,selectedSex)} esperando.`:'')+(rate?` ${rate.label} tiene la mayor proporción en relación con su población (${percent(rate.pmh!,100)} por millón de habitantes).`:'');
+  }
   if(selection.seniority){
     const amount=facts.bands.get(selection.seniority);
     if(amount===undefined)return 'No hay una distribución publicada para este tramo y selección.';
@@ -107,11 +126,27 @@ export function waitingAnchor({data,selection,dimension='organ',mapAge='all',map
   }
   if(!facts.total)return `${scope}: no hay inscripciones publicadas para esta selección.`;
   const time=facts.long===null?'La distribución de tiempos no está completa.':`${number(facts.long)} (${percent(facts.long,facts.total)}%) llevan 3 años o más en lista.`;
-  if(dimension==='organ'&&!selection.listId&&!selection.smallLists){
-    const renal=lists.find(list=>list.id==='RENAL')?.total??0;
-    const national=mapSnapshot?.cohorts['all|all']?.lists.find(list=>list.id==='TOTAL')?.total??data.total;
-    const scopeText=mapAge==='all'&&selectedSex==='all'?`${number(national)} esperas activas`:`${number(facts.total)} inscripciones de ${getDemographicNoun(mapAge,selectedSex)}`;
-    return `${scopeText}. Riñón reúne ${number(renal)} (${percent(renal,facts.total)}%). ${time} Elegí una lista para explorar sus tiempos.`;
+  if(dimension==='organ'&&!selection.smallLists){
+    const noun=getDemographicNoun(mapAge,selectedSex);
+    const where=selection.province?` en ${location}`:'';
+    const listSentence=(list:ListDetail)=>{
+      const own=waitingFacts([list],selection.province);
+      const base=`La lista de espera ${listAdjective(list.id)}${where} reúne ${number(own.total??0)} ${noun}`;
+      return own.long===null?`${base}; la distribución de tiempos no está completa.`:`${base}, de las cuales ${number(own.long)} llevan al menos 3 años esperando.`;
+    };
+    if(!selection.listId&&(mapAge!=='all'||selectedSex!=='all')){
+      const totalList=data.lists.find(list=>list.id==='TOTAL');
+      const filtered=totalList?waitingFacts([totalList],selection.province):facts;
+      const ending=filtered.long===null?'La distribución de tiempos no está completa.':`De ese total, ${number(filtered.long)} ${filtered.long===1?'lleva':'llevan'} esperando al menos 3 años.`;
+      return `Hay ${number(filtered.total??0)} ${noun} esperando un trasplante${where}. ${ending}`;
+    }
+    if(!selection.listId){
+      const active=lists.filter(list=>(waitingFacts([list],selection.province).total??0)>0);
+      const renalList=lists.find(list=>list.id==='RENAL');
+      return `Hay ${number(active.length)} listas de espera${where}. ${renalList?listSentence(renalList)+' ':''}Elegí una lista para explorar sus tiempos.`;
+    }
+    const chosen=lists.find(list=>list.id===selection.listId);
+    if(chosen)return `${listSentence(chosen)} Seguí por una provincia para comparar cuánto llevan esperando.`;
   }
   return `${scope}: ${number(facts.total)} inscripciones activas. ${time} `+(dimension==='territory'&&!selection.province?'Elegí una provincia para ver sus tiempos.':dimension==='organ'?'Seguí por una provincia para comparar cuánto llevan esperando.':'Este tiempo ya transcurrió; no predice cuánto falta.');
 }
