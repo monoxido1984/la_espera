@@ -6,9 +6,9 @@ const read=file=>readFileSync(new URL(file,root),'utf8');
 test('methodology downloads exist and contain no retired datasets',()=>{
  const source=read('app/v2/data-method.tsx');
  const files=[...source.matchAll(/\['[^']+','([^']+\.(?:json|md|csv))'\]/g)].map(match=>match[1]);
- assert.equal(files.length,18);
+ assert.equal(files.length,20);
  for(const file of files)assert.ok(existsSync(new URL('public/datos/'+file,root)),file);
- assert.deepEqual(readdirSync(new URL('public/datos/',root)).sort(),files.sort());
+ assert.deepEqual(readdirSync(new URL('public/datos/',root),{withFileTypes:true}).filter(entry=>entry.isFile()).map(entry=>entry.name).sort(),files.sort());
  assert.doesNotMatch(source,/ExitBreakdown|Movimientos|Ing LE|parcial-2026|egresos-provinciales|trasplantes-registrados/);
 });
 test('published downloads match the actual application aggregates',()=>{
