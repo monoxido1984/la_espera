@@ -251,13 +251,13 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
       </section>
       <section id="escena-2" data-scene="2" className="v2-scene v2-explore"><div className="v2-copy">
         <p className="v2-kicker">02 / Explorar la espera</p>
-        <h2>Esperar…<br />{diagnosisOpen?'¿por qué?':dimension==='organ'?'¿qué?':dimension==='territory'?'¿dónde?':'¿hace cuánto?'}</h2>
+        <h2>{diagnosisOpen?'Diagnósticos':<>Esperar…<br />{dimension==='organ'?'¿qué?':dimension==='territory'?'¿dónde?':'¿hace cuánto?'}</>}</h2>
         <p className="v2-explore-context">¿Cuánto llevan esperando? Explorá los filtros y descubrí hace cuánto que están esperando las 9.641 personas.</p>
         <nav className="v2-tabs" role="tablist" aria-label="Dimensiones de la espera">
           <button type="button" aria-pressed={!diagnosisOpen&&dimension === 'organ'} onClick={() => changeDimension('organ')}>Lista</button>
           <button type="button" aria-pressed={!diagnosisOpen&&dimension === 'territory'} onClick={() => changeDimension('territory')}>Provincia</button>
           <button type="button" aria-pressed={!diagnosisOpen&&dimension === 'seniority'} onClick={() => changeDimension('seniority')}>Tiempo en lista</button>
-          <button type="button" aria-pressed={diagnosisOpen} onClick={()=>{setDiagnosisOpen(true);setSelectedDiagnosis(null);}}>¿Por qué?</button>
+          <button type="button" aria-pressed={diagnosisOpen} onClick={()=>{setDiagnosisOpen(true);setSelectedDiagnosis(null);}}>Diagnósticos</button>
         </nav>
         <p className="v2-anchor-insight" aria-live="polite">{anchor}</p>
         {dimension === 'territory' && canUsePmh && !diagnosisOpen && <div className="v2-tabs" role="group" aria-label="Métrica territorial"><button type="button" aria-pressed={territoryMetric === 'count'} onClick={() => setTerritoryMetric('count')}>Total</button><button type="button" aria-pressed={territoryMetric === 'pmh'} onClick={() => setTerritoryMetric('pmh')}>Por millón de hab.</button></div>}

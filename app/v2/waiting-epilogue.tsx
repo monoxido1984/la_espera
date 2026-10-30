@@ -13,6 +13,7 @@ export default function WaitingEpilogue({count,paused,focused,onFocus}:{count:nu
   const profile=focused===null?null:simulatedProfile(simulatedCells,focused);
   const province=profile?.province.toLocaleLowerCase('es-AR').replace(/(^|\s)\S/g,c=>c.toLocaleUpperCase('es-AR'));
   const duration=profile?profile.months<1?'menos de un mes':profile.months<12?`${profile.months} meses`:`${Math.floor(profile.months/12)} años${profile.months%12?` y ${profile.months%12} meses`:''}`:'';
+  const pointButton=useRef<HTMLButtonElement>(null);
   const box=useRef<HTMLDivElement>(null),canvas=useRef<HTMLCanvasElement>(null);
   const positions=useRef<{x:number;y:number}[]>([]),hover=useRef<number|null>(null);
   const gathered=useRef(0);
@@ -87,9 +88,10 @@ export default function WaitingEpilogue({count,paused,focused,onFocus}:{count:nu
     return found;
   }
   function next(){onFocus(((focused??0)+Math.max(1,Math.floor(count*.381966)))%Math.max(1,count));}
+  function closeProfile(){hover.current=null;onFocus(null);requestAnimationFrame(()=>pointButton.current?.focus({preventScroll:true}));}
   return <div ref={box} className="v2-epilogue-visual">
-    <button type="button" className="v2-epilogue-points" aria-label="Acercarse a una espera entre todas en el reloj de arena. Usá las flechas para detenerte en otro punto." onPointerMove={event=>{hover.current=nearest(event);}} onPointerLeave={()=>{hover.current=null;}} onClick={event=>{const index=nearest(event);if(index===null)next();else onFocus(focused===index?null:index);}} onKeyDown={event=>{if(event.key.startsWith('Arrow')){event.preventDefault();next();}if(event.key==='Escape')onFocus(null);}}><canvas ref={canvas} aria-hidden="true"/></button>
-    {profile&&<aside className="v2-epilogue-profile" aria-live="polite"><span>Perfil simulado en base a los datos obtenidos (más información en Sobre los datos)</span><p>{profile.age} años · sexo {profile.sex==='FEMENINO'?'femenino':'masculino'}</p><p>Vive en {province}. Espera un trasplante de {organLabel(profile.list,profile.list).toLowerCase()} desde hace {duration}.</p><small>Una historia posible entre miles. Seleccioná otro punto para conocer otra espera.</small></aside>}
+    <button ref={pointButton} type="button" className="v2-epilogue-points" aria-label="Acercarse a una espera entre todas en el reloj de arena. Usá las flechas para detenerte en otro punto." onPointerMove={event=>{hover.current=nearest(event);}} onPointerLeave={()=>{hover.current=null;}} onClick={event=>{const index=nearest(event);if(index===null)next();else onFocus(focused===index?null:index);}} onKeyDown={event=>{if(event.key.startsWith('Arrow')){event.preventDefault();next();}if(event.key==='Escape')onFocus(null);}}><canvas ref={canvas} aria-hidden="true"/></button>
+    {profile&&<aside className="v2-epilogue-profile" aria-live="polite" onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();closeProfile();}}}><div className="v2-profile-header"><span>Perfil simulado en base a los datos obtenidos (más información en Sobre los datos)</span><button type="button" onClick={closeProfile} aria-label="Cerrar perfil simulado y ver el reloj completo">Cerrar perfil ×</button></div><p>{profile.age} años · sexo {profile.sex==='FEMENINO'?'femenino':'masculino'}</p><p>Vive en {province}. Espera un trasplante de {organLabel(profile.list,profile.list).toLowerCase()} desde hace {duration}.</p><small>Una historia posible entre miles. Cerrá el perfil para elegir cualquier otro punto del reloj.</small></aside>}
     <div className="v2-epilogue-reading" aria-live="polite"><p>{focused===null?'Una espera a contrarreloj.':'Cada espera es única.'}</p><span>{integer(count)} inscripciones activas</span></div>
   </div>;
 }
