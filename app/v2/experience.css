@@ -699,3 +699,12 @@
 .waiting-v2 #escena-3>.v2-annual-outro{position:relative;clear:both;margin-top:12px}
 
 .v2-dialysis-collective .v2-dialysis-century{display:block;margin:14px 0;font-family:Newsreader,Georgia,serif;font-size:clamp(44px,5vw,64px);font-weight:400;line-height:1.1;text-align:center;color:var(--v2-accent)}
+
+.v2-universe[data-mode=organ] .v2-cluster[data-kind="collection"] .v2-cluster-label{left:-12px;top:50%;transform:translate(-100%,-50%);margin-top:0;width:110px;min-width:0;max-width:130px;text-align:right;white-space:normal}
+
+.v2-universe[data-mode=organ] .v2-cluster[data-kind="collection"][data-label-side="right"] .v2-cluster-label{left:auto;right:-12px;transform:translate(100%,-50%);text-align:left}
+
+.v2-universe[data-mode=organ] .v2-cluster[data-kind="collection"][data-label-side="above"] .v2-cluster-label{left:50%;top:-12px;transform:translate(-50%,-100%);text-align:center}
+.v2-universe[data-mode=organ] .v2-cluster[data-kind="collection"][data-label-side="below"] .v2-cluster-label{left:50%;top:calc(100% + 12px);transform:translateX(-50%);text-align:center}
+
+.v2-universe[data-mode=organ] .v2-cluster[data-kind="collection"] .v2-cluster-label{pointer-events:auto}
