@@ -80,7 +80,7 @@ export default function DialysisDialog({
           </div>
         </div>
 
-        <p className="v2-dialysis-collective"><strong>Del tiempo de una persona al conjunto</strong><br/>624 horas × {integer(dialysis.count)} personas = {integer(624*dialysis.count)} horas-persona. Equivalen a unos <strong>{decimal(624*dialysis.count/24/DAYS_PER_YEAR/100)} siglos</strong> en sesiones dentro de un año ilustrativo; no son siglos de espera clínica observada.</p>
+        <p className="v2-dialysis-collective"><strong>Del tiempo de una persona al conjunto</strong><br/>624 horas × {integer(dialysis.count)} personas = {integer(624*dialysis.count)} horas-persona. Equivalen a unos <strong className="v2-dialysis-century">{decimal(624*dialysis.count/24/DAYS_PER_YEAR/100)} siglos</strong> en sesiones dentro de un año ilustrativo; no son siglos de espera clínica observada.</p>
         <p className="v2-dialysis-footer">
           Fuente: CRESI (SINTRA · INCUCAI), prevalencia en diálisis (Total IRCT) al 31/12/2025. Las 3 sesiones semanales de 4 horas son un supuesto del escenario, no una media estimada con estos registros.
         </p>

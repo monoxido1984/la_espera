@@ -107,3 +107,28 @@ Se muestrea con peso N una celda conjunta publicada de lista, provincia, sexo, g
 4. Leer las tablas con sus encabezados originales y aplicar las reglas anteriores. La extracción y sus discrepancias son auditables por separado.
 
 La exportación se reproduce sin red con scripts/archive-cresi-sources.py --root RUTA_DEL_PROYECTO_DE_ADQUISICION. Requiere Python, BeautifulSoup y los scripts y originales preservados de ese proyecto. No ejecuta solicitudes HTTP.
+
+
+## Ejemplo manual: receptores del reporte de trasplante renal en 2025
+
+**Qué número vamos a comprobar:** 1.542 receptores del reporte nacional de trasplante Renal en el archivo consultado el 12/08/2026 a las 20:20. Su población es «Pacientes trasplantados asignados en distribución renal». No es el número de personas actualmente en lista ni una consulta adicional restringida a una lista individual.
+
+1. Entrar en la [sección pública de CRESI](https://cresi.incucai.gov.ar/) y abrir el reporte de trasplante Renal. También se conserva el [enlace directo al formulario](https://cresi.incucai.gov.ar/cresi/OpenDocument.do?accion=%2Fcresi_renal.do%3FCLICK_AND_LIST_HABILITADO%3Dtrue). Si el enlace directo requiere iniciar una sesión pública, entrar primero por la portada; no hace falta iniciar sesión con credenciales.
+2. En el **paso 1, criterios de evaluación**, elegir el tipo de período **FECHA DE DESCLAMPEO**. Es la fecha del trasplante utilizada por esta consulta; no elegir fecha de inscripción en lista.
+3. Elegir **OTRO AÑO** y escribir/seleccionar **2025**. El resultado debe mostrar desde **01/01/2025 hasta 31/12/2025**.
+4. Dejar el resto de los criterios sin restricciones adicionales: sin filtrar provincia, sexo, edad, tipo de donante ni lista individual. Así se reproduce la población nacional del reporte archivado; agregar un filtro cambia el conjunto y puede cambiar el total. Continuar al paso 2.
+5. En el **paso 2, salidas**, seleccionar **4. Receptores agrupados por provincia de residencia** y generar el reporte. Para reproducir además las otras salidas del archivo original, marcar también **12. Receptores agrupados por grupo etáreo del receptor**, **14. Receptores agrupados por sexo del receptor**, **27. Receptores agrupados por tiempo en lista de espera** y **29. Variables estadísticas del tiempo de espera hasta el trasplante**. Son agrupamientos del mismo conjunto: no se deben sumar los totales de distintas tablas.
+6. En la salida 4, buscar la fila **TOTAL** y leer la columna **Total**: el archivo conserva **1.542**. No leer sólo la columna Vivo: hay 1.539 en Vivo y 3 en Fallecido. Esas columnas describen la situación a las 24 horas del implante, no mortalidad anual. Si se eligió la salida 29, su fila TOTAL también tiene **Total = 1.542** y **AVG = 28,12 meses**; la web redondea esa media a **28,1 meses**.
+7. Contrastar con la fila year=2025 de [historia-y-fuentes.json](historia-y-fuentes.json): n=1542 y average=28.12. En [parametros-extraccion.json](parametros-extraccion.json), buscar el identificador datos/originales/reportes_dinamicos/trayectoria_renal/trasplante_renal_2025. En el [índice de originales](fuentes-archivadas.json), localizar esa consulta y la tabla datos/extraidos/reportes_dinamicos/trayectoria_renal/trasplante_renal_2025/tabla_06.csv; el paquete correspondiente permite recuperar sus bytes y verificar el SHA256.
+
+Los campos literales registrados para el paso 1 son:
+
+| Campo técnico | Valor |
+| --- | --- |
+| TIPO_PERIODO_TRASPLANTE_HEPATICO | FECHA DE DESCLAMPEO |
+| PERIODO | OTRO AÑO |
+| OTRO_ANIO | 2025 |
+
+El nombre técnico del primer campo contiene HEPATICO también en este formulario renal: se conserva tal como lo envió CRESI; no indica que se haya consultado un reporte hepático. La ejecución final es un POST a https://cresi.incucai.gov.ar/reporte/resumenestadistico/EjecutarConsultaTrasplante.do?reporte=renal. Debe generarse desde el formulario público, que mantiene los criterios de la sesión; abrir esa URL final por sí sola no reproduce la consulta.
+
+**Transformación aplicada:** usar el Total nacional publicado, sin multiplicar por población ni sumar varias salidas; para la media, tomar AVG de la misma cohorte y redondear sólo al mostrar. Una nueva consulta puede arrojar cifras revisadas. El ejemplo permite comprobar el archivo histórico y repetir sus criterios, no garantiza que CRESI mantenga hoy el mismo valor.
