@@ -14,11 +14,13 @@ export default function WaitingEpilogue({count,paused,focused,onFocus}:{count:nu
   const province=profile?.province.toLocaleLowerCase('es-AR').replace(/(^|\s)\S/g,c=>c.toLocaleUpperCase('es-AR'));
   const duration=profile?profile.months<1?'menos de un mes':profile.months<12?`${profile.months} meses`:`${Math.floor(profile.months/12)} años${profile.months%12?` y ${profile.months%12} meses`:''}`:'';
   const pointButton=useRef<HTMLButtonElement>(null);
+  const visual=useRef<HTMLDivElement>(null);
   const box=useRef<HTMLDivElement>(null),canvas=useRef<HTMLCanvasElement>(null);
   const positions=useRef<{x:number;y:number}[]>([]),hover=useRef<number|null>(null);
   const gathered=useRef(0);
   const [size,setSize]=useState({width:0,height:0});
   useEffect(()=>{const observer=new ResizeObserver(rows=>{const {width,height}=rows[0].contentRect;setSize({width,height});});if(box.current)observer.observe(box.current);return()=>observer.disconnect();},[]);
+  useEffect(()=>{const element=visual.current;if(!element)return;const root=element.closest<HTMLElement>('.waiting-v2');const update=()=>root?.style.setProperty('--v2-epilogue-visual-height',element.getBoundingClientRect().height+'px');const observer=new ResizeObserver(update);observer.observe(element);update();return()=>{observer.disconnect();root?.style.removeProperty('--v2-epilogue-visual-height');};},[]);
   useEffect(()=>{
     const element=canvas.current,ctx=element?.getContext('2d');if(!element||!ctx||!size.width)return;
     const {width,height}=size,dpr=Math.min(devicePixelRatio||1,2);
@@ -44,7 +46,7 @@ export default function WaitingEpilogue({count,paused,focused,onFocus}:{count:nu
       ctx!.clearRect(0,0,width,height);
 
       // Draw hourglass vessel contour as points gather into the hourglass
-      const vesselAlpha=Math.max(0,(progress-.18)/.82)*(selected===null?.75:.28);
+      const vesselAlpha=Math.max(0,(progress-.18)/.82)*.75;
       if(vesselAlpha>.01){
         ctx!.strokeStyle='#b74d38';
         ctx!.lineWidth=mobile?1.5:2;
@@ -63,7 +65,7 @@ export default function WaitingEpilogue({count,paused,focused,onFocus}:{count:nu
         ctx!.stroke();
       }
 
-      ctx!.fillStyle='#b74d38';ctx!.globalAlpha=selected===null?.88:.18;ctx!.beginPath();
+      ctx!.fillStyle='#b74d38';ctx!.globalAlpha=.88;ctx!.beginPath();
       positions.current=points.map((point,i)=>{
         const p=epiloguePosition(i,progress,point.from,point.to);
         ctx!.moveTo(p.x+radius,p.y);ctx!.arc(p.x,p.y,radius,0,Math.PI*2);return p;
@@ -89,9 +91,12 @@ export default function WaitingEpilogue({count,paused,focused,onFocus}:{count:nu
   }
   function next(){onFocus(((focused??0)+Math.max(1,Math.floor(count*.381966)))%Math.max(1,count));}
   function closeProfile(){hover.current=null;onFocus(null);requestAnimationFrame(()=>pointButton.current?.focus({preventScroll:true}));}
-  return <div ref={box} className="v2-epilogue-visual">
+  return <div ref={visual} className="v2-epilogue-visual" data-profile-open={profile!==null}>
+    <div ref={box} className="v2-epilogue-clock">
     <button ref={pointButton} type="button" className="v2-epilogue-points" aria-label="Acercarse a una espera entre todas en el reloj de arena. Usá las flechas para detenerte en otro punto." onPointerMove={event=>{hover.current=nearest(event);}} onPointerLeave={()=>{hover.current=null;}} onClick={event=>{const index=nearest(event);if(index===null)next();else onFocus(focused===index?null:index);}} onKeyDown={event=>{if(event.key.startsWith('Arrow')){event.preventDefault();next();}if(event.key==='Escape')onFocus(null);}}><canvas ref={canvas} aria-hidden="true"/></button>
-    {profile&&<aside className="v2-epilogue-profile" aria-live="polite" onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();closeProfile();}}}><div className="v2-profile-header"><span>Perfil simulado en base a los datos obtenidos (más información en Sobre los datos)</span><button type="button" onClick={closeProfile} aria-label="Cerrar perfil simulado y ver el reloj completo">Cerrar perfil ×</button></div><p>{profile.age} años · sexo {profile.sex==='FEMENINO'?'femenino':'masculino'}</p><p>Vive en {province}. Espera un trasplante de {organLabel(profile.list,profile.list).toLowerCase()} desde hace {duration}.</p><small>Una historia posible entre miles. Cerrá el perfil para elegir cualquier otro punto del reloj.</small></aside>}
     <div className="v2-epilogue-reading" aria-live="polite"><p>{focused===null?'Una espera a contrarreloj.':'Cada espera es única.'}</p><span>{integer(count)} inscripciones activas</span></div>
+    </div>
+    {profile&&<aside className="v2-epilogue-profile" aria-live="polite" onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();closeProfile();}}}><div className="v2-profile-header"><span>Perfil simulado en base a los datos obtenidos (más información en Sobre los datos)</span><button type="button" onClick={closeProfile} aria-label="Cerrar perfil simulado y ver el reloj completo">Cerrar perfil ×</button></div><p>{profile.age} años · sexo {profile.sex==='FEMENINO'?'femenino':'masculino'}</p><p>Vive en {province}. Espera un trasplante de {organLabel(profile.list,profile.list).toLowerCase()} desde hace {duration}.</p><small>Una historia posible entre miles. Elegí otro punto del reloj para conocer otra espera.</small></aside>}
+
   </div>;
 }

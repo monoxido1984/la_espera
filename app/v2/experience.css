@@ -716,3 +716,17 @@
 .v2-profile-header>span{font-size:11px;line-height:1.5;text-transform:uppercase;letter-spacing:.04em;color:var(--v2-accent)}
 .v2-profile-header>button{flex:none;pointer-events:auto;font:inherit;font-size:12px;border:1px solid #18232150;background:var(--v2-paper);padding:7px 10px;white-space:nowrap}
 .v2-epilogue-profile{pointer-events:auto}
+
+/* El perfil tiene su propia columna; nunca se dibuja sobre el área pulsable del reloj. */
+.v2-epilogue-visual{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+.v2-epilogue-clock{position:relative;width:100%;height:100%;min-width:0;min-height:0}
+.v2-epilogue-visual[data-profile-open=true]{grid-template-columns:minmax(150px,1fr) minmax(210px,.95fr)}
+.v2-epilogue-visual .v2-epilogue-profile{position:relative;top:auto;left:auto;right:auto;transform:none;width:100%;max-height:100%;align-self:center;overflow:auto;padding:16px}
+.v2-epilogue-profile .v2-profile-header{flex-direction:column;gap:8px}
+.v2-epilogue-profile p{font-size:clamp(21px,1.9vw,27px)}
+@media(max-width:760px){
+ .v2-epilogue-visual,.v2-epilogue-visual[data-profile-open=true]{grid-template-columns:minmax(0,1fr);height:auto;gap:20px}
+ .v2-epilogue-clock{height:360px}
+ .v2-epilogue-visual .v2-epilogue-profile{max-height:none;overflow:visible}
+ .waiting-v2 .v2-epilogue>.v2-epilogue-footer{margin-top:calc(var(--v2-epilogue-visual-height,360px) + 60px)}
+}
