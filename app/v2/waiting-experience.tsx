@@ -10,7 +10,8 @@ import entryContext from './annual-entry-context.generated.json';
 import registrationContext from './registration-context.generated.json';
 import {numberStoryFacts,numberStepTargets} from './number-story-model';
 import {organLabel} from './organ-labels';
-import AnnualParallel from './annual-unified';
+import AnnualParallel,{type AnnualContext} from './annual-unified';
+import type {ContextUnit} from './annual-context-model';
 import DialysisDialog from './dialysis-dialog';
 import DonationContext from './donation-context';
 
@@ -46,6 +47,7 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
   const [scene, setScene] = useState(0);
   const [numberStep,setNumberStep]=useState(0);
   const [registrationList,setRegistrationList]=useState('TOTAL');
+  const [showRegistrationStages,setShowRegistrationStages]=useState(false);
   const renalCount=originalData.lists.find(row=>row.id==='RENAL')?.total??0;
   const numberFacts=numberStoryFacts(originalData.total,renalCount);
   const [mapAge,setMapAge]=useState<MapAge>('all');
@@ -71,6 +73,8 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
   const sandHandoff=useRef<SandHandoff|null>(null);
   const [annualSelection,setAnnualSelection]=useState<AnnualTimeSelection>({list:'RENAL',province:null,age:'all'});
   const [annualTimes,setAnnualTimes]=useState<AnnualTimeDetail[]>([]);
+  const [annualContext,setAnnualContext]=useState<AnnualContext>('none');
+  const [annualContextUnit,setAnnualContextUnit]=useState<ContextUnit>('pmh');
   // Synchronize only when a shared filter changes; scrolling never resets it.
   useEffect(()=>{
     if(selection.listId && annualListLabels[selection.listId]) setAnnualSelection(current=>({...current,list:selection.listId!,province:selection.province}));
@@ -78,7 +82,7 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
   },[selection.listId,selection.province]);
   function selectAnnual(value:AnnualTimeSelection){
     setAnnualSelection({...value,age:'all'});
-    setSelection(current=>({...current,listId:value.list,province:value.province,smallLists:false}));
+    setSelection(current=>({...current,listId:value.list==='TOTAL'?null:value.list,province:value.province,smallLists:false}));
   }
   useEffect(()=>{if(location.hash==='#sobre-los-datos')setMethodOpen(true);},[]);
   useEffect(() => {
@@ -171,15 +175,15 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
     <header className="v2-header"><a href="#escena-0" className="v2-brand">LA ESPERA <span>Argentina</span></a><div><button type="button" aria-haspopup="dialog" aria-controls="sobre-los-datos" aria-expanded={methodOpen} onClick={()=>setMethodOpen(true)}>Sobre los datos</button></div></header>
     <nav className="v2-progress" aria-label="Capítulos">{chapters.map((chapter, index) => <a href={`#escena-${index}`} key={chapter} aria-label={`${index + 1}. ${chapter}`} aria-current={scene === index ? 'step' : undefined}><span>{chapter}</span></a>)}</nav>
     <div className="v2-story">
-      <div ref={stage} className="v2-stage" data-epilogue={scene===4} data-sand={scene<2} aria-hidden={scene === 0 ? true : undefined}>
-        <div className="v2-figure">{scene===4?<WaitingEpilogue count={originalData.total} snapshot={originalData.snapshot} paused={reduced} focused={epilogueFocus} onFocus={setEpilogueFocus}/>:scene<2?<SandQueue snapshot={data.snapshot} count={data.total} renalCount={renalCount} step={numberStep} registrationList={registrationList} onStepChange={setNumberStep} forming={scene===1} paused={reduced} relay={pointRelay} handoff={sandHandoff}/>:scene===3?<AnnualParallel onYear={setYear} record={record} history={annualComparison} selection={annualSelection} scope={`${annualSelection.province?provinceNames.get(annualSelection.province):'Argentina'} · ${annualSelection.age==='all'?'todas las edades':annualSelection.age==='menor_18'?'menores de 18':'18 años y más'}`} renalNational={originalData.history} provinceNames={provinceNames}/>:scene===2&&diagnosisOpen?<CurrentDiagnoses key={`${selection.listId}|${selection.province}|${mapAge}|${mapSex}`} list={selection.listId} province={selection.province} age={mapAge} sex={mapSex} seniority={selection.seniority} onChooseList={()=>changeDimension('organ')} selectedDiagnosisId={selectedDiagnosis?.code} onSelectDiagnosis={setSelectedDiagnosis}/>:scene===2&&dimension==='seniority'?<SeniorityComparison series={sexSeries} onSelect={(id,sex)=>{setMapSex(sex);selectGroup(id);}}/>:<WaitingUniverse entry={sandHandoff} mode={mode} groups={groups} count={count} total={data.total} focus={scene === 2 ? focus : null} hover={scene === 2 ? hover : null} paused={reduced} dark={dark} population={population} label={`${integer(count)} unidades. ${unit}.`} unit={unit} territoryMetric={territoryMetric} territoryContext={territoryReference} relay={pointRelay} onHover={setHover} onSelect={selectGroup} />}
+      <div ref={stage} className="v2-stage" data-scene={scene} data-epilogue={scene===4} data-sand={scene<2} aria-hidden={scene === 0 ? true : undefined}>
+        <div className="v2-figure">{scene===4?<WaitingEpilogue count={originalData.total} snapshot={originalData.snapshot} paused={reduced} focused={epilogueFocus} onFocus={setEpilogueFocus}/>:scene<2?<SandQueue snapshot={data.snapshot} count={data.total} renalCount={renalCount} step={numberStep} registrationList={registrationList} showRegistrationStages={showRegistrationStages} onStepChange={setNumberStep} forming={scene===1} paused={reduced} relay={pointRelay} handoff={sandHandoff}/>:scene===3?null:scene===2&&diagnosisOpen?<CurrentDiagnoses key={`${selection.listId}|${selection.province}|${mapAge}|${mapSex}`} list={selection.listId} province={selection.province} age={mapAge} sex={mapSex} seniority={selection.seniority} onChooseList={()=>changeDimension('organ')} selectedDiagnosisId={selectedDiagnosis?.code} onSelectDiagnosis={setSelectedDiagnosis}/>:scene===2&&dimension==='seniority'?<SeniorityComparison series={sexSeries} onSelect={(id,sex)=>{setMapSex(sex);selectGroup(id);}}/>:<WaitingUniverse entry={sandHandoff} mode={mode} groups={groups} count={count} total={data.total} focus={scene === 2 ? focus : null} hover={scene === 2 ? hover : null} paused={reduced} dark={dark} population={population} label={`${integer(count)} unidades. ${unit}.`} unit={unit} territoryMetric={territoryMetric} territoryContext={territoryReference} relay={pointRelay} onHover={setHover} onSelect={selectGroup} />}
           {scene===2&&!diagnosisOpen&&dimension!=='seniority'&&<p className="v2-chart-invitation">{dimension==='territory'?'Elegí una provincia para explorar sus tiempos.':'Elegí una ilustración para explorar esa lista.'}</p>}
         </div>
       </div>
       <section id="escena-0" data-scene="0" className="v2-scene v2-opening"><div className="v2-opening-content"><p className="v2-kicker">¿Cuánto tarda una segunda oportunidad?</p><h1>LA<br /><span>ESPERA</span></h1><a className="v2-scroll" href="#escena-1">Una exploración visual sobre la lista de espera de órganos y tejidos en Argentina <span>↓</span></a></div></section>
       <section id="escena-1" data-scene="1" className="v2-scene v2-number-scene">
         <div className="v2-copy">
-          <p className="v2-kicker">01 / La cifra y el recorrido hacia el trasplante</p>
+          <p className="v2-kicker">01 / El camino hacia el trasplante</p>
           <div className="v2-scrolly-box" role="region" aria-live="polite">
             <nav className="v2-scrolly-steps" aria-label="Pasos de la escena 1">
               {[
@@ -218,6 +222,7 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
                   Antes de entrar hacen falta evaluaciones médicas, estudios y autorizaciones. En {registrationContext.year}, las {integer(registrationContext.total.n)} inscripciones relevadas promediaron <strong>{decimal(registrationContext.total.months)} meses</strong> desde la indicación hasta el registro en lista. El tiempo cambia según la lista.
                 </p>
                 <label className="v2-registration-select">Ver el tiempo de inscripción <select aria-label="Lista del trámite de inscripción de 2025" value={registrationList} onChange={event=>setRegistrationList(event.target.value)}><option value="TOTAL">Todas las listas · promedio general</option>{registrationContext.rows.map(row=><option key={row.id} value={row.id}>{organLabel(row.id,row.id)}</option>)}</select></label>
+                <button type="button" className="v2-registration-view" aria-pressed={showRegistrationStages} onClick={()=>setShowRegistrationStages(value=>!value)}>{showRegistrationStages?'Ver comparación de tiempos':'Ver etapas del trámite'} ↗</button>
                 <div className="v2-slide-footer">
                   <span className="v2-scroll-hint">Seguí bajando: cómo se asigna cada órgano ↓</span>
                   <button type="button" className="v2-step-next-btn" onClick={() => scrollToNumberStep(2)}>Siguiente paso →</button>
@@ -292,9 +297,18 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
         <h2>¿Cómo cambió la espera?</h2>
         <p className="v2-interaction-hint" id="v2-year-help">¿Se espera lo mismo en todos los lugares? Compará el tiempo medio hasta el trasplante. La curva recorre 2005–2025; tocá un punto para ver su año.</p>
         {scene===3&&<AnnualTimeExplorer year={year} provinceNames={provinceNames} selection={annualSelection} onSelection={selectAnnual} onSeries={setAnnualTimes} showFilters={true} renalNational={data.history} showSummary={false}/>}
-        <NextScene to={4}>Volver a la pregunta inicial</NextScene>
+        <div className="v2-annual-also" role="group" aria-labelledby="v2-annual-also-title">
+          <p className="v2-annual-also-title" id="v2-annual-also-title">Mirá también cómo cambió:</p>
+          <div className="v2-annual-also-options">
+            <button type="button" aria-pressed={annualContext==='donors'} onClick={()=>setAnnualContext(current=>current==='donors'?'none':'donors')}>Donación de órganos</button>
+            <button type="button" aria-pressed={annualContext==='stock'} onClick={()=>setAnnualContext(current=>current==='stock'?'none':'stock')}>Tamaño de la lista de espera cada año</button>
+            <button type="button" aria-pressed={annualContext==='transplants'} onClick={()=>setAnnualContext(current=>current==='transplants'?'none':'transplants')}>Receptores trasplantados</button>
+          </div>
+          {annualContext!=='none'&&<div className="v2-annual-also-unit" role="group" aria-label="Unidad del indicador"><button type="button" aria-pressed={annualContextUnit==='pmh'} onClick={()=>setAnnualContextUnit('pmh')}>Por millón de habitantes</button><button type="button" aria-pressed={annualContextUnit==='absolute'} onClick={()=>setAnnualContextUnit('absolute')}>Valores absolutos</button></div>}
+        </div>
+      </div><div className="v2-inline-annual"><AnnualParallel onYear={setYear} record={record} history={annualComparison} selection={annualSelection} scope={`${annualSelection.province?provinceNames.get(annualSelection.province):'Argentina'} · todas las edades`} renalNational={originalData.history} provinceNames={provinceNames} context={annualContext} contextUnit={annualContextUnit}/></div><div className="v2-annual-outro">        <NextScene to={4}>Volver a la pregunta inicial</NextScene>
         <div className="v2-journey-end"><button type="button" onClick={()=>setMethodOpen(true)}>Sobre los datos ↗</button></div>
-      </div></section>
+</div></section>
       <section id="escena-4" data-scene="4" className="v2-scene v2-epilogue" aria-labelledby="v2-epilogue-title"><div className="v2-copy">
         <p className="v2-kicker">04 / Epílogo · A contrarreloj</p>
         <h2 id="v2-epilogue-title">Una espera a<br/>contrarreloj.</h2>

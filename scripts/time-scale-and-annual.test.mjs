@@ -11,6 +11,19 @@ const source=readFileSync(new URL('../app/v2/annual-time-model.ts',import.meta.u
 const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const {unpackAnnualTimes,annualTimeDetail}=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
 const cells=unpackAnnualTimes(compact);
+test('combined list means are receptor-weighted after day conversion and withhold incomplete cohorts',()=>{
+ const sample=[
+  {year:2025,list:'RENAL',province:'CORDOBA',age:'18_mas',unit:'meses',n:3,average:3,median:null,p25:null,p75:null,status:'observado'},
+  {year:2025,list:'HEPATICA',province:'CORDOBA',age:'18_mas',unit:'días',n:1,average:365.2425/12,median:null,p25:null,p75:null,status:'observado'},
+ ];
+ const selection={list:'TOTAL',province:'CORDOBA',age:'all'};
+ const total=annualTimeDetail(sample,2025,selection);
+ assert.equal(total.n,4);assert.equal(total.average,2.5);assert.equal(total.unit,'meses');assert.equal(total.median,null);
+ const missing=annualTimeDetail([sample[0],{...sample[1],average:null}],2025,selection);
+ assert.equal(missing.average,null);assert.equal(missing.complete,false);
+ const absentCell=annualTimeDetail([sample[0],{...sample[1],year:2024}],2025,selection);
+ assert.equal(absentCell.average,null);assert.equal(absentCell.complete,false);
+});
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-6,`${a} != ${b}`);
 
 test('calendar units are the same duration and accumulation is person-time, never new patients',()=>{

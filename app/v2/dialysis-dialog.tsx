@@ -42,7 +42,7 @@ export default function DialysisDialog({
       }}
     >
       <div className="v2-dialysis-bar">
-        <span>El tiempo en diálisis</span>
+        <span>Foco renal · El tiempo en diálisis</span>
         <button
           type="button"
           className="v2-dialysis-close-btn"
@@ -53,15 +53,16 @@ export default function DialysisDialog({
         </button>
       </div>
       <div className="v2-dialysis-body">
-        <h3 id="v2-dialysis-modal-title">{integer(dialysis.count)} personas en diálisis</h3>
+        <h3 id="v2-dialysis-modal-title">Esperar, antes de esperar.</h3>
+        <p className="v2-dialysis-population"><strong>{integer(dialysis.count)}</strong><span>personas en diálisis al cierre de 2025</span></p>
         <p className="v2-dialysis-lead">
-          Al cierre de 2025, CRESI registraba {integer(dialysis.count)} pacientes en diálisis. Es otra población: no son las personas de la lista renal seleccionada. Este cálculo traduce un escenario anual de tratamiento a horas; no mide cuánto esperó cada paciente.
+          Esta población es distinta de la lista renal seleccionada. El cálculo traduce un escenario anual de tratamiento a horas; no mide cuánto esperó cada paciente.
         </p>
 
         <div className="v2-dialysis-time-card">
           <h4>¿Cuánto tiempo de vida absorbe el tratamiento?</h4>
           <p>
-            En este escenario ilustrativo de hemodiálisis (3 sesiones por semana de 4 horas cada una, durante las 52 semanas del año), una persona pasa 624 horas anuales conectada al equipo, sin contar los traslados ni el tiempo de recuperación física tras cada sesión. Equivalen a 26 días completos del año dedicados exclusivamente a filtrar la sangre.
+            Un escenario ilustrativo de hemodiálisis de 3 sesiones semanales de 4 horas, durante 52 semanas, supone 624 horas al año conectada al equipo: 26 días completos. No incluye traslados ni tiempo de recuperación.
           </p>
           <div className="v2-dialysis-metrics-row">
             <div className="v2-dialysis-metric-box">

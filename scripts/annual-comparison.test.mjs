@@ -14,6 +14,17 @@ const {comparisonHistory}=await import(model);
 const history=JSON.parse(readFileSync(new URL('../app/history.generated.json',import.meta.url),'utf8'));
 const counts=read('annual-list-counts.generated.json'),cells=unpackAnnualTimes(read('annual-time.generated.json'));
 const make=selection=>comparisonHistory(history,selection,history.map(r=>annualTimeDetail(cells,r.year,selection)),counts);
+test('combined annual stocks preserve missing list years and territorial rows instead of adding zeros',()=>{
+ const year=[history.find(row=>row.year===2025)];
+ const selection={list:'TOTAL',province:'CORDOBA',age:'all'};
+ const fixture={lists:{RENAL:[{year:2025,total:10,provinces:{CORDOBA:4}}],CORNEAS:[{year:2025,total:20,provinces:{CORDOBA:6}}]}};
+ assert.equal(comparisonHistory(year,selection,[],fixture)[0].waitlist,10);
+ const missingProvince={lists:{...fixture.lists,CORNEAS:[{year:2025,total:20,provinces:{}}]}};
+ assert.equal(comparisonHistory(year,selection,[],missingProvince)[0].waitlist,null);
+ const missingYear={lists:{...fixture.lists,CORNEAS:[{year:2024,total:20,provinces:{CORDOBA:6}}]}};
+ assert.equal(comparisonHistory(year,selection,[],missingYear)[0].waitlist,null);
+ assert.equal(comparisonHistory(year,selection,[],fixture)[0].timeStatus,'sin_datos');
+});
 
 test('one list selection controls the waiting count and the mean without changing donor scope',()=>{
   const renal=make({list:'RENAL',province:null,age:'all'}),corneas=make({list:'CORNEAS',province:null,age:'all'});

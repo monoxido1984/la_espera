@@ -17,12 +17,13 @@ export default function AnnualTimeExplorer({year,provinceNames,selection,onSelec
   },[series,year,selection,renalNational]);
   useEffect(()=>onSeries(series),[series,onSeries]);
   useEffect(()=>{if(choosing)dialog.current?.showModal();else dialog.current?.close();},[choosing]);
-  const choices=choosing==='list'?source.lists.map(value=>({value,label:annualListLabels[value]})):[{value:'all',label:'Argentina · 24 provincias'},...source.provinces.map(value=>({value,label:provinceNames.get(value)??value}))];
+  const choices=choosing==='list'?[{value:'TOTAL',label:'Listas relevadas · promedio general'},...source.lists.map(value=>({value,label:annualListLabels[value]}))]:[{value:'all',label:'Argentina · 24 provincias'},...source.provinces.map(value=>({value,label:provinceNames.get(value)??value}))];
   function pick(value:string) { if(!choosing)return;onSelection({...selection,age:'all',[choosing]:choosing==='province'&&value==='all'?null:value});setChoosing(null); }
   return <div className="v2-annual-explorer">
     <div className="v2-annual-choices" role="group" aria-label="Cruzar el tiempo anual">
       <button aria-haspopup="dialog" onClick={()=>setChoosing('list')}>{annualListLabels[selection.list]} <span>↗</span></button>
       {showFilters&&<button aria-haspopup="dialog" onClick={()=>setChoosing('province')}>{selection.province?provinceNames.get(selection.province):'Argentina'} <span>↗</span></button>}
+      <button type="button" aria-pressed={selection.list==='TOTAL'} onClick={()=>onSelection({...selection,age:'all',list:selection.list==='TOTAL'?'RENAL':'TOTAL'})}>Promedio de las listas relevadas</button>
     </div>
     {showSummary&&<p className="v2-annual-base" aria-live="polite">{year===2026?'Julio: tiempo disponible sólo para Renal, Argentina, todas las edades.':summary.status==='observado'?'La curva muestra cómo cambió la espera hasta el trasplante.' : summary.status==='sin_observaciones'?'Sin observaciones para esta selección.':'Sin dato de tiempo para esta selección.'}</p>}
     <dialog ref={dialog} className="v2-choice-dialog" aria-labelledby="v2-choice-title" onCancel={()=>setChoosing(null)} onClose={()=>setChoosing(null)}>
