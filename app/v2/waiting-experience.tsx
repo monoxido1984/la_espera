@@ -251,7 +251,7 @@ export default function WaitingExperience({ data: previousData }: { data: Univer
       </section>
       <section id="escena-2" data-scene="2" className="v2-scene v2-explore"><div className="v2-copy">
         <p className="v2-kicker">02 / Explorar la espera</p>
-        <h2>{diagnosisOpen?'Diagnósticos':<>Esperar…<br />{dimension==='organ'?'¿qué?':dimension==='territory'?'¿dónde?':'¿hace cuánto?'}</>}</h2>
+        <h2>{diagnosisOpen?<>Esperar…<br />¿por qué?</>:<>Esperar…<br />{dimension==='organ'?'¿qué?':dimension==='territory'?'¿dónde?':'¿hace cuánto?'}</>}</h2>
         <p className="v2-explore-context">¿Cuánto llevan esperando? Explorá los filtros y descubrí hace cuánto que están esperando las 9.641 personas.</p>
         <nav className="v2-tabs" role="tablist" aria-label="Dimensiones de la espera">
           <button type="button" aria-pressed={!diagnosisOpen&&dimension === 'organ'} onClick={() => changeDimension('organ')}>Lista</button>
